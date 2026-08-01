@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "37553611244",
+    "project_id": "parrilladalos2carnales",
+    "storage_bucket": "parrilladalos2carnales.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:37553611244:android:ebba137c4ecad8150f60c9",
+        "android_client_info": {
+          "package_name": "com.edu.ucne.parrilladalos2carnales"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlR73Y9t20-lP9M-8y9SXSWOL-_vLhAv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
