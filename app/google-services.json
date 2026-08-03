@@ -12,7 +12,20 @@
           "package_name": "com.edu.ucne.parrilladalos2carnales"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "37553611244-8qjnnol5cad6odbj2rj4vmgs25nmomvg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edu.ucne.parrilladalos2carnales",
+            "certificate_hash": "f08e500b54c7c06d33a90f2442bb4bd897dd012c"
+          }
+        },
+        {
+          "client_id": "37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDlR73Y9t20-lP9M-8y9SXSWOL-_vLhAv8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

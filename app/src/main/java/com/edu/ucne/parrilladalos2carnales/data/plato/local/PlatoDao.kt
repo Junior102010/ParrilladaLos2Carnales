@@ -14,9 +14,9 @@ interface PlatoDao {
     @Delete
     suspend fun delete(plato: PlatoEntity)
 
-    @Query("SELECT * FROM Platos WHERE idPlato = :idPlato LIMIT 1")
+    @Query("SELECT * FROM Platos WHERE idPlato = :idPlato")
     fun getPlato(idPlato: Int): Flow<PlatoEntity?>
 
     @Query("SELECT * FROM Platos")
-    fun getAll(): Flow<List<PlatoEntity>>
+    fun getPlatos(): Flow<List<PlatoEntity>>
 }
