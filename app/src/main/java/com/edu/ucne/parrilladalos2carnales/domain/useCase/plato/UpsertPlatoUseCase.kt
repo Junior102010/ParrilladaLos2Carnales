@@ -7,7 +7,17 @@ import javax.inject.Inject
 class UpsertPlatoUseCase @Inject constructor(
     private val platoRepository: PlatoRepository
 ) {
-    suspend operator fun invoke(plato: Plato) {
-        platoRepository.upsertPlato(plato)
+    suspend operator fun invoke(plato: Plato): Result<Unit> {
+        val nombreResult = validateNombrePlato(plato.nombre)
+        val precioResult = validatePrecioPlato(plato.precio)
+
+        if (!nombreResult.isValid) {
+            return Result.failure(IllegalArgumentException(nombreResult.errorMessage))
+        }
+        if (!precioResult.isValid) {
+            return Result.failure(IllegalArgumentException(precioResult.errorMessage))
+        }
+
+        return runCatching { platoRepository.upsertPlato(plato) }
     }
 }

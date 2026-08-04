@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.Registro.RegistroUsuario
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -72,10 +73,15 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    fun registrarse(onSuccess: () -> Unit) {
+    fun registrarse(onSuccess: (Rol) -> Unit) {
         if (calle.isBlank() || numero.isBlank() || ciudad.isBlank() || codigoPostal.isBlank()) {
             mensajeError = "Por favor, llena los datos de dirección"
             return
+        }
+        val rolAsignado = if (correo.lowercase() == "admin@parrillada.com") {
+            Rol.ADMINISTRADOR
+        } else {
+            Rol.CLIENTE
         }
 
         viewModelScope.launch {
@@ -98,7 +104,7 @@ class RegisterViewModel @Inject constructor(
             val resultado = authRepository.registro(usuario)
 
             if (resultado.isSuccess) {
-                onSuccess()
+                onSuccess(rolAsignado)
             } else {
                 mensajeError = "Error al registrar. Inténtalo de nuevo."
             }

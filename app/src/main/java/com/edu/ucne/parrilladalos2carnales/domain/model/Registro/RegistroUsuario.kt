@@ -1,5 +1,7 @@
 package com.edu.ucne.parrilladalos2carnales.domain.model.Registro
 
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+
 data class RegistroUsuario(
     val nombreUsuario: String = "",
     val correo: String = "",
@@ -10,5 +12,6 @@ data class RegistroUsuario(
     val calle: String = "",
     val numero: String = "",
     val ciudad: String = "",
-    val codigoPostal: String = ""
+    val codigoPostal: String = "",
+    val rol: Rol = Rol.CLIENTE
 )

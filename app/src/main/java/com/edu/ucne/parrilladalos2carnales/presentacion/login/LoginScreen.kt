@@ -1,7 +1,6 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.login
 
 import com.edu.ucne.parrilladalos2carnales.R
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,20 +21,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: (Rol) -> Unit
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,8 +54,6 @@ fun LoginScreen(
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-
             Image(
                 painter = painterResource(id = R.drawable.parrillada_sin_fondo),
                 contentDescription = "Logo Los Dos Carnales",
@@ -61,7 +61,6 @@ fun LoginScreen(
                     .size(180.dp)
                     .padding(bottom = 32.dp)
             )
-
 
             OutlinedTextField(
                 value = viewModel.username,
@@ -83,7 +82,6 @@ fun LoginScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
 
             OutlinedTextField(
                 value = viewModel.password,
@@ -115,7 +113,6 @@ fun LoginScreen(
                 singleLine = true
             )
 
-
             viewModel.errorMessage?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
@@ -123,9 +120,11 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-
             Button(
-                onClick = { viewModel.onLoginClick(onSuccess = onLoginSuccess) },
+                onClick = {
+                    val rolDetectado = if (viewModel.username.lowercase() == "admin@parrillada.com") Rol.ADMINISTRADOR else Rol.CLIENTE
+                    viewModel.onLoginClick { onLoginSuccess(rolDetectado) }
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(50.dp),
@@ -146,11 +145,37 @@ fun LoginScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    viewModel.loginConGoogle(context) {
+                        onLoginSuccess(Rol.CLIENTE)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(50.dp),
+                enabled = !viewModel.isLoading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                ),
+                shape = RoundedCornerShape(25.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_de_google),
+                    contentDescription = "Logo de Google",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(text = "Con Google", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
-
             Text(
-                text = "No Tienes una Cuenta? Registrate!",
+                text = "¿No tienes una cuenta? ¡Regístrate!",
                 color = MaterialTheme.colorScheme.tertiary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,

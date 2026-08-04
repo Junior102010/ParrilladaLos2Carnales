@@ -1,5 +1,6 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.login
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -50,4 +51,15 @@ class LoginViewModel @Inject constructor(
             isLoading = false
         }
     }
+    fun loginConGoogle(context: Context, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            val result = authRepository.signInWithGoogle(context)
+            if (result.isSuccess) {
+                onSuccess()
+            } else {
+
+            }
+        }
+    }
+
 }

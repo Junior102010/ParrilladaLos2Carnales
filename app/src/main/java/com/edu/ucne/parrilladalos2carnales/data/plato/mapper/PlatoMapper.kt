@@ -1,5 +1,3 @@
-package com.edu.ucne.parrilladalos2carnales.data.plato.mapper
-
 import com.edu.ucne.parrilladalos2carnales.data.plato.local.PlatoEntity
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 

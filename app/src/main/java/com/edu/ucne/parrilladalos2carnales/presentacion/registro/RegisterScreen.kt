@@ -26,12 +26,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
     onBack: () -> Unit,
-    onRegisterSuccess: () -> Unit
+    onRegisterSuccess: (Rol) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -76,7 +77,9 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Box(modifier = Modifier.weight(1f).height(6.dp).background(if (viewModel.pasoActual >= 1) MaterialTheme.colorScheme.primary.copy(alpha = 0.75f) else Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(3.dp)))
@@ -299,7 +302,8 @@ fun RegisterScreen(
                     if (viewModel.pasoActual < 3) {
                         viewModel.siguientePaso()
                     } else {
-                        viewModel.registrarse(onSuccess = onRegisterSuccess)
+                        viewModel.registrarse { rol -> onRegisterSuccess(rol)
+                        }
                     }
                 },
                 modifier = Modifier
