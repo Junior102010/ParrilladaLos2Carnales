@@ -92,6 +92,9 @@ dependencies {
     implementation(libs.googleid)
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
+    //Imagenes de Forma local
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     // Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 

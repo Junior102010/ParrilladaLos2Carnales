@@ -28,12 +28,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: (Rol) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -120,7 +121,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { viewModel.onLoginClick(onSuccess = onLoginSuccess) },
+                onClick = {
+                    val rolDetectado = if (viewModel.username.lowercase() == "admin@parrillada.com") Rol.ADMINISTRADOR else Rol.CLIENTE
+                    viewModel.onLoginClick { onLoginSuccess(rolDetectado) }
+                },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(50.dp),
@@ -146,7 +150,7 @@ fun LoginScreen(
             Button(
                 onClick = {
                     viewModel.loginConGoogle(context) {
-                        onLoginSuccess()
+                        onLoginSuccess(Rol.CLIENTE)
                     }
                 },
                 modifier = Modifier

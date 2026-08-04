@@ -8,17 +8,16 @@ class UpsertPlatoUseCase @Inject constructor(
     private val platoRepository: PlatoRepository
 ) {
     suspend operator fun invoke(plato: Plato): Result<Unit> {
-        if (plato.nombre.isBlank()) {
-            return Result.failure(IllegalArgumentException("El nombre del plato no puede estar vacío"))
+        val nombreResult = validateNombrePlato(plato.nombre)
+        val precioResult = validatePrecioPlato(plato.precio)
+
+        if (!nombreResult.isValid) {
+            return Result.failure(IllegalArgumentException(nombreResult.errorMessage))
         }
-        if (plato.precio <= 0.0) {
-            return Result.failure(IllegalArgumentException("El precio debe ser mayor a cero"))
+        if (!precioResult.isValid) {
+            return Result.failure(IllegalArgumentException(precioResult.errorMessage))
         }
-        try {
-            platoRepository.upsertPlato(plato)
-            return Result.success(Unit)
-        } catch (e: Exception) {
-            return Result.failure(e)
-        }
+
+        return runCatching { platoRepository.upsertPlato(plato) }
     }
 }

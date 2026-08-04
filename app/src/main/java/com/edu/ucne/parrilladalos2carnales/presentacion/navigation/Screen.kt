@@ -13,4 +13,15 @@ sealed class Screen : NavKey {
 
     @Serializable
     data object Menu : Screen()
+
+    @Serializable
+    data object Inicio : Screen()
+
+    @Serializable
+    data object Carrito : Screen()
+
+    @Serializable
+    data object Perfil : Screen()
+    @Serializable data object AdminPlatoList : Screen()
+    @Serializable data class AdminPlatoEntry(val idPlato: Int = 0) : Screen()
 }
