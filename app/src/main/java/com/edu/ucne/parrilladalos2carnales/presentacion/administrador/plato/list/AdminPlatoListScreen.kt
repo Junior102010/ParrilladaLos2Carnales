@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,7 +28,8 @@ import java.io.File
 fun AdminPlatoListScreen(
     viewModel: AdminPlatoListViewModel,
     onNavigateToCreate: () -> Unit,
-    onNavigateToEdit: (Int) -> Unit
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigate: (Screen) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -54,6 +58,13 @@ fun AdminPlatoListScreen(
 
                 )
             }
+        },
+        bottomBar = {
+            ParrilladaBottomBar(
+                currentScreen = Screen.AdminPlatoList,
+                rolUsuario = Rol.ADMINISTRADOR,
+                onNavigate = onNavigate
+            )
         },
         floatingActionButton = {
             FloatingActionButton(

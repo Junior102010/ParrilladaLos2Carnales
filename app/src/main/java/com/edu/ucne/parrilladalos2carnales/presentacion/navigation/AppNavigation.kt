@@ -9,6 +9,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminDashboard.AdminDashboardScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminDashboard.AdminDashboardViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminComponenteScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminComponenteViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.list.AdminComponenteListScreen
@@ -52,7 +54,7 @@ fun ParrilladaNavDisplay(
                     onNavigateToRegister = { backStack.add(Screen.Register) },
                     onLoginSuccess = { rol: Rol ->
                         if (rol == Rol.ADMINISTRADOR) {
-                            backStack.add(Screen.AdminPlatoList)
+                            backStack.add(Screen.AdminDashboard)
                         } else {
                             backStack.add(Screen.Inicio)
                         }
@@ -67,7 +69,7 @@ fun ParrilladaNavDisplay(
                     onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
                     onRegisterSuccess = { rol: Rol ->
                         if (rol == Rol.ADMINISTRADOR) {
-                            backStack.add(Screen.AdminPlatoList)
+                            backStack.add(Screen.AdminDashboard)
                         } else {
                             backStack.add(Screen.Inicio)
                         }
@@ -113,7 +115,8 @@ fun ParrilladaNavDisplay(
                 AdminPlatoListScreen(
                     viewModel = adminListViewModel,
                     onNavigateToCreate = { backStack.add(Screen.AdminPlatoEntry(idPlato = 0)) },
-                    onNavigateToEdit = { id -> backStack.add(Screen.AdminPlatoEntry(idPlato = id)) }
+                    onNavigateToEdit = { id -> backStack.add(Screen.AdminPlatoEntry(idPlato = id)) },
+                    onNavigate = handleNavigation
                 )
             }
 
@@ -160,6 +163,15 @@ fun ParrilladaNavDisplay(
                     onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
                 )
             }
+
+            entry<Screen.AdminDashboard> {
+                val viewModel: AdminDashboardViewModel = hiltViewModel()
+                AdminDashboardScreen(
+                    viewModel = viewModel,
+                    onNavigate = handleNavigation
+                )
+            }
+
         }
     )
 }
