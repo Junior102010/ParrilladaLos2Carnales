@@ -98,6 +98,9 @@ dependencies {
     // Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
+    //Robolectric
+    testImplementation("org.robolectric:robolectric:4.13")
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
