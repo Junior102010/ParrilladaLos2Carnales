@@ -43,5 +43,9 @@ sealed class Screen : NavKey {
     data object AdminComponenteList : Screen()
 
     @Serializable
+    data object AdminDashboard : Screen()
+
+
+    @Serializable
     data class AdminComponenteEntry(val idComponente: Int = 0) : Screen()
 }
