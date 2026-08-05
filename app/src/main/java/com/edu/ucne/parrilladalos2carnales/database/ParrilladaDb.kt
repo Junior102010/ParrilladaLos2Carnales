@@ -10,6 +10,9 @@ import com.edu.ucne.parrilladalos2carnales.data.ingrediente.guarnicion.local.Gua
 import com.edu.ucne.parrilladalos2carnales.data.ingrediente.guarnicion.local.GuarnicionEntity
 import com.edu.ucne.parrilladalos2carnales.data.oferta.local.OfertaDao
 import com.edu.ucne.parrilladalos2carnales.data.oferta.local.OfertaEntity
+import com.edu.ucne.parrilladalos2carnales.data.pedido.local.DetallePedidoEntity
+import com.edu.ucne.parrilladalos2carnales.data.pedido.local.PedidoDao
+import com.edu.ucne.parrilladalos2carnales.data.pedido.local.PedidoEntity
 import com.edu.ucne.parrilladalos2carnales.data.plato.local.PlatoDao
 import com.edu.ucne.parrilladalos2carnales.data.plato.local.PlatoEntity
 
@@ -19,7 +22,9 @@ import com.edu.ucne.parrilladalos2carnales.data.plato.local.PlatoEntity
         CategoriaEntity::class,
         OfertaEntity::class,
         ComponenteEntity::class,
-        GuarnicionEntity::class
+        GuarnicionEntity::class,
+        PedidoEntity::class,
+        DetallePedidoEntity::class
     ],
     version = 3,
     exportSchema = false
@@ -31,4 +36,5 @@ abstract class ParrilladaDb : RoomDatabase() {
 
     abstract fun componenteDao(): ComponenteDao
     abstract fun guarnicionDao(): GuarnicionDao
+    abstract fun pedidoDao(): PedidoDao
 }

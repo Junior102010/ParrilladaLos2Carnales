@@ -45,4 +45,8 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideOfertaDao(parrilladaDb: ParrilladaDb) = parrilladaDb.ofertaDao()
+
+    @Provides
+    @Singleton
+    fun providePedidoDao(parrilladaDb: ParrilladaDb) = parrilladaDb.pedidoDao()
 }
