@@ -77,8 +77,6 @@ fun AdminPlatoEntryScreen(
                         titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    modifier = Modifier.height(48.dp)
                 )
             }
         },

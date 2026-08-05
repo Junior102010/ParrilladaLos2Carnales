@@ -2,7 +2,7 @@ package com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.component
 
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.ComponenteRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 class ObserveComponenteUseCase @Inject constructor(

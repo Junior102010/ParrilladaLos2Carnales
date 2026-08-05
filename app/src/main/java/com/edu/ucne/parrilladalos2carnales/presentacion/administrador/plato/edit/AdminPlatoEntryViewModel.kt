@@ -2,9 +2,11 @@ package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.edi
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatoUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.UpsertPlatoUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.validateNombrePlato
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.validatePrecioPlato
@@ -24,12 +26,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminPlatoEntryViewModel @Inject constructor(
+    private val getPlatoUseCase: GetPlatoUseCase,
     private val upsertPlatoUseCase: UpsertPlatoUseCase,
+    private val savedStateHandle: SavedStateHandle,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminPlatoEntryUiState())
     val uiState: StateFlow<AdminPlatoEntryUiState> = _uiState.asStateFlow()
+
+    init {
+        val platoId = savedStateHandle.get<Int>("idPlato") ?: savedStateHandle.get<Int>("platoId") ?: 0
+        if (platoId != 0) {
+            cargarPlatoParaEdicion(platoId)
+        }
+    }
 
     fun onEvent(event: AdminPlatoEntryUiEvent) {
         when (event) {
@@ -46,6 +57,28 @@ class AdminPlatoEntryViewModel @Inject constructor(
                 copiarYGuardarImagen(event.uriString)
             }
             is AdminPlatoEntryUiEvent.OnSave -> savePlato()
+        }
+    }
+
+    private fun cargarPlatoParaEdicion(idPlato: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            getPlatoUseCase(idPlato).collect { plato ->
+                if (plato != null) {
+                    _uiState.update {
+                        it.copy(
+                            idPlato = plato.idPlato,
+                            nombre = plato.nombre,
+                            descripcion = plato.descripcion,
+                            precio = plato.precio.toString(),
+                            imagenUrl = plato.imagenUrl,
+                            isLoading = false
+                        )
+                    }
+                } else {
+                    _uiState.update { it.copy(isLoading = false) }
+                }
+            }
         }
     }
 
@@ -101,7 +134,8 @@ class AdminPlatoEntryViewModel @Inject constructor(
                 descripcion = state.descripcion,
                 precio = precioDouble,
                 idCategoria = 1,
-                imagenUrl = state.imagenUrl
+                imagenUrl = state.imagenUrl,
+                disponible = true
             )
             val result = upsertPlatoUseCase(plato)
             result.onSuccess {

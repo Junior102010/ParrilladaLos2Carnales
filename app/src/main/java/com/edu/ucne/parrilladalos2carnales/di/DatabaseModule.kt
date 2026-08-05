@@ -21,10 +21,28 @@ object DatabaseModule {
             context,
             ParrilladaDb::class.java,
             "ParrilladaDb.db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
     @Singleton
     fun providePlatoDao(parrilladaDb: ParrilladaDb) = parrilladaDb.platoDao()
+
+    @Provides
+    @Singleton
+    fun provideGuarnicionDao(parrilladaDb: ParrilladaDb) = parrilladaDb.guarnicionDao()
+
+    @Provides
+    @Singleton
+    fun provideComponenteDao(parrilladaDb: ParrilladaDb) = parrilladaDb.componenteDao()
+
+    @Provides
+    @Singleton
+    fun provideCategoriaDao(parrilladaDb: ParrilladaDb) = parrilladaDb.categoriaDao()
+
+    @Provides
+    @Singleton
+    fun provideOfertaDao(parrilladaDb: ParrilladaDb) = parrilladaDb.ofertaDao()
 }

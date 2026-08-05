@@ -1,14 +1,22 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminComponenteScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminComponenteViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.list.AdminComponenteListScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.list.AdminComponenteListViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion.AdminGuarnicionScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion.AdminGuarnicionViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion.list.AdminGuarnicionListScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion.list.AdminGuarnicionListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.edit.AdminPlatoEntryScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.edit.AdminPlatoEntryViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.list.AdminPlatoListScreen
@@ -17,11 +25,12 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginViewModel
-import com.edu.ucne.parrilladalos2carnales.presentacion.menu.MenuScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.menu.list.MenuScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
-import com.edu.ucne.parrilladalos2carnales.presentacion.register.RegisterScreen
-import com.edu.ucne.parrilladalos2carnales.presentacion.register.RegisterViewModel
-import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterViewModel
 
 @Composable
 fun ParrilladaNavDisplay(
@@ -31,7 +40,6 @@ fun ParrilladaNavDisplay(
     val handleNavigation: (Screen) -> Unit = { screen ->
         backStack.add(screen)
     }
-
 
     NavDisplay(
         backStack = backStack,
@@ -80,7 +88,23 @@ fun ParrilladaNavDisplay(
                 MenuScreen(
                     viewModel = platoListViewModel,
                     onNavigate = handleNavigation,
-                    onPlatoClick = { }
+                    onPlatoClick = { idPlato ->
+                        backStack.add(Screen.PlatoDetail(idPlato = idPlato))
+                    }
+                )
+            }
+
+            entry<Screen.PlatoDetail> { platoDetail ->
+                val platoDetailViewModel: PlatoDetalleViewModel = hiltViewModel()
+                
+                // Aseguramos que el ViewModel tenga el ID, incluso si SavedStateHandle falla
+                LaunchedEffect(platoDetail.idPlato) {
+                    platoDetailViewModel.setId(platoDetail.idPlato)
+                }
+
+                PlatoDetalleScreen(
+                    viewModel = platoDetailViewModel,
+                    onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
                 )
             }
 
@@ -98,6 +122,42 @@ fun ParrilladaNavDisplay(
                 AdminPlatoEntryScreen(
                     viewModel = adminEntryViewModel,
                     onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                )
+            }
+
+            entry<Screen.AdminGuarnicionList> {
+                val viewModel: AdminGuarnicionListViewModel = hiltViewModel()
+                AdminGuarnicionListScreen(
+                    viewModel = viewModel,
+                    onNavigateToAdd = { backStack.add(Screen.AdminGuarnicionEntry(idGuarnicion = 0)) },
+                    onNavigateToEdit = { id -> backStack.add(Screen.AdminGuarnicionEntry(idGuarnicion = id)) },
+                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                )
+            }
+
+            entry<Screen.AdminGuarnicionEntry> {
+                val viewModel: AdminGuarnicionViewModel = hiltViewModel()
+                AdminGuarnicionScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                )
+            }
+
+            entry<Screen.AdminComponenteList> {
+                val viewModel: AdminComponenteListViewModel = hiltViewModel()
+                AdminComponenteListScreen(
+                    viewModel = viewModel,
+                    onNavigateToAdd = { backStack.add(Screen.AdminComponenteEntry(idComponente = 0)) },
+                    onNavigateToEdit = { id -> backStack.add(Screen.AdminComponenteEntry(idComponente = id)) },
+                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                )
+            }
+
+            entry<Screen.AdminComponenteEntry> {
+                val viewModel: AdminComponenteViewModel = hiltViewModel()
+                AdminComponenteScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
                 )
             }
         }

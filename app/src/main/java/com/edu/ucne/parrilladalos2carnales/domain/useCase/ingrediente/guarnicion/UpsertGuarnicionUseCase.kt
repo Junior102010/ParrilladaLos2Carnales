@@ -2,7 +2,9 @@ package com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.guarnicio
 
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.GuarnicionRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
+
+
 
 class UpsertGuarnicionUseCase @Inject constructor(
     private val repository: GuarnicionRepository

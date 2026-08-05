@@ -1,4 +1,4 @@
-package com.edu.ucne.parrilladalos2carnales.presentacion.menu
+package com.edu.ucne.parrilladalos2carnales.presentacion.menu.list
 
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol

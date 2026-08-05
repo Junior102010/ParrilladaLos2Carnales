@@ -40,7 +40,7 @@ fun AdminPlatoListScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Inventario de Platos", // 🔥 Nombre más limpio y profesional
+                            text = "Inventario de Platos",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -51,8 +51,7 @@ fun AdminPlatoListScreen(
                         containerColor = Color.Transparent,
                         titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    modifier = Modifier.height(48.dp)
+
                 )
             }
         },
@@ -68,29 +67,57 @@ fun AdminPlatoListScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            OutlinedTextField(
+                value = uiState.searchQuery,
+                onValueChange = { viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged(it)) },
+                placeholder = { Text("Buscar plato...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar") },
+                trailingIcon = {
+                    if (uiState.searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged("")) }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Limpiar")
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(20.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                items(uiState.platos) { plato ->
-                    AdminPlatoCard(
-                        plato = plato,
-                        onEdit = { onNavigateToEdit(plato.idPlato) },
-                        onDelete = { viewModel.onEvent(AdminPlatoListUiEvent.OnDeletePlato(plato)) }
-                    )
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(uiState.platosFiltrados) { plato ->
+                        AdminPlatoCard(
+                            plato = plato,
+                            onEdit = { onNavigateToEdit(plato.idPlato) },
+                            onToggleDisponible = { disponible ->
+                                viewModel.onEvent(AdminPlatoListUiEvent.OnToggleDisponible(plato, disponible))
+                            },
+                            onDelete = { viewModel.onEvent(AdminPlatoListUiEvent.OnDeletePlato(plato)) }
+                        )
+                    }
                 }
             }
         }
@@ -101,6 +128,7 @@ fun AdminPlatoListScreen(
 private fun AdminPlatoCard(
     plato: Plato,
     onEdit: () -> Unit,
+    onToggleDisponible: (Boolean) -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -111,22 +139,16 @@ private fun AdminPlatoCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             val imageModel = remember(plato.imagenUrl) {
-                if (plato.imagenUrl.isNotBlank() && plato.imagenUrl.startsWith("/")) {
-                    File(plato.imagenUrl)
-                } else if (plato.imagenUrl.isNotBlank()) {
-                    plato.imagenUrl
-                } else {
-                    null
-                }
+                if (plato.imagenUrl.startsWith("/")) File(plato.imagenUrl) else plato.imagenUrl.ifBlank { null }
             }
 
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
@@ -139,11 +161,11 @@ private fun AdminPlatoCard(
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
-                    Text(text = "🥩", style = MaterialTheme.typography.headlineMedium)
+                    Text(text = "🥩", style = MaterialTheme.typography.titleLarge)
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -160,6 +182,15 @@ private fun AdminPlatoCard(
                     fontWeight = FontWeight.SemiBold
                 )
             }
+
+            Switch(
+                checked = plato.disponible,
+                onCheckedChange = onToggleDisponible,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
 
             IconButton(onClick = onEdit) {
                 Icon(

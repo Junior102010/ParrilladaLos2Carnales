@@ -1,10 +1,10 @@
-package com.edu.ucne.parrilladalos2carnales.presentacion.register
+package com.edu.ucne.parrilladalos2carnales.presentacion.registro
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -60,8 +60,8 @@ fun RegisterScreen(
                     }
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = null,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver",
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }

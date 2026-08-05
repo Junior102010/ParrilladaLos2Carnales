@@ -22,6 +22,7 @@ fun Guarnicion.toEntity(): GuarnicionEntity {
         descripcionGuarnicion = this.descripcionGuarnicion,
         precioGuarnicion = this.precioGuarnicion,
         categoria = this.categoria,
+        cantidad = this.cantidadGuarnicion,
         disponible = this.disponible
     )
 }

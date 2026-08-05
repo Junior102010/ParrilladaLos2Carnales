@@ -3,8 +3,16 @@ package com.edu.ucne.parrilladalos2carnales.di
 import android.content.Context
 import androidx.credentials.CredentialManager
 import com.edu.ucne.parrilladalos2carnales.data.repository.AuthRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.data.repository.categoria.CategoriaRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.data.repository.ingrediente.ComponenteRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.data.repository.ingrediente.GuarnicionRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.data.repository.oferta.OfertaRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.plato.PlatoRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.domain.repository.categoria.CategoriaRepository
+import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.ComponenteRepository
+import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.GuarnicionRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.edu.ucne.parrilladalos2carnales.domain.repository.oferta.OfertaRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.plato.PlatoRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Binds
@@ -30,6 +38,30 @@ abstract class RepositoryModule {
     abstract fun bindPlatoRepository(
         platoRepositoryImpl: PlatoRepositoryImpl
     ): PlatoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGuarnicionRepository(
+        guarnicionRepositoryImpl: GuarnicionRepositoryImpl
+    ): GuarnicionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindComponenteRepository(
+        componenteRepositoryImpl: ComponenteRepositoryImpl
+    ): ComponenteRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCategoriaRepository(
+        categoriaRepositoryImpl: CategoriaRepositoryImpl
+    ): CategoriaRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindOfertaRepository(
+        ofertaRepositoryImpl: OfertaRepositoryImpl
+    ): OfertaRepository
 
     companion object {
         @Provides
