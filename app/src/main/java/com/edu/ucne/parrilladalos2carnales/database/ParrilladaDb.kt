@@ -26,7 +26,7 @@ import com.edu.ucne.parrilladalos2carnales.data.plato.local.PlatoEntity
         PedidoEntity::class,
         DetallePedidoEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class ParrilladaDb : RoomDatabase() {
@@ -36,5 +36,6 @@ abstract class ParrilladaDb : RoomDatabase() {
 
     abstract fun componenteDao(): ComponenteDao
     abstract fun guarnicionDao(): GuarnicionDao
+
     abstract fun pedidoDao(): PedidoDao
 }
