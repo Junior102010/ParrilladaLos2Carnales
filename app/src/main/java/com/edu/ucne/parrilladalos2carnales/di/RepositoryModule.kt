@@ -7,12 +7,14 @@ import com.edu.ucne.parrilladalos2carnales.data.repository.categoria.CategoriaRe
 import com.edu.ucne.parrilladalos2carnales.data.repository.ingrediente.ComponenteRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.ingrediente.GuarnicionRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.oferta.OfertaRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.data.repository.pedido.PedidoRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.plato.PlatoRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.domain.repository.categoria.CategoriaRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.ComponenteRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.GuarnicionRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.oferta.OfertaRepository
+import com.edu.ucne.parrilladalos2carnales.domain.repository.pedido.PedidoRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.plato.PlatoRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Binds
@@ -62,6 +64,12 @@ abstract class RepositoryModule {
     abstract fun bindOfertaRepository(
         ofertaRepositoryImpl: OfertaRepositoryImpl
     ): OfertaRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPedidoRepository(
+        pedidoRepositoryImpl: PedidoRepositoryImpl
+    ): PedidoRepository
 
     companion object {
         @Provides

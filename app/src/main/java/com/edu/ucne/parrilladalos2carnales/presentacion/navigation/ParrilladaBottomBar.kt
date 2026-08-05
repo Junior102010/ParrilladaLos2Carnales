@@ -1,8 +1,13 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.navigation
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GridView
@@ -14,18 +19,15 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
-
-private val WarmOrangePrimary = Color(0xFFF26522)
-private val SubtextColor = Color(0xFF756F6A)
 
 @Composable
 fun ParrilladaBottomBar(
@@ -33,117 +35,117 @@ fun ParrilladaBottomBar(
     rolUsuario: Rol,
     onNavigate: (Screen) -> Unit
 ) {
-    Surface(
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.navigationBars) // 👈 Evita solapamiento con botones Android
+            .navigationBarsPadding()
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
+        Surface(
+            shape = RoundedCornerShape(50.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 6.dp,
+            shadowElevation = 8.dp,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+            ),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            if (rolUsuario == Rol.ADMINISTRADOR) {
-                AdminTabItem(
-                    title = "Dashboard",
-                    icon = Icons.Default.GridView,
-                    isSelected = currentScreen is Screen.AdminDashboard,
-                    onClick = { onNavigate(Screen.AdminDashboard) }
-                )
-                AdminTabItem(
-                    title = "Pedidos",
-                    icon = Icons.Outlined.Restaurant,
-                    isSelected = false,
-                    onClick = { }
-                )
-                AdminTabItem(
-                    title = "Menú",
-                    icon = Icons.Outlined.MenuBook,
-                    isSelected = currentScreen is Screen.AdminPlatoList || currentScreen is Screen.AdminPlatoEntry,
-                    onClick = { onNavigate(Screen.AdminPlatoList) }
-                )
-                AdminTabItem(
-                    title = "Perfil",
-                    icon = Icons.Outlined.Person,
-                    isSelected = false,
-                    onClick = { }
-                )
-            } else {
-                BottomNavItem(
-                    icon = Icons.Default.Home,
-                    isSelected = currentScreen is Screen.Inicio,
-                    onClick = { onNavigate(Screen.Inicio) }
-                )
-                BottomNavItem(
-                    icon = Icons.Default.RestaurantMenu,
-                    isSelected = currentScreen is Screen.Menu,
-                    onClick = { onNavigate(Screen.Menu) }
-                )
-                BottomNavItem(
-                    icon = Icons.Default.Person,
-                    isSelected = false,
-                    onClick = { }
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (rolUsuario == Rol.ADMINISTRADOR) {
+                    FloatingBottomNavItem(
+                        icon = Icons.Default.GridView,
+                        contentDescription = "Dashboard",
+                        isSelected = currentScreen is Screen.AdminDashboard,
+                        onClick = { onNavigate(Screen.AdminDashboard) }
+                    )
+                    FloatingBottomNavItem(
+                        icon = Icons.Outlined.Restaurant,
+                        contentDescription = "Pedidos",
+                        isSelected = currentScreen is Screen.AdminPedidos,
+                        onClick = { onNavigate(Screen.AdminPedidos) }
+                    )
+                    FloatingBottomNavItem(
+                        icon = Icons.Outlined.MenuBook,
+                        contentDescription = "Menú",
+                        isSelected = currentScreen is Screen.AdminPlatoList || currentScreen is Screen.AdminPlatoEntry,
+                        onClick = { onNavigate(Screen.AdminPlatoList) }
+                    )
+                    FloatingBottomNavItem(
+                        icon = Icons.Outlined.Person,
+                        contentDescription = "Perfil",
+                        isSelected = false,
+                        onClick = { }
+                    )
+                } else {
+                    FloatingBottomNavItem(
+                        icon = Icons.Default.Home,
+                        contentDescription = "Inicio",
+                        isSelected = currentScreen is Screen.Inicio,
+                        onClick = { onNavigate(Screen.Inicio) }
+                    )
+                    FloatingBottomNavItem(
+                        icon = Icons.Default.RestaurantMenu,
+                        contentDescription = "Menú",
+                        isSelected = currentScreen is Screen.Menu,
+                        onClick = { onNavigate(Screen.Menu) }
+                    )
+                    FloatingBottomNavItem(
+                        icon = Icons.Default.Person,
+                        contentDescription = "Perfil",
+                        isSelected = false,
+                        onClick = { }
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun AdminTabItem(
-    title: String,
+private fun FloatingBottomNavItem(
     icon: ImageVector,
+    contentDescription: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(2.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(20.dp))
-                .background(if (isSelected) WarmOrangePrimary else Color.Transparent)
-                .padding(horizontal = 20.dp, vertical = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = if (isSelected) Color.White else SubtextColor,
-                modifier = Modifier.size(22.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = title,
-            fontSize = 11.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = if (isSelected) WarmOrangePrimary else SubtextColor
-        )
-    }
-}
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+        animationSpec = tween(durationMillis = 250),
+        label = "TabBackgroundColor"
+    )
 
-@Composable
-private fun BottomNavItem(
-    icon: ImageVector,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    IconButton(onClick = onClick) {
+    val iconColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+        animationSpec = tween(durationMillis = 250),
+        label = "TabIconColor"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
-            tint = if (isSelected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-            modifier = Modifier.size(26.dp)
+            contentDescription = contentDescription,
+            tint = iconColor,
+            modifier = Modifier.size(24.dp)
         )
     }
 }

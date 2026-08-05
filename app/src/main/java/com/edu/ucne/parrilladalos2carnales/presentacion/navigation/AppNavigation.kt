@@ -11,6 +11,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminDashboard.AdminDashboardScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminDashboard.AdminDashboardViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminPedido.AdminPedidosScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminPedido.AdminPedidosViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminComponenteScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminComponenteViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.list.AdminComponenteListScreen
@@ -172,6 +174,13 @@ fun ParrilladaNavDisplay(
                 )
             }
 
+            entry<Screen.AdminPedidos> {
+                val viewModel: AdminPedidosViewModel = hiltViewModel()
+                AdminPedidosScreen(
+                    viewModel = viewModel,
+                    onNavigate = handleNavigation
+                )
+            }
         }
     )
 }
