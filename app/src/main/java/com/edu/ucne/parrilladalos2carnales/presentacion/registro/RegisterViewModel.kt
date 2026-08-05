@@ -1,4 +1,4 @@
-package com.edu.ucne.parrilladalos2carnales.presentacion.register
+package com.edu.ucne.parrilladalos2carnales.presentacion.registro
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

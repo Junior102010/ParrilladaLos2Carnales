@@ -1,4 +1,4 @@
-package com.edu.ucne.parrilladalos2carnales.presentacion.menu
+package com.edu.ucne.parrilladalos2carnales.presentacion.menu.list
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -37,7 +37,7 @@ fun MenuScreen(
 
     Scaffold(
         topBar = {
-            // Contenedor que cubre la barra de estado y reduce la altura de la barra a 48.dp
+
             Surface(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier
@@ -58,8 +58,6 @@ fun MenuScreen(
                         containerColor = Color.Transparent,
                         titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
-                    windowInsets = WindowInsets(0, 0, 0, 0),
-                    modifier = Modifier.height(48.dp)
                 )
             }
         },
