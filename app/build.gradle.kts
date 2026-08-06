@@ -45,7 +45,7 @@ android {
 }
 
 dependencies {
-    // Compose
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -108,6 +108,10 @@ dependencies {
     testImplementation(libs.androidx.core.testing)
     testImplementation(libs.dagger.hilt.android.testing)
     testImplementation(libs.androidx.room.testing)
+
+
+    //Turbine
+    testImplementation(libs.turbine)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
