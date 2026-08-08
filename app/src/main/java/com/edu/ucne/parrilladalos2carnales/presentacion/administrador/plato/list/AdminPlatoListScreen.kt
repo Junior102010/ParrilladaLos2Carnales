@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.*
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -19,8 +20,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminDrawerContent
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,102 +35,162 @@ fun AdminPlatoListScreen(
     onNavigate: (Screen) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-            ) {
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            AdminDrawerContent(
+                currentScreen = Screen.AdminPlatoList,
+                onNavigate = onNavigate,
+                onLogout = { onNavigate(Screen.Login) },
+                onCloseDrawer = { scope.launch { drawerState.close() } }
+            )
+        }
+    ) {
+        Scaffold(
+            topBar = {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Inventario de Platos",
-                            style = MaterialTheme.typography.titleMedium,
+                            text = "Gestión de Platos",
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-
-                )
-            }
-        },
-        bottomBar = {
-            ParrilladaBottomBar(
-                currentScreen = Screen.AdminPlatoList,
-                rolUsuario = Rol.ADMINISTRADOR,
-                onNavigate = onNavigate
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToCreate,
-                shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Nuevo Plato")
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged(it)) },
-                placeholder = { Text("Buscar plato...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar") },
-                trailingIcon = {
-                    if (uiState.searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged("")) }) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = "Limpiar")
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Menú",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
                         }
-                    }
-                },
-                shape = RoundedCornerShape(20.dp),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    },
+                    actions = {
+                        IconButton(onClick = { }) {
+                            Box {
+                                Icon(
+                                    imageVector = Icons.Outlined.Notifications,
+                                    contentDescription = "Notificaciones",
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(26.dp)
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(9.dp)
+                                        .align(Alignment.TopEnd)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.error)
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    )
+                )
+            },
+            bottomBar = {
+                ParrilladaBottomBar(
+                    currentScreen = Screen.AdminPlatoList,
+                    rolUsuario = Rol.ADMINISTRADOR,
+                    onNavigate = onNavigate
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = onNavigateToCreate,
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    CircularProgressIndicator()
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Nuevo Plato")
                 }
-            } else {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
+            },
+            containerColor = MaterialTheme.colorScheme.background
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged(it)) },
+                    placeholder = { Text("Buscar plato...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar") },
+                    trailingIcon = {
+                        if (uiState.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged("")) }) {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "Limpiar")
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+
+                // Selector de Secciones del Administrador
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(uiState.platosFiltrados) { plato ->
-                        AdminPlatoCard(
-                            plato = plato,
-                            onEdit = { onNavigateToEdit(plato.idPlato) },
-                            onToggleDisponible = { disponible ->
-                                viewModel.onEvent(AdminPlatoListUiEvent.OnToggleDisponible(plato, disponible))
-                            },
-                            onDelete = { viewModel.onEvent(AdminPlatoListUiEvent.OnDeletePlato(plato)) }
+                    FilterChip(
+                        selected = true,
+                        onClick = { },
+                        label = { Text("🥩 Platos", fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                         )
+                    )
+                    FilterChip(
+                        selected = false,
+                        onClick = { onNavigate(Screen.AdminGuarnicionList) },
+                        label = { Text("🍟 Guarniciones") }
+                    )
+                    FilterChip(
+                        selected = false,
+                        onClick = { onNavigate(Screen.AdminComponenteList) },
+                        label = { Text("🥗 Complementos") }
+                    )
+                }
+
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(uiState.platosFiltrados) { plato ->
+                            AdminPlatoCard(
+                                plato = plato,
+                                onEdit = { onNavigateToEdit(plato.idPlato) },
+                                onToggleDisponible = { disponible ->
+                                    viewModel.onEvent(AdminPlatoListUiEvent.OnToggleDisponible(plato, disponible))
+                                },
+                                onDelete = { viewModel.onEvent(AdminPlatoListUiEvent.OnDeletePlato(plato)) }
+                            )
+                        }
                     }
                 }
             }
