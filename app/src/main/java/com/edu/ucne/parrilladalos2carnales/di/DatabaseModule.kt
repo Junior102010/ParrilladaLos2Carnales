@@ -20,9 +20,10 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             ParrilladaDb::class.java,
-            "ParrilladaDb.db"
+            "ParrilladaDb.db",
         )
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
+            .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
             .build()
     }
 
