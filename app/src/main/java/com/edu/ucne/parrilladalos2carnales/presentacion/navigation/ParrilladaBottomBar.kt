@@ -14,10 +14,13 @@ import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.RestaurantMenu
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Restaurant
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,74 +38,209 @@ fun ParrilladaBottomBar(
     rolUsuario: Rol,
     onNavigate: (Screen) -> Unit
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Surface(
-            shape = RoundedCornerShape(50.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-            shadowElevation = 8.dp,
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
             ),
-            modifier = Modifier.fillMaxWidth()
+
+        contentAlignment =
+            Alignment.Center
+    ) {
+
+        Surface(
+            shape =
+                RoundedCornerShape(30.dp),
+
+            // IMPORTANTE:
+            // respeta directamente
+            // ContenedorFormularioClaro/Oscuro.
+            color =
+                MaterialTheme.colorScheme.surface,
+
+            tonalElevation = 0.dp,
+
+            shadowElevation = 8.dp,
+
+            border =
+                BorderStroke(
+                    width = 2.dp,
+                    color =
+                        MaterialTheme
+                            .colorScheme
+                            .outline
+                            .copy(
+                                alpha = 0.75f
+                            )
+                ),
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
         ) {
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier.fillMaxSize(),
+
+                horizontalArrangement =
+                    Arrangement.SpaceEvenly,
+
+                verticalAlignment =
+                    Alignment.CenterVertically
             ) {
-                if (rolUsuario == Rol.ADMINISTRADOR) {
+
+                if (
+                    rolUsuario ==
+                    Rol.ADMINISTRADOR
+                ) {
+
                     FloatingBottomNavItem(
-                        icon = Icons.Default.GridView,
-                        contentDescription = "Dashboard",
-                        isSelected = currentScreen is Screen.AdminDashboard,
-                        onClick = { onNavigate(Screen.AdminDashboard) }
+                        icon =
+                            Icons.Default.GridView,
+
+                        contentDescription =
+                            "Dashboard",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.AdminDashboard,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.AdminDashboard
+                            )
+                        }
                     )
+
                     FloatingBottomNavItem(
-                        icon = Icons.Outlined.Restaurant,
-                        contentDescription = "Pedidos",
-                        isSelected = currentScreen is Screen.AdminPedidos,
-                        onClick = { onNavigate(Screen.AdminPedidos) }
+                        icon =
+                            Icons.Outlined.Restaurant,
+
+                        contentDescription =
+                            "Pedidos",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.AdminPedidos,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.AdminPedidos
+                            )
+                        }
                     )
+
                     FloatingBottomNavItem(
-                        icon = Icons.Outlined.MenuBook,
-                        contentDescription = "Menú",
-                        isSelected = currentScreen is Screen.AdminPlatoList || currentScreen is Screen.AdminPlatoEntry,
-                        onClick = { onNavigate(Screen.AdminPlatoList) }
+                        icon =
+                            Icons.Outlined.MenuBook,
+
+                        contentDescription =
+                            "Menú",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.AdminPlatoList ||
+                                    currentScreen
+                                            is Screen.AdminPlatoEntry,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.AdminPlatoList
+                            )
+                        }
                     )
+
                     FloatingBottomNavItem(
-                        icon = Icons.Outlined.Person,
-                        contentDescription = "Perfil",
+                        icon =
+                            Icons.Outlined.Person,
+
+                        contentDescription =
+                            "Perfil",
+
                         isSelected = false,
+
                         onClick = { }
                     )
+
                 } else {
+
                     FloatingBottomNavItem(
-                        icon = Icons.Default.Home,
-                        contentDescription = "Inicio",
-                        isSelected = currentScreen is Screen.Inicio,
-                        onClick = { onNavigate(Screen.Inicio) }
+                        icon =
+                            Icons.Default.Home,
+
+                        contentDescription =
+                            "Inicio",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.Inicio,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.Inicio
+                            )
+                        }
                     )
+
                     FloatingBottomNavItem(
-                        icon = Icons.Default.RestaurantMenu,
-                        contentDescription = "Menú",
-                        isSelected = currentScreen is Screen.Menu,
-                        onClick = { onNavigate(Screen.Menu) }
+                        icon =
+                            Icons.Default
+                                .RestaurantMenu,
+
+                        contentDescription =
+                            "Menú",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.Menu,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.Menu
+                            )
+                        }
                     )
+
                     FloatingBottomNavItem(
-                        icon = Icons.Default.Person,
-                        contentDescription = "Perfil",
-                        isSelected = false,
-                        onClick = { }
+                        icon =
+                            Icons.Default
+                                .ShoppingCart,
+
+                        contentDescription =
+                            "Carrito",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.Carrito,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.Carrito
+                            )
+                        }
+                    )
+
+                    FloatingBottomNavItem(
+                        icon =
+                            Icons.Default.Person,
+
+                        contentDescription =
+                            "Perfil",
+
+                        isSelected =
+                            currentScreen
+                                    is Screen.Perfil,
+
+                        onClick = {
+                            onNavigate(
+                                Screen.Perfil
+                            )
+                        }
                     )
                 }
             }
@@ -117,35 +255,88 @@ private fun FloatingBottomNavItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-        animationSpec = tween(durationMillis = 250),
-        label = "TabBackgroundColor"
+
+    val backgroundColor by
+    animateColorAsState(
+
+        targetValue =
+            if (isSelected) {
+
+                MaterialTheme
+                    .colorScheme
+                    .primary
+                    .copy(
+                        alpha = 0.75f
+                    )
+
+            } else {
+
+                Color.Transparent
+            },
+
+        animationSpec =
+            tween(250),
+
+        label =
+            "BottomNavBackground"
     )
 
-    val iconColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-        animationSpec = tween(durationMillis = 250),
-        label = "TabIconColor"
+    val iconColor by
+    animateColorAsState(
+
+        targetValue =
+            if (isSelected) {
+
+                MaterialTheme
+                    .colorScheme
+                    .onPrimary
+
+            } else {
+
+                MaterialTheme
+                    .colorScheme
+                    .onSurface
+            },
+
+        animationSpec =
+            tween(250),
+
+        label =
+            "BottomNavIcon"
     )
 
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(50.dp)
             .clip(CircleShape)
-            .background(backgroundColor)
+            .background(
+                backgroundColor
+            )
             .clickable(
-                interactionSource = remember { MutableInteractionSource() },
+                interactionSource =
+                    remember {
+                        MutableInteractionSource()
+                    },
+
                 indication = null,
+
                 onClick = onClick
             ),
-        contentAlignment = Alignment.Center
+
+        contentAlignment =
+            Alignment.Center
     ) {
+
         Icon(
             imageVector = icon,
-            contentDescription = contentDescription,
+
+            contentDescription =
+                contentDescription,
+
             tint = iconColor,
-            modifier = Modifier.size(24.dp)
+
+            modifier =
+                Modifier.size(24.dp)
         )
     }
 }

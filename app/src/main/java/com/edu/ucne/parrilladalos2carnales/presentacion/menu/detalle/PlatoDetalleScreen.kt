@@ -29,119 +29,259 @@ import java.io.File
 @Composable
 fun PlatoDetalleScreen(
     viewModel: PlatoDetalleViewModel,
-    onBack: () -> Unit
-) {
+    onBack: () -> Unit,
+    onAgregadoAlCarrito: () -> Unit
+){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.agregadoExitosamente) {
-        if (uiState.agregadoExitosamente) {
-            onBack()
+    LaunchedEffect(
+        uiState.agregadoExitosamente
+    ) {
+
+        if (
+            uiState.agregadoExitosamente
+        ) {
+
+            viewModel.onEvent(
+                PlatoDetalleUiEvent
+                    .OnAgregarConsumido
+            )
+
+            onAgregadoAlCarrito()
         }
     }
 
     Scaffold(
         topBar = {
-            // CORRECCIÓN: Restaurado a surfaceVariant para mantener el color oscuro/gris superior
+
             Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
+                color =
+                    MaterialTheme
+                        .colorScheme.surface,
+
+                shadowElevation = 4.dp,
+
+                modifier =
+                    Modifier.fillMaxWidth()
             ) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Detalle",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .windowInsetsPadding(
+                            WindowInsets.statusBars
                         )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        .height(52.dp)
+                ) {
+
+                    IconButton(
+                        onClick = onBack,
+
+                        modifier =
+                            Modifier.align(
+                                Alignment.CenterStart
                             )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { /* Acción de Perfil */ }) {
-                            Icon(
-                                imageVector = Icons.Default.AccountCircle,
-                                contentDescription = "Perfil",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.AutoMirrored
+                                    .Filled.ArrowBack,
+
+                            contentDescription =
+                                "Volver",
+
+                            tint =
+                                MaterialTheme
+                                    .colorScheme
+                                    .onSurface
+                        )
+                    }
+
+                    Text(
+                        text = "Detalle",
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .headlineSmall,
+
+                        fontWeight =
+                            FontWeight.Bold,
+
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurface,
+
+                        modifier =
+                            Modifier.align(
+                                Alignment.Center
                             )
-                        }
-                        IconButton(onClick = { /* Menú de opciones */ }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "Más opciones",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                )
+                }
             }
         },
         bottomBar = {
+
             Surface(
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 16.dp,
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                color =
+                    MaterialTheme
+                        .colorScheme.background,
+
+                tonalElevation = 0.dp
             ) {
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                        .navigationBarsPadding(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .navigationBarsPadding()
+                        .padding(
+                            horizontal = 10.dp,
+                            vertical = 12.dp
+                        ),
+
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween,
+
+                    verticalAlignment =
+                        Alignment.CenterVertically
                 ) {
+
                     Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(50),
-                        modifier = Modifier.height(56.dp)
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .outlineVariant,
+
+                        shape =
+                            RoundedCornerShape(28.dp),
+
+                        modifier =
+                            Modifier.height(44.dp)
                     ) {
+
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                            verticalAlignment =
+                                Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { viewModel.onEvent(PlatoDetalleUiEvent.OnDecrementarCantidad) }) {
-                                Icon(Icons.Default.Remove, contentDescription = "Menos")
+
+                            IconButton(
+                                onClick = {
+
+                                    viewModel.onEvent(
+                                        PlatoDetalleUiEvent
+                                            .OnDecrementarCantidad
+                                    )
+                                },
+
+                                modifier =
+                                    Modifier.size(40.dp)
+                            ) {
+
+                                Icon(
+                                    imageVector =
+                                        Icons.Default.Remove,
+
+                                    contentDescription =
+                                        "Disminuir",
+
+                                    tint =
+                                        MaterialTheme
+                                            .colorScheme
+                                            .onSurface
+                                )
                             }
+
                             Text(
-                                text = "${uiState.cantidad}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                                modifier = Modifier.padding(horizontal = 12.dp),
-                                color = MaterialTheme.colorScheme.primary
+                                text =
+                                    uiState.cantidad
+                                        .toString(),
+
+                                color =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .primary,
+
+                                fontWeight =
+                                    FontWeight.Bold
                             )
-                            IconButton(onClick = { viewModel.onEvent(PlatoDetalleUiEvent.OnIncrementarCantidad) }) {
-                                Icon(Icons.Default.Add, contentDescription = "Más")
+
+                            IconButton(
+                                onClick = {
+
+                                    viewModel.onEvent(
+                                        PlatoDetalleUiEvent
+                                            .OnIncrementarCantidad
+                                    )
+                                },
+
+                                modifier =
+                                    Modifier.size(40.dp)
+                            ) {
+
+                                Icon(
+                                    imageVector =
+                                        Icons.Default.Add,
+
+                                    contentDescription =
+                                        "Aumentar",
+
+                                    tint =
+                                        MaterialTheme
+                                            .colorScheme
+                                            .onSurface
+                                )
                             }
                         }
                     }
 
                     Button(
-                        onClick = { viewModel.onEvent(PlatoDetalleUiEvent.OnAgregarAlCarrito) },
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        modifier = Modifier
-                            .height(56.dp)
-                            .weight(1f)
-                            .padding(start = 16.dp)
+                        onClick = {
+
+                            viewModel.onEvent(
+                                PlatoDetalleUiEvent
+                                    .OnAgregarAlCarrito
+                            )
+                        },
+
+                        shape =
+                            RoundedCornerShape(28.dp),
+
+                        colors =
+                            ButtonDefaults
+                                .buttonColors(
+                                    containerColor =
+                                        MaterialTheme
+                                            .colorScheme
+                                            .primary
+                                ),
+
+                        contentPadding =
+                            PaddingValues(
+                                horizontal = 16.dp
+                            ),
+
+                        modifier =
+                            Modifier.height(44.dp)
                     ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.Add,
+
+                            contentDescription = null
+                        )
+
+                        Spacer(
+                            modifier =
+                                Modifier.width(5.dp)
+                        )
+
                         Text(
-                            text = "Añadir • RD$ ${String.format("%.2f", uiState.precioTotal)}",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "Añadir",
+                            fontWeight =
+                                FontWeight.Bold
                         )
                     }
                 }
@@ -162,7 +302,7 @@ fun PlatoDetalleScreen(
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
             ) {
-                // Tarjeta de Imagen
+
                 Box(modifier = Modifier.padding(16.dp)) {
                     val imageModel = remember(plato?.imagenUrl) {
                         plato?.imagenUrl?.let { if (it.startsWith("/")) File(it) else it.ifBlank { null } }

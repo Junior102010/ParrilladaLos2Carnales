@@ -4,6 +4,12 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 
 data class PlatoListUiState(
     val isLoading: Boolean = false,
+
     val platos: List<Plato> = emptyList(),
+
+    val platosFiltrados: List<Plato> = emptyList(),
+
+    val searchQuery: String = "",
+
     val errorMessage: String? = null
 )

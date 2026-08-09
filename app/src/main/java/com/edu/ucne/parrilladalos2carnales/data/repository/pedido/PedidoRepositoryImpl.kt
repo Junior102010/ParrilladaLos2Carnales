@@ -61,4 +61,19 @@ class PedidoRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override fun getCarrito(): Flow<Pedido?> {
+        return pedidoDao.getCarrito().flatMapLatest { pedidoEntity ->
+            if (pedidoEntity == null) flowOf(null)
+            else {
+                pedidoDao.getDetallesPorPedido(pedidoEntity.idPedido).map { detallesEntities ->
+                    pedidoEntity.toDomain(detallesEntities.map { it.toDomain() })
+                }
+            }
+        }
+    }
+
+    override suspend fun deleteDetalle(idDetalle: Int) {
+        pedidoDao.deleteDetalle(idDetalle)
+    }
 }
