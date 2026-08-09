@@ -6,5 +6,6 @@ sealed interface AdminGuarnicionListUiEvent {
     data object OnAddGuarnicionClick : AdminGuarnicionListUiEvent
     data class OnEditGuarnicionClick(val idGuarnicion: Int) : AdminGuarnicionListUiEvent
     data class OnDeleteGuarnicionClick(val guarnicion: Guarnicion) : AdminGuarnicionListUiEvent
+    data class OnSearchQueryChanged(val query: String) : AdminGuarnicionListUiEvent
     data object OnBackClick : AdminGuarnicionListUiEvent
 }

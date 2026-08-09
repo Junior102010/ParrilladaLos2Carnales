@@ -1,8 +1,10 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
+import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.ComponenteRepository
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.componente.UpsertComponenteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +16,40 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminComponenteViewModel @Inject constructor(
-    private val upsertComponenteUseCase: UpsertComponenteUseCase
+    private val upsertComponenteUseCase: UpsertComponenteUseCase,
+    private val componenteRepository: ComponenteRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminComponenteUiState())
     val uiState: StateFlow<AdminComponenteUiState> = _uiState.asStateFlow()
+
+    init {
+        val componenteId = savedStateHandle.get<Int>("idComponente") ?: 0
+        if (componenteId > 0) {
+            cargarComponente(componenteId)
+        }
+    }
+
+    private fun cargarComponente(id: Int) {
+        viewModelScope.launch {
+            val componente = componenteRepository.getComponente(id)
+            if (componente != null) {
+                _uiState.update {
+                    it.copy(
+                        idComponente = componente.idComponente,
+                        nombreComponente = componente.nombreComponente,
+                        descripcionComponente = componente.descripcionComponente,
+                        precioComponente = componente.precioComponente.toString(),
+                        cantidadComponente = componente.cantidadComponente,
+                        categoriaComponente = componente.categoriaComponente,
+                        coccion = componente.coccion ?: "",
+                        disponible = componente.disponible
+                    )
+                }
+            }
+        }
+    }
 
     fun onEvent(event: AdminComponenteUiEvent) {
         when (event) {
@@ -62,8 +93,13 @@ class AdminComponenteViewModel @Inject constructor(
                     coccion = state.coccion,
                     disponible = state.disponible
                 )
-                upsertComponenteUseCase(nuevoComponente)
-                _uiState.update { it.copy(isLoading = false, guardadoExitoso = true) }
+                val result = upsertComponenteUseCase(nuevoComponente)
+                
+                result.onSuccess {
+                    _uiState.update { it.copy(isLoading = false, guardadoExitoso = true) }
+                }.onFailure { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.message) }
+                }
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false, error = e.localizedMessage) }
             }
