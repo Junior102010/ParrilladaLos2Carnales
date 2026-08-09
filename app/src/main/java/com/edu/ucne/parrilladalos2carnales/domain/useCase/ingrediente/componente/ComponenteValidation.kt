@@ -16,17 +16,17 @@ fun validateNombreComponente(nombre : String) : ComponenteValidations
 
 fun validateDescripcionComponente(descripcion : String) : ComponenteValidations
 {
-    return when{
-        descripcion.isBlank() -> ComponenteValidations(false,"La Descripcion NO debe estar Vacia")
-        descripcion.length <= 2 -> ComponenteValidations(false,"La Descripcion debe ser de 2 Letras o Mas")
-        else -> ComponenteValidations(true)
+    return if (descripcion.isNotBlank() && descripcion.length <= 2) {
+        ComponenteValidations(false, "La Descripcion debe ser de 2 Letras o Mas")
+    } else {
+        ComponenteValidations(true)
     }
 }
 
 fun validateCantidadComponente(cantidad : Double) : ComponenteValidations
 {
     return when{
-        cantidad < 1 -> ComponenteValidations(false,"La Cantidad NO debe ser menos de 1")
+        cantidad < 0 -> ComponenteValidations(false,"La Cantidad NO puede ser negativa")
         else -> ComponenteValidations(true)
     }
 }
@@ -34,7 +34,7 @@ fun validateCantidadComponente(cantidad : Double) : ComponenteValidations
 fun validatePrecioComponente(precio : Double) : ComponenteValidations
 {
     return when{
-        precio < 1 -> ComponenteValidations(false,"El Precio NO debe ser 0")
+        precio < 0 -> ComponenteValidations(false,"El Precio NO puede ser negativo")
         else -> ComponenteValidations(true)
     }
 }

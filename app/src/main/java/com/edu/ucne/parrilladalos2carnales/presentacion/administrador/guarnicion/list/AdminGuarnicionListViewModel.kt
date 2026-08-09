@@ -30,6 +30,16 @@ class AdminGuarnicionListViewModel @Inject constructor(
     fun onEvent(event: AdminGuarnicionListUiEvent) {
         when (event) {
             is AdminGuarnicionListUiEvent.OnDeleteGuarnicionClick -> borrarGuarnicion(event.guarnicion)
+            is AdminGuarnicionListUiEvent.OnSearchQueryChanged -> {
+                _uiState.update { state ->
+                    val query = event.query
+                    val filtrados = state.guarniciones.filter {
+                        it.nombreGuarnicion.contains(query, ignoreCase = true) ||
+                                it.descripcionGuarnicion.contains(query, ignoreCase = true)
+                    }
+                    state.copy(searchQuery = query, guarnicionesFiltradas = filtrados)
+                }
+            }
             AdminGuarnicionListUiEvent.OnAddGuarnicionClick -> { /* Manejado por navegación */ }
             is AdminGuarnicionListUiEvent.OnEditGuarnicionClick -> { /* Manejado por navegación */ }
             AdminGuarnicionListUiEvent.OnBackClick -> { /* Manejado por navegación */ }
@@ -44,7 +54,13 @@ class AdminGuarnicionListViewModel @Inject constructor(
                     _uiState.update { it.copy(error = e.localizedMessage, isLoading = false) }
                 }
                 .collect { lista ->
-                    _uiState.update { it.copy(guarniciones = lista, isLoading = false) }
+                    _uiState.update { state ->
+                        val filtrados = if (state.searchQuery.isBlank()) lista else lista.filter {
+                            it.nombreGuarnicion.contains(state.searchQuery, ignoreCase = true) ||
+                                    it.descripcionGuarnicion.contains(state.searchQuery, ignoreCase = true)
+                        }
+                        state.copy(guarniciones = lista, guarnicionesFiltradas = filtrados, isLoading = false)
+                    }
                 }
         }
     }

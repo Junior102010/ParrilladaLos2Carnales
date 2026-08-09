@@ -5,10 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -114,11 +113,34 @@ fun AdminGuarnicionListScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onEvent(AdminGuarnicionListUiEvent.OnSearchQueryChanged(it)) },
+                    placeholder = { Text("Buscar guarnición...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = "Buscar") },
+                    trailingIcon = {
+                        if (uiState.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onEvent(AdminGuarnicionListUiEvent.OnSearchQueryChanged("")) }) {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = "Limpiar")
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(20.dp),
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+
                 // Selector de Secciones del Administrador
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     FilterChip(
@@ -145,9 +167,9 @@ fun AdminGuarnicionListScreen(
                 Box(modifier = Modifier.fillMaxSize()) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    } else if (uiState.guarniciones.isEmpty()) {
+                    } else if (uiState.guarnicionesFiltradas.isEmpty()) {
                         Text(
-                            text = "No hay guarniciones registradas.",
+                            text = if (uiState.searchQuery.isEmpty()) "No hay guarniciones registradas." else "No se encontraron resultados.",
                             modifier = Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.bodyLarge
                         )
@@ -157,7 +179,7 @@ fun AdminGuarnicionListScreen(
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(uiState.guarniciones) { guarnicion ->
+                            items(uiState.guarnicionesFiltradas) { guarnicion ->
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()

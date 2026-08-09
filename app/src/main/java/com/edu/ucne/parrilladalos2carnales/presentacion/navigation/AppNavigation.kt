@@ -136,7 +136,8 @@ fun ParrilladaNavDisplay(
                     viewModel = viewModel,
                     onNavigateToAdd = { backStack.add(Screen.AdminGuarnicionEntry(idGuarnicion = 0)) },
                     onNavigateToEdit = { id -> backStack.add(Screen.AdminGuarnicionEntry(idGuarnicion = id)) },
-                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
+                    onNavigate = handleNavigation
                 )
             }
 
@@ -154,7 +155,8 @@ fun ParrilladaNavDisplay(
                     viewModel = viewModel,
                     onNavigateToAdd = { backStack.add(Screen.AdminComponenteEntry(idComponente = 0)) },
                     onNavigateToEdit = { id -> backStack.add(Screen.AdminComponenteEntry(idComponente = id)) },
-                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
+                    onNavigate = handleNavigation
                 )
             }
 

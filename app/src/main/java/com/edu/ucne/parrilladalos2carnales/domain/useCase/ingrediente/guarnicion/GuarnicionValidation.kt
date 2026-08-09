@@ -16,17 +16,17 @@ fun validateNombreGuarnicion(nombre : String) : GuarnicionValidations
 
 fun validateDescripcionGuarnicion(descripcion : String) : GuarnicionValidations
 {
-    return when{
-        descripcion.isBlank() -> GuarnicionValidations(false,"La Descripcion NO debe estar Vacia")
-        descripcion.length <= 2 -> GuarnicionValidations(false,"La Descripcion debe ser de 2 Letras o Mas")
-        else -> GuarnicionValidations(true)
+    return if (descripcion.isNotBlank() && descripcion.length <= 2) {
+        GuarnicionValidations(false, "La Descripcion debe ser de 2 Letras o Mas")
+    } else {
+        GuarnicionValidations(true)
     }
 }
 
 fun validateCantidadGuarnicion(cantidad : Double) : GuarnicionValidations
 {
     return when{
-        cantidad < 1 -> GuarnicionValidations(false,"La Cantidad NO debe ser menos de 1")
+        cantidad < 0 -> GuarnicionValidations(false,"La Cantidad NO puede ser negativa")
         else -> GuarnicionValidations(true)
     }
 }
@@ -34,7 +34,7 @@ fun validateCantidadGuarnicion(cantidad : Double) : GuarnicionValidations
 fun validatePrecioGuarnicion(precio : Double) : GuarnicionValidations
 {
     return when{
-        precio < 1 -> GuarnicionValidations(false,"El Precio NO debe ser 0")
+        precio < 0 -> GuarnicionValidations(false,"El Precio NO puede ser negativo")
         else -> GuarnicionValidations(true)
     }
 }

@@ -38,7 +38,7 @@ fun AdminDrawerContent(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Encabezado del Menú Lateral con Naranja Cálido
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -65,7 +65,7 @@ fun AdminDrawerContent(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Selector de Apariencia / Tema de Color
+
             Text(
                 text = "CAMBIAR TEMA DE COLOR",
                 style = MaterialTheme.typography.labelMedium,
