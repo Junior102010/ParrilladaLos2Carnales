@@ -25,13 +25,16 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.edit
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.edit.AdminPlatoEntryViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.list.AdminPlatoListScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.list.AdminPlatoListViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.carrito.CarritoScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.carrito.CarritoViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.menu.MenuScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleViewModel
-import com.edu.ucne.parrilladalos2carnales.presentacion.menu.list.MenuScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterViewModel
@@ -87,6 +90,20 @@ fun ParrilladaNavDisplay(
                 )
             }
 
+            entry<Screen.Carrito> {
+                val carritoViewModel: CarritoViewModel = hiltViewModel()
+                CarritoScreen(
+                    viewModel = carritoViewModel,
+                    onNavigate = handleNavigation
+                )
+            }
+
+            entry<Screen.Perfil> {
+                PerfilScreen(
+                    onNavigate = handleNavigation
+                )
+            }
+
             entry<Screen.Menu> {
                 val platoListViewModel: PlatoListViewModel = hiltViewModel()
                 MenuScreen(
@@ -101,14 +118,22 @@ fun ParrilladaNavDisplay(
             entry<Screen.PlatoDetail> { platoDetail ->
                 val platoDetailViewModel: PlatoDetalleViewModel = hiltViewModel()
                 
-                // Aseguramos que el ViewModel tenga el ID, incluso si SavedStateHandle falla
+
                 LaunchedEffect(platoDetail.idPlato) {
                     platoDetailViewModel.setId(platoDetail.idPlato)
                 }
 
                 PlatoDetalleScreen(
                     viewModel = platoDetailViewModel,
-                    onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.size - 1)
+                        }
+                    },
+                    onAgregadoAlCarrito = {
+                        backStack.add(Screen.Carrito)
+                    }
                 )
             }
 
