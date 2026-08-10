@@ -5,18 +5,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,382 +21,78 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun PlatoDetalleScreen(
-    viewModel: PlatoDetalleViewModel,
-    onBack: () -> Unit,
-    onAgregadoAlCarrito: () -> Unit
-){
+fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onAgregadoAlCarrito: () -> Unit) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(
-        uiState.agregadoExitosamente
-    ) {
-
-        if (
-            uiState.agregadoExitosamente
-        ) {
-
-            viewModel.onEvent(
-                PlatoDetalleUiEvent
-                    .OnAgregarConsumido
-            )
-
+    LaunchedEffect(uiState.agregadoExitosamente) {
+        if (uiState.agregadoExitosamente) {
+            viewModel.onEvent(PlatoDetalleUiEvent.OnAgregarConsumido)
             onAgregadoAlCarrito()
         }
     }
-
     Scaffold(
         topBar = {
-
-            Surface(
-                color =
-                    MaterialTheme
-                        .colorScheme.surface,
-
-                shadowElevation = 4.dp,
-
-                modifier =
-                    Modifier.fillMaxWidth()
-            ) {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(
-                            WindowInsets.statusBars
-                        )
-                        .height(52.dp)
-                ) {
-
-                    IconButton(
-                        onClick = onBack,
-
-                        modifier =
-                            Modifier.align(
-                                Alignment.CenterStart
-                            )
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.AutoMirrored
-                                    .Filled.ArrowBack,
-
-                            contentDescription =
-                                "Volver",
-
-                            tint =
-                                MaterialTheme
-                                    .colorScheme
-                                    .onSurface
-                        )
+            Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).height(52.dp)) {
+                    IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = MaterialTheme.colorScheme.onSurface)
                     }
-
-                    Text(
-                        text = "Detalle",
-
-                        style =
-                            MaterialTheme
-                                .typography
-                                .headlineSmall,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        color =
-                            MaterialTheme
-                                .colorScheme
-                                .onSurface,
-
-                        modifier =
-                            Modifier.align(
-                                Alignment.Center
-                            )
-                    )
+                    Text("Detalle", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
                 }
             }
         },
         bottomBar = {
-
-            Surface(
-                color =
-                    MaterialTheme
-                        .colorScheme.background,
-
-                tonalElevation = 0.dp
-            ) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(
-                            horizontal = 10.dp,
-                            vertical = 12.dp
-                        ),
-
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween,
-
-                    verticalAlignment =
-                        Alignment.CenterVertically
-                ) {
-
-                    Surface(
-                        color =
-                            MaterialTheme
-                                .colorScheme
-                                .outlineVariant,
-
-                        shape =
-                            RoundedCornerShape(28.dp),
-
-                        modifier =
-                            Modifier.height(44.dp)
-                    ) {
-
-                        Row(
-                            verticalAlignment =
-                                Alignment.CenterVertically
-                        ) {
-
-                            IconButton(
-                                onClick = {
-
-                                    viewModel.onEvent(
-                                        PlatoDetalleUiEvent
-                                            .OnDecrementarCantidad
-                                    )
-                                },
-
-                                modifier =
-                                    Modifier.size(40.dp)
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Remove,
-
-                                    contentDescription =
-                                        "Disminuir",
-
-                                    tint =
-                                        MaterialTheme
-                                            .colorScheme
-                                            .onSurface
-                                )
-                            }
-
-                            Text(
-                                text =
-                                    uiState.cantidad
-                                        .toString(),
-
-                                color =
-                                    MaterialTheme
-                                        .colorScheme
-                                        .primary,
-
-                                fontWeight =
-                                    FontWeight.Bold
-                            )
-
-                            IconButton(
-                                onClick = {
-
-                                    viewModel.onEvent(
-                                        PlatoDetalleUiEvent
-                                            .OnIncrementarCantidad
-                                    )
-                                },
-
-                                modifier =
-                                    Modifier.size(40.dp)
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        Icons.Default.Add,
-
-                                    contentDescription =
-                                        "Aumentar",
-
-                                    tint =
-                                        MaterialTheme
-                                            .colorScheme
-                                            .onSurface
-                                )
-                            }
+            Surface(color = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
+                Row(modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(10.dp, 12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Surface(color = MaterialTheme.colorScheme.outlineVariant, shape = RoundedCornerShape(28.dp), modifier = Modifier.height(44.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton({ viewModel.onEvent(PlatoDetalleUiEvent.OnDecrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Remove, "Disminuir") }
+                            Text(uiState.cantidad.toString(), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                            IconButton({ viewModel.onEvent(PlatoDetalleUiEvent.OnIncrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Add, "Aumentar") }
                         }
                     }
-
-                    Button(
-                        onClick = {
-
-                            viewModel.onEvent(
-                                PlatoDetalleUiEvent
-                                    .OnAgregarAlCarrito
-                            )
-                        },
-
-                        shape =
-                            RoundedCornerShape(28.dp),
-
-                        colors =
-                            ButtonDefaults
-                                .buttonColors(
-                                    containerColor =
-                                        MaterialTheme
-                                            .colorScheme
-                                            .primary
-                                ),
-
-                        contentPadding =
-                            PaddingValues(
-                                horizontal = 16.dp
-                            ),
-
-                        modifier =
-                            Modifier.height(44.dp)
-                    ) {
-
-                        Icon(
-                            imageVector =
-                                Icons.Default.Add,
-
-                            contentDescription = null
-                        )
-
-                        Spacer(
-                            modifier =
-                                Modifier.width(5.dp)
-                        )
-
-                        Text(
-                            text = "Añadir",
-                            fontWeight =
-                                FontWeight.Bold
-                        )
+                    Button({ viewModel.onEvent(PlatoDetalleUiEvent.OnAgregarAlCarrito) }, shape = RoundedCornerShape(28.dp), contentPadding = PaddingValues(16.dp, 0.dp), modifier = Modifier.height(44.dp)) {
+                        Icon(Icons.Default.Add, null)
+                        Spacer(Modifier.width(5.dp))
+                        Text("Añadir", fontWeight = FontWeight.Bold)
                     }
                 }
             }
         },
         containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            val plato = uiState.plato
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-            ) {
-
-                Box(modifier = Modifier.padding(16.dp)) {
-                    val imageModel = remember(plato?.imagenUrl) {
-                        plato?.imagenUrl?.let { if (it.startsWith("/")) File(it) else it.ifBlank { null } }
-                    }
-
-                    Card(
-                        shape = RoundedCornerShape(32.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(260.dp)
-                    ) {
-                        if (imageModel != null) {
-                            AsyncImage(
-                                model = imageModel,
-                                contentDescription = plato?.nombre,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = "🥩", fontSize = 80.sp)
-                            }
-                        }
+    ) { p ->
+        if (uiState.isLoading) Box(Modifier.fillMaxSize().padding(p), Alignment.Center) { CircularProgressIndicator() }
+        else uiState.plato?.let { plato ->
+            Column(Modifier.fillMaxSize().padding(p).verticalScroll(rememberScrollState())) {
+                Box(Modifier.padding(16.dp)) {
+                    val model = remember(plato.imagenUrl) { if (plato.imagenUrl.startsWith("/")) File(plato.imagenUrl) else plato.imagenUrl.ifBlank { null } }
+                    Card(shape = RoundedCornerShape(32.dp), elevation = CardDefaults.cardElevation(4.dp), modifier = Modifier.fillMaxWidth().height(260.dp)) {
+                        if (model != null) AsyncImage(model, plato.nombre, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        else Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("🥩", fontSize = 80.sp) }
                     }
                 }
-
-                Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = plato?.nombre ?: "Nombre del Platillo",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = "RD$ ${plato?.precio ?: "0.00"}",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                Column(Modifier.padding(24.dp, 8.dp)) {
+                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.Top) {
+                        Text(plato.nombre, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
+                        Text("RD$ ${plato.precio}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = plato?.descripcion.takeIf { !it.isNullOrBlank() }
-                            ?: "Acompañado con el sazón especial de D'Parrillada Los Dos Carnales.",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 24.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                    Spacer(modifier = Modifier.height(24.dp))
-
+                    Spacer(Modifier.height(12.dp))
+                    Text(plato.descripcion.ifBlank { "Acompañado con el sazón especial de D'Parrillada Los Dos Carnales." }, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 24.sp)
+                    Spacer(Modifier.height(24.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(0.5f))
+                    Spacer(Modifier.height(24.dp))
                     if (uiState.terminosCoccionDisponibles.isNotEmpty()) {
-                        OptionSectionButtons(
-                            title = "Término de la carne",
-                            items = uiState.terminosCoccionDisponibles,
-                            selectedId = uiState.terminoSeleccionado?.idComponente,
-                            onSelect = { viewModel.onEvent(PlatoDetalleUiEvent.OnCoccionSelect(it as Componente)) },
-                            labelProvider = { (it as Componente).nombreComponente.ifBlank { it.coccion ?: "" } }
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
+                        OptionSectionButtons("Término de la carne", uiState.terminosCoccionDisponibles, uiState.terminoSeleccionado?.idComponente, { viewModel.onEvent(PlatoDetalleUiEvent.OnCoccionSelect(it as Componente)) }, { (it as Componente).nombreComponente.ifBlank { it.coccion ?: "" } })
+                        Spacer(Modifier.height(24.dp))
                     }
-
                     if (uiState.guarnicionesDisponibles.isNotEmpty()) {
-                        OptionSectionButtons(
-                            title = "Elige tu Guarnición",
-                            items = uiState.guarnicionesDisponibles,
-                            selectedId = uiState.guarnicionSeleccionada?.idGuarnicion,
-                            onSelect = { viewModel.onEvent(PlatoDetalleUiEvent.OnGuarnicionSelect(it as Guarnicion)) },
-                            labelProvider = { (it as Guarnicion).nombreGuarnicion }
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
+                        OptionSectionButtons("Elige tu Guarnición", uiState.guarnicionesDisponibles, uiState.guarnicionSeleccionada?.idGuarnicion, { viewModel.onEvent(PlatoDetalleUiEvent.OnGuarnicionSelect(it as Guarnicion)) }, { (it as Guarnicion).nombreGuarnicion })
+                        Spacer(Modifier.height(24.dp))
                     }
-
                     if (uiState.salsasDisponibles.isNotEmpty()) {
-                        OptionSectionButtons(
-                            title = "Salsa Extra",
-                            items = uiState.salsasDisponibles,
-                            selectedId = uiState.salsaSeleccionada?.idComponente,
-                            onSelect = { viewModel.onEvent(PlatoDetalleUiEvent.OnSalsaSelect(it as Componente)) },
-                            labelProvider = { (it as Componente).nombreComponente }
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
+                        OptionSectionButtons("Salsa Extra", uiState.salsasDisponibles, uiState.salsaSeleccionada?.idComponente, { viewModel.onEvent(PlatoDetalleUiEvent.OnSalsaSelect(it as Componente)) }, { (it as Componente).nombreComponente })
+                        Spacer(Modifier.height(24.dp))
                     }
                 }
             }
@@ -410,51 +102,17 @@ fun PlatoDetalleScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun OptionSectionButtons(
-    title: String,
-    items: List<Any>,
-    selectedId: Int?,
-    onSelect: (Any) -> Unit,
-    labelProvider: (Any) -> String
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
+fun OptionSectionButtons(title: String, items: List<Any>, selectedId: Int?, onSelect: (Any) -> Unit, labelProvider: (Any) -> String) {
+    Column(Modifier.fillMaxWidth()) {
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+        Spacer(Modifier.height(12.dp))
+        FlowRow(Modifier.fillMaxWidth(), Arrangement.spacedBy(10.dp), Arrangement.spacedBy(10.dp)) {
             items.forEach { item ->
-                val id = when (item) {
-                    is Componente -> item.idComponente
-                    is Guarnicion -> item.idGuarnicion
-                    else -> 0
-                }
+                val id = when (item) { is Componente -> item.idComponente; is Guarnicion -> item.idGuarnicion; else -> 0 }
                 val isSelected = id == selectedId
-
-                Surface(
-                    onClick = { onSelect(item) },
-                    shape = RoundedCornerShape(50),
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.height(40.dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.padding(horizontal = 20.dp)
-                    ) {
-                        Text(
-                            text = labelProvider(item),
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            fontSize = 14.sp
-                        )
+                Surface(onClick = { onSelect(item) }, shape = RoundedCornerShape(50), color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.height(40.dp)) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 20.dp)) {
+                        Text(labelProvider(item), color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp)
                     }
                 }
             }
