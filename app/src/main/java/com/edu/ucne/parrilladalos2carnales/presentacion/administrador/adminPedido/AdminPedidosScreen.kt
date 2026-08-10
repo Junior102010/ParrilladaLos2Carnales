@@ -86,7 +86,7 @@ fun AdminPedidosScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Notificaciones */ }) {
+                        IconButton(onClick = {  }) {
                             Box {
                                 Icon(
                                     imageVector = Icons.Outlined.Notifications,
@@ -133,7 +133,6 @@ fun AdminPedidosScreen(
                     modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
                 )
 
-                // Buscador
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.onEvent(AdminPedidosUiEvent.OnSearchQueryChanged(it)) },
@@ -176,7 +175,6 @@ fun AdminPedidosScreen(
                         .padding(bottom = 12.dp)
                 )
 
-                // Filtros y Refrescar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -232,7 +230,6 @@ fun AdminPedidosScreen(
                     }
                 }
 
-                // Lista o Estado Vacío
                 if (uiState.isLoading) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
