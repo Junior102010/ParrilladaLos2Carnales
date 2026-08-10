@@ -1,30 +1,41 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.inicio
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.pager.*
-import androidx.compose.foundation.shape.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.ui.draw.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.layout.*
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.text.style.*
-import androidx.compose.ui.unit.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
 import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = hiltViewModel(),
@@ -32,212 +43,210 @@ fun InicioScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val ofertasList = remember(uiState.ofertas) {
+    val ofertas = remember(uiState.ofertas) {
         if (uiState.ofertas.isNotEmpty()) {
             uiState.ofertas
         } else {
             listOf(
-                Oferta(idOferta = 1, titulo = "Parrillada Especial 1", descuentoPorcentaje = 20.0),
-                Oferta(idOferta = 2, titulo = "Combo Carnal Angus", descuentoPorcentaje = 15.0),
-                Oferta(idOferta = 3, titulo = "Especial de Costillas", descuentoPorcentaje = 25.0)
+                Oferta(
+                    idOferta = 1,
+                    titulo = "Parrillada Especial",
+                    descuentoPorcentaje = 20.0
+                ),
+                Oferta(
+                    idOferta = 2,
+                    titulo = "Combo Carnales",
+                    descuentoPorcentaje = 15.0
+                ),
+                Oferta(
+                    idOferta = 3,
+                    titulo = "Especial de Cortes",
+                    descuentoPorcentaje = 25.0
+                ),
+                Oferta(
+                    idOferta = 4,
+                    titulo = "Especial de la Casa",
+                    descuentoPorcentaje = 10.0
+                )
             )
         }
     }
 
-    val pagerState = rememberPagerState(pageCount = { ofertasList.size })
+    val pagerState = rememberPagerState(
+        pageCount = { ofertas.size }
+    )
 
-    // Transición automática cada 3 segundos
-    LaunchedEffect(ofertasList) {
-        if (ofertasList.isNotEmpty()) {
+    LaunchedEffect(ofertas.size) {
+        if (ofertas.size > 1) {
             while (true) {
-                delay(3000L)
-                val nextPage = (pagerState.currentPage + 1) % ofertasList.size
-                pagerState.animateScrollToPage(nextPage)
+                delay(3500)
+
+                val siguientePagina =
+                    (pagerState.currentPage + 1) % ofertas.size
+
+                pagerState.animateScrollToPage(siguientePagina)
             }
         }
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+
         topBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-            ) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Inicio",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                )
-            }
+            InicioTopBar(
+                fotoUsuario = uiState.fotoUsuario,
+                onPerfilClick = {
+                    onNavigate(Screen.Perfil)
+                }
+            )
         },
+
         bottomBar = {
             ParrilladaBottomBar(
                 currentScreen = Screen.Inicio,
                 rolUsuario = Rol.CLIENTE,
                 onNavigate = onNavigate
             )
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                Text(
-                    text = "Ofertas Especiales",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-
-                // Carrusel Pager de Ofertas
-                HorizontalPager(
-                    state = pagerState,
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    pageSpacing = 12.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(130.dp)
-                ) { page ->
-                    OfertaCardItem(oferta = ofertasList[page])
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Indicadores de Puntos (Dots)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    repeat(ofertasList.size) { index ->
-                        val isSelected = pagerState.currentPage == index
-                        Box(
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .size(if (isSelected) 10.dp else 6.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (isSelected) MaterialTheme.colorScheme.primary
-                                    else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
-                                )
-                        )
-                    }
-                }
-
-                Text(
-                    text = "Categorías",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                )
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(uiState.categorias) { categoria ->
-                        CategoriaCardItem(
-                            categoria = categoria,
-                            onClick = { onNavigate(Screen.Menu) }
-                        )
-                    }
-                }
-            }
         }
-    }
-}
+    ) { innerPadding ->
 
-@Composable
-private fun OfertaCardItem(oferta: Oferta) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.fillMaxSize()
-    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(innerPadding)
+                .padding(horizontal = 12.dp)
         ) {
-            Text(
-                text = oferta.titulo,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "${oferta.descuentoPorcentaje}% OFF",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-    }
-}
 
-@Composable
-private fun CategoriaCardItem(categoria: Categoria, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
+            Spacer(
+                modifier = Modifier.height(22.dp)
+            )
+
+            Text(
+                text = "Hola, ${uiState.nombreUsuario}",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(
+                modifier = Modifier.height(32.dp)
+            )
+
+            HorizontalPager(
+                state = pagerState,
+                contentPadding = PaddingValues(horizontal = 32.dp),
+                pageSpacing = 16.dp,
                 modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "🔥", style = MaterialTheme.typography.titleLarge)
+                    .fillMaxWidth()
+                    .height(155.dp)
+            ) { pagina ->
+
+                OfertaInicioCard(
+                    oferta = ofertas[pagina]
+                )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = categoria.nombreCategoria,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+            Spacer(
+                modifier = Modifier.height(5.dp)
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                repeat(ofertas.size) { index ->
+
+                    val seleccionado =
+                        pagerState.currentPage == index
+
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 2.dp)
+                            .size(
+                                if (seleccionado) {
+                                    10.dp
+                                } else {
+                                    9.dp
+                                }
+                            )
+                            .background(
+                                color = if (seleccionado) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outlineVariant
+                                },
+                                shape = CircleShape
+                            )
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
+
+            CategoriasInicio(
+                onCategoriaClick = {
+                    onNavigate(Screen.Menu)
+                }
+            )
+
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
+
+            if (uiState.platos.isNotEmpty()) {
+
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    contentPadding = PaddingValues(
+                        start = 4.dp,
+                        end = 4.dp
+                    )
+                ) {
+
+                    items(
+                        items = uiState.platos,
+                        key = { plato -> plato.idPlato }
+                    ) { plato ->
+
+                        ProductoInicioCard(
+                            plato = plato,
+                            onClick = {
+                                onNavigate(
+                                    Screen.PlatoDetail(
+                                        idPlato = plato.idPlato
+                                    )
+                                )
+                            },
+                            onAddClick = {
+                                // Después conectamos esto al carrito.
+                            }
+                        )
+                    }
+                }
+
+            } else {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(130.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Text(
+                        text = "No hay platos disponibles",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            }
+
+
         }
     }
 }

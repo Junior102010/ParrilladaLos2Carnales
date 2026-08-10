@@ -10,4 +10,5 @@ sealed interface PlatoDetalleUiEvent {
     data object OnIncrementarCantidad : PlatoDetalleUiEvent
     data object OnDecrementarCantidad : PlatoDetalleUiEvent
     data object OnAgregarAlCarrito : PlatoDetalleUiEvent
+    data object OnAgregarConsumido : PlatoDetalleUiEvent
 }

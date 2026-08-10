@@ -3,12 +3,14 @@ package com.edu.ucne.parrilladalos2carnales.di
 import android.content.Context
 import androidx.credentials.CredentialManager
 import com.edu.ucne.parrilladalos2carnales.data.repository.AuthRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.data.repository.carrito.CarritoRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.categoria.CategoriaRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.ingrediente.ComponenteRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.ingrediente.GuarnicionRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.oferta.OfertaRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.pedido.PedidoRepositoryImpl
 import com.edu.ucne.parrilladalos2carnales.data.repository.plato.PlatoRepositoryImpl
+import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.categoria.CategoriaRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.ComponenteRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.GuarnicionRepository
@@ -70,6 +72,12 @@ abstract class RepositoryModule {
     abstract fun bindPedidoRepository(
         pedidoRepositoryImpl: PedidoRepositoryImpl
     ): PedidoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCarritoRepository(
+        carritoRepositoryImpl: CarritoRepositoryImpl
+    ): CarritoRepository
 
     companion object {
         @Provides
