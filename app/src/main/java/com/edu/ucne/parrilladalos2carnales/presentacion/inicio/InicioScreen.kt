@@ -93,12 +93,7 @@ fun InicioScreen(
         containerColor = MaterialTheme.colorScheme.background,
 
         topBar = {
-            InicioTopBar(
-                fotoUsuario = uiState.fotoUsuario,
-                onPerfilClick = {
-                    onNavigate(Screen.Perfil)
-                }
-            )
+            InicioTopBar()
         },
 
         bottomBar = {
@@ -213,18 +208,18 @@ fun InicioScreen(
                         key = { plato -> plato.idPlato }
                     ) { plato ->
 
+                        val abrirDetalle = {
+                            onNavigate(
+                                Screen.PlatoDetail(
+                                    idPlato = plato.idPlato
+                                )
+                            )
+                        }
+
                         ProductoInicioCard(
                             plato = plato,
-                            onClick = {
-                                onNavigate(
-                                    Screen.PlatoDetail(
-                                        idPlato = plato.idPlato
-                                    )
-                                )
-                            },
-                            onAddClick = {
-                                // Después conectamos esto al carrito.
-                            }
+                            onClick = abrirDetalle,
+                            onAddClick = abrirDetalle
                         )
                     }
                 }

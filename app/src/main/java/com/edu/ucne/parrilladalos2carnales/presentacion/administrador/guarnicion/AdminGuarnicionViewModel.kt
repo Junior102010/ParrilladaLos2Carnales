@@ -71,7 +71,7 @@ class AdminGuarnicionViewModel @Inject constructor(
                 _uiState.update { it.copy(disponible = event.disponible) }
             }
             AdminGuarnicionUiEvent.OnGuardarClick -> guardarGuarnicion()
-            AdminGuarnicionUiEvent.OnBackClick -> { /* Manejado en la UI */ }
+            AdminGuarnicionUiEvent.OnBackClick -> {  }
         }
     }
 

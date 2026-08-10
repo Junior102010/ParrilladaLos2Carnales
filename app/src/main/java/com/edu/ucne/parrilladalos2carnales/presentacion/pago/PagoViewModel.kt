@@ -2,18 +2,25 @@ package com.edu.ucne.parrilladalos2carnales.presentacion.pago
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.DetallePedido
+import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepository
+import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.edu.ucne.parrilladalos2carnales.domain.repository.pedido.PedidoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PagoViewModel @Inject constructor(
-    private val carritoRepository: CarritoRepository
+    private val carritoRepository: CarritoRepository,
+    private val pedidoRepository: PedidoRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PagoUiState())
@@ -42,8 +49,8 @@ class PagoViewModel @Inject constructor(
             is PagoUiEvent.OnTitularTransferenciaChange -> _uiState.update { it.copy(titularTransferencia = event.titular, errorMessage = null) }
             is PagoUiEvent.OnCuentaOrigenChange -> _uiState.update { it.copy(cuentaOrigen = event.cuenta, errorMessage = null) }
             is PagoUiEvent.OnBancoChange -> _uiState.update { it.copy(banco = event.banco, errorMessage = null) }
-            PagoUiEvent.OnConfirmarPago -> validarPago()
-            PagoUiEvent.OnValidacionConsumida -> _uiState.update { it.copy(datosPagoValidos = false) }
+            PagoUiEvent.OnConfirmarPago -> confirmarPedido()
+            PagoUiEvent.OnPedidoCreadoConsumido -> _uiState.update { it.copy(pedidoCreadoId = null) }
         }
     }
 
@@ -56,10 +63,10 @@ class PagoViewModel @Inject constructor(
         }
     }
 
-    private fun validarPago() {
+    private fun confirmarPedido() {
         val state = _uiState.value
         if (state.subtotal <= 0.0) return mostrarError("El carrito está vacío")
-        if (state.tipoEntrega == TipoEntrega.DELIVERY && state.direccion.isBlank()) return mostrarError("Debes seleccionar una dirección")
+        if (state.tipoEntrega == TipoEntrega.DELIVERY && state.direccion.isBlank()) return mostrarError("Debes indicar una dirección")
 
         when (state.metodoPago) {
             MetodoPago.TARJETA -> {
@@ -69,19 +76,63 @@ class PagoViewModel @Inject constructor(
             }
             MetodoPago.EFECTIVO -> {
                 val monto = state.montoRecibido.toDoubleOrNull()
-                if (monto == null) return mostrarError("Indica con cuánto pagarás")
-                if (monto < state.total) return mostrarError("El monto recibido no puede ser menor al total")
+                if (monto == null || monto < state.total) return mostrarError("El monto recibido es insuficiente")
             }
             MetodoPago.TRANSFERENCIA -> {
-                if (state.titularTransferencia.isBlank()) return mostrarError("Introduce el titular de la transferencia")
-                if (state.cuentaOrigen.isBlank()) return mostrarError("Introduce la cuenta de origen")
-                if (state.banco.isBlank()) return mostrarError("Selecciona o introduce el banco")
+                if (state.titularTransferencia.isBlank() || state.cuentaOrigen.isBlank() || state.banco.isBlank()) {
+                    return mostrarError("Completa los datos de transferencia")
+                }
             }
         }
-        _uiState.update { it.copy(errorMessage = null, datosPagoValidos = true) }
+        crearPedido()
     }
 
-    private fun mostrarError(mensaje: String) = _uiState.update { it.copy(errorMessage = mensaje, datosPagoValidos = false) }
+    private fun crearPedido() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            try {
+                val carrito = carritoRepository.observeCarrito().first()
+                if (carrito.isEmpty()) return@launch mostrarError("El carrito está vacío")
+
+                val detalles = carrito.map { item ->
+                    DetallePedido(
+                        idPlato = item.plato.idPlato,
+                        nombrePlato = item.plato.nombre,
+                        cantidad = item.cantidad,
+                        precioUnitario = item.precioUnitario,
+                        subtotal = item.subtotal,
+                        termino = item.termino?.nombreComponente.orEmpty(),
+                        guarnicion = item.guarnicion?.nombreGuarnicion.orEmpty(),
+                        salsa = item.salsa?.nombreComponente.orEmpty()
+                    )
+                }
+
+                val tiempo = if (_uiState.value.tipoEntrega == TipoEntrega.DELIVERY) "35 - 45 min" else "20 - 30 min"
+
+                val pedido = Pedido(
+                    usuarioUid = authRepository.getUsuarioUid().orEmpty(),
+                    clienteNombre = authRepository.getNombreUsuario() ?: "Cliente",
+                    subtotal = _uiState.value.subtotal,
+                    costoDelivery = _uiState.value.delivery,
+                    total = _uiState.value.total,
+                    tipoEntrega = _uiState.value.tipoEntrega.name,
+                    direccion = if (_uiState.value.tipoEntrega == TipoEntrega.DELIVERY) _uiState.value.direccion else "Recoger en el local",
+                    metodoPago = _uiState.value.metodoPago.name,
+                    tiempoEstimado = tiempo,
+                    detalles = detalles
+                )
+
+                val idPedido = pedidoRepository.upsertPedido(pedido)
+                carritoRepository.vaciar()
+
+                _uiState.update { it.copy(isLoading = false, pedidoCreadoId = idPedido) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.localizedMessage ?: "No se pudo crear el pedido") }
+            }
+        }
+    }
+
+    private fun mostrarError(mensaje: String) = _uiState.update { it.copy(errorMessage = mensaje, isLoading = false) }
 
     private fun formatearFecha(entrada: String): String {
         val num = entrada.filter { it.isDigit() }.take(4)
@@ -94,3 +145,4 @@ class PagoViewModel @Inject constructor(
         return mes in 1..12
     }
 }
+

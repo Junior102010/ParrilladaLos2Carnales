@@ -7,7 +7,6 @@ enum class EstadoPedido(val descripcion: String) {
     ENTREGADO("Entregado"),
     CANCELADO("Cancelado");
 
-    // Pedidos activos: Pendientes o En proceso (no entregados ni cancelados)
     val esActivo: Boolean
         get() = this == PENDIENTE || this == EN_PROCESO
 }

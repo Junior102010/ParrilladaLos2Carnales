@@ -76,7 +76,7 @@ fun AdminDashboardScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Notificaciones */ }) {
+                        IconButton(onClick = {  }) {
                             Box {
                                 Icon(
                                     imageVector = Icons.Outlined.Notifications,
@@ -126,7 +126,7 @@ fun AdminDashboardScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Título: Resumen del Día
+
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
                             text = "Resumen del Día",
@@ -141,7 +141,6 @@ fun AdminDashboardScreen(
                         )
                     }
 
-                    // Tarjeta 1: Ventas de Hoy (Total de dinero de pedidos del día)
                     Card(
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -207,7 +206,6 @@ fun AdminDashboardScreen(
                         }
                     }
 
-                    // Tarjeta 2: Pedidos Activos (Pendientes o En Proceso)
                     Card(
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -282,7 +280,6 @@ fun AdminDashboardScreen(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Productos más vendidos Header
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -318,7 +315,6 @@ fun AdminDashboardScreen(
                         }
                     }
 
-                    // Lista de Platos reales
                     Card(
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),

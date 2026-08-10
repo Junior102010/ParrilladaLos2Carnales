@@ -24,6 +24,9 @@ sealed class Screen : NavKey {
     data object Perfil : Screen()
 
     @Serializable
+    data object Historial : Screen()
+
+    @Serializable
     data class PlatoDetail(val idPlato: Int) : Screen()
 
     @Serializable
@@ -51,6 +54,10 @@ sealed class Screen : NavKey {
 
     @Serializable
     data object AdminPedidos : Screen()
+
     @Serializable
     data object Pago : Screen()
+
+    @Serializable
+    data class ConfirmacionPedido(val idPedido: Int) : Screen()
 }

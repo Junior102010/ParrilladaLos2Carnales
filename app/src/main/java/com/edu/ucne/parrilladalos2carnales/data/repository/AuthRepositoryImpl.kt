@@ -105,6 +105,10 @@ class AuthRepositoryImpl @Inject constructor(
         return firebaseAuth.currentUser != null
     }
 
+    override fun getUsuarioUid(): String? {
+        return firebaseAuth.currentUser?.uid
+    }
+
     override fun getNombreUsuario(): String? {
         return firebaseAuth.currentUser?.displayName
     }
@@ -112,9 +116,13 @@ class AuthRepositoryImpl @Inject constructor(
     override fun getCorreoUsuario(): String? {
         return firebaseAuth.currentUser?.email
     }
-    override fun getFotoUsuario(): String? {
 
+    override fun getFotoUsuario(): String? {
         return firebaseAuth.currentUser?.photoUrl?.toString()
+    }
+
+    override fun esAdministrador(): Boolean {
+        return firebaseAuth.currentUser?.email.equals("admin@parrillada.com", ignoreCase = true)
     }
 
     override fun cerrarSesion() {

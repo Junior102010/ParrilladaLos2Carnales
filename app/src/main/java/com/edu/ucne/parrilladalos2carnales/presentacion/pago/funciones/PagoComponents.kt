@@ -1052,7 +1052,8 @@ fun PagoBottomBar(
     subtotal: Double,
     delivery: Double,
     total: Double,
-    onConfirmar: () -> Unit
+    onConfirmar: () -> Unit,
+    enabled: Boolean = true
 ) {
 
     Surface(
@@ -1145,6 +1146,8 @@ fun PagoBottomBar(
             Button(
                 onClick =
                     onConfirmar,
+                
+                enabled = enabled,
 
                 shape =
                     RoundedCornerShape(
@@ -1166,3 +1169,4 @@ fun PagoBottomBar(
         }
     }
 }
+

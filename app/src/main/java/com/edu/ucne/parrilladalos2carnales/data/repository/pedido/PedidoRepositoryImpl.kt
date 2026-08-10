@@ -13,10 +13,11 @@ import javax.inject.Inject
 class PedidoRepositoryImpl @Inject constructor(
     private val pedidoDao: PedidoDao
 ) : PedidoRepository {
-    override suspend fun upsertPedido(pedido: Pedido) {
-        val id = pedidoDao.upsertPedido(pedido.toEntity())
-        val detalles = pedido.detalles.map { it.copy(idPedido = id.toInt()).toEntity() }
+    override suspend fun upsertPedido(pedido: Pedido): Int {
+        val id = pedidoDao.upsertPedido(pedido.toEntity()).toInt()
+        val detalles = pedido.detalles.map { it.copy(idPedido = id).toEntity() }
         pedidoDao.upsertDetalles(detalles)
+        return id
     }
 
     override suspend fun deletePedido(pedido: Pedido) {
@@ -48,6 +49,20 @@ class PedidoRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getPedidosPorUsuario(usuarioUid: String): Flow<List<Pedido>> {
+        return pedidoDao.getPedidosPorUsuario(usuarioUid).flatMapLatest { entities ->
+            if (entities.isEmpty()) flowOf(emptyList())
+            else {
+                val flows = entities.map { entity ->
+                    pedidoDao.getDetallesPorPedido(entity.idPedido).map { detallesEntities ->
+                        entity.toDomain(detallesEntities.map { it.toDomain() })
+                    }
+                }
+                combine(flows) { it.toList() }
+            }
+        }
+    }
+
     override fun getPedidosPorFecha(fecha: String): Flow<List<Pedido>> {
         return pedidoDao.getPedidosPorFecha(fecha).flatMapLatest { entities ->
             if (entities.isEmpty()) flowOf(emptyList())
@@ -62,18 +77,8 @@ class PedidoRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCarrito(): Flow<Pedido?> {
-        return pedidoDao.getCarrito().flatMapLatest { pedidoEntity ->
-            if (pedidoEntity == null) flowOf(null)
-            else {
-                pedidoDao.getDetallesPorPedido(pedidoEntity.idPedido).map { detallesEntities ->
-                    pedidoEntity.toDomain(detallesEntities.map { it.toDomain() })
-                }
-            }
-        }
-    }
-
     override suspend fun deleteDetalle(idDetalle: Int) {
         pedidoDao.deleteDetalle(idDetalle)
     }
 }
+

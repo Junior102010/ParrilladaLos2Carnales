@@ -27,6 +27,10 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.list
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.list.AdminPlatoListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.carrito.CarritoScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.carrito.CarritoViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.confirmacion.ConfirmacionPedidoScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.confirmacion.ConfirmacionPedidoViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.historial.HistorialScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.historial.HistorialViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginScreen
@@ -37,6 +41,7 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetall
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterViewModel
@@ -101,8 +106,28 @@ fun ParrilladaNavDisplay(
             }
 
             entry<Screen.Perfil> {
+                val perfilViewModel: PerfilViewModel = hiltViewModel()
                 PerfilScreen(
-                    onNavigate = handleNavigation
+                    viewModel = perfilViewModel,
+                    onNavigate = handleNavigation,
+                    onLogout = {
+                        while (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                        backStack.add(Screen.Login)
+                    }
+                )
+            }
+
+            entry<Screen.Historial> {
+                val viewModel: HistorialViewModel = hiltViewModel()
+                HistorialScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }
                 )
             }
 
@@ -139,28 +164,33 @@ fun ParrilladaNavDisplay(
                 )
             }
             entry<Screen.Pago> {
-
-                val pagoViewModel:
-                        PagoViewModel =
-                    hiltViewModel()
-
+                val pagoViewModel: PagoViewModel = hiltViewModel()
                 PagoScreen(
-                    viewModel =
-                        pagoViewModel,
-
-                    onBack = {
-
-                        if (
-                            backStack.isNotEmpty()
-                        ) {
-
-                            backStack.removeAt(
-                                backStack.size - 1
-                            )
+                    viewModel = pagoViewModel,
+                    onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
+                    onPedidoCreado = { idPedido ->
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
                         }
-                    },
+                        backStack.add(Screen.ConfirmacionPedido(idPedido = idPedido))
+                    }
+                )
+            }
 
-                    onPagoConfirmado = {
+            entry<Screen.ConfirmacionPedido> { confirmacion ->
+                val viewModel: ConfirmacionPedidoViewModel = hiltViewModel()
+                LaunchedEffect(confirmacion.idPedido) {
+                    viewModel.setId(confirmacion.idPedido)
+                }
+                ConfirmacionPedidoScreen(
+                    viewModel = viewModel,
+                    onVolverInicio = {
+                        while (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                        backStack.add(Screen.Inicio)
+                    },
+                    onVerEstado = { idPedido ->
 
                     }
                 )
@@ -240,3 +270,4 @@ fun ParrilladaNavDisplay(
         }
     )
 }
+

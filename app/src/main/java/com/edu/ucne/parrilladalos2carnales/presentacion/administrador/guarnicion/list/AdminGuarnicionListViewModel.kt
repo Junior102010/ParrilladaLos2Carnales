@@ -40,9 +40,9 @@ class AdminGuarnicionListViewModel @Inject constructor(
                     state.copy(searchQuery = query, guarnicionesFiltradas = filtrados)
                 }
             }
-            AdminGuarnicionListUiEvent.OnAddGuarnicionClick -> { /* Manejado por navegación */ }
-            is AdminGuarnicionListUiEvent.OnEditGuarnicionClick -> { /* Manejado por navegación */ }
-            AdminGuarnicionListUiEvent.OnBackClick -> { /* Manejado por navegación */ }
+            AdminGuarnicionListUiEvent.OnAddGuarnicionClick -> {  }
+            is AdminGuarnicionListUiEvent.OnEditGuarnicionClick -> {  }
+            AdminGuarnicionListUiEvent.OnBackClick -> {  }
         }
     }
 

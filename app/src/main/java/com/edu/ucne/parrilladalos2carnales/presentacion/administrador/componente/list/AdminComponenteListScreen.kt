@@ -67,7 +67,7 @@ fun AdminComponenteListScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Pestañas de Navegación Rápida
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

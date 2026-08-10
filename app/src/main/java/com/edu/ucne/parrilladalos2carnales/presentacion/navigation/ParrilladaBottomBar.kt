@@ -56,9 +56,8 @@ fun ParrilladaBottomBar(
             shape =
                 RoundedCornerShape(30.dp),
 
-            // IMPORTANTE:
-            // respeta directamente
-            // ContenedorFormularioClaro/Oscuro.
+
+
             color =
                 MaterialTheme.colorScheme.surface,
 

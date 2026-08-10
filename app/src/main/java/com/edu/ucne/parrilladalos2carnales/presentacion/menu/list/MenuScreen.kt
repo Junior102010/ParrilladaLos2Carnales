@@ -52,11 +52,7 @@ fun MenuScreen(
             MaterialTheme.colorScheme.background,
 
         topBar = {
-            MenuTopBar(
-                onPerfilClick = {
-                    onNavigate(Screen.Perfil)
-                }
-            )
+            MenuTopBar()
         },
 
         bottomBar = {
@@ -74,9 +70,8 @@ fun MenuScreen(
                 .padding(innerPadding)
         ) {
 
-            // =============================
-            // BUSCADOR
-            // =============================
+
+
 
             OutlinedTextField(
                 value = uiState.searchQuery,

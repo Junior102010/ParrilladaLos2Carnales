@@ -60,14 +60,14 @@ class AdminComponenteViewModel @Inject constructor(
             is AdminComponenteUiEvent.OnCategoriaChange -> _uiState.update {
                 it.copy(
                     categoriaComponente = event.categoria,
-                    // Si cambia a Cocción, el precio por defecto suele ser 0
+
                     precioComponente = if (event.categoria == "Coccion") "0.0" else it.precioComponente
                 )
             }
             is AdminComponenteUiEvent.OnCoccionChange -> _uiState.update { it.copy(coccion = event.coccion) }
             is AdminComponenteUiEvent.OnDisponibleChange -> _uiState.update { it.copy(disponible = event.disponible) }
             AdminComponenteUiEvent.OnGuardarClick -> guardarComponente()
-            AdminComponenteUiEvent.OnBackClick -> { /* Manejado por navegación */ }
+            AdminComponenteUiEvent.OnBackClick -> {  }
         }
     }
 

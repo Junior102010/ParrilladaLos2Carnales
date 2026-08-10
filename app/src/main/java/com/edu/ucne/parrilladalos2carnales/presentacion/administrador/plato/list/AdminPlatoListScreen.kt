@@ -140,7 +140,6 @@ fun AdminPlatoListScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
-                // Selector de Secciones del Administrador
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

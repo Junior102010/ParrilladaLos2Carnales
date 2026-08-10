@@ -124,7 +124,6 @@ fun AdminDrawerContent(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de Cerrar Sesión
             Button(
                 onClick = {
                     onCloseDrawer()

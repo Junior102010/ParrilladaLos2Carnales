@@ -37,11 +37,11 @@ class PlatoListViewModel @Inject constructor(
             }
 
             is PlatoListUiEvent.OnPlatoClicked -> {
-                // La navegación se maneja desde MenuScreen.
+
             }
 
             is PlatoListUiEvent.OnAddCarritoClicked -> {
-                // Luego conectaremos esto con el carrito.
+
             }
 
             PlatoListUiEvent.OnRefresh -> {
@@ -71,7 +71,6 @@ class PlatoListViewModel @Inject constructor(
                 }
                 .collect { lista ->
 
-                    // El cliente solo ve platos disponibles.
                     val disponibles =
                         lista.filter { plato ->
                             plato.disponible
