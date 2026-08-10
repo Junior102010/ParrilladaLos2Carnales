@@ -7,3 +7,4 @@ data class HistorialUiState(
     val pedidos: List<Pedido> = emptyList(),
     val errorMessage: String? = null
 )
+

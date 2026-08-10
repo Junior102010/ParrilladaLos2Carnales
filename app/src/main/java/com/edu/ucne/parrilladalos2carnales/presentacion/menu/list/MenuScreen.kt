@@ -70,9 +70,8 @@ fun MenuScreen(
                 .padding(innerPadding)
         ) {
 
-            // =============================
-            // BUSCADOR
-            // =============================
+
+
 
             OutlinedTextField(
                 value = uiState.searchQuery,

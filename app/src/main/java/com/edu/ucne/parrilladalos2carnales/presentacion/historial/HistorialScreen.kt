@@ -66,11 +66,11 @@ fun HistorialScreen(
 @Composable
 private fun HistorialTopBar(onBack: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).height(52.dp)) {
+        Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).height(56.dp)) {
             IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = MaterialTheme.colorScheme.onSurface)
             }
-            Text("Mi Historial", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
+            Text("Historial", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -78,49 +78,71 @@ private fun HistorialTopBar(onBack: () -> Unit) {
 @Composable
 private fun HistorialPedidoCard(pedido: Pedido) {
     Card(
-        shape = RoundedCornerShape(24.dp),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        modifier = Modifier.fillMaxWidth()
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(18.dp)) {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text(pedido.numeroOrden, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                EstadoChip(pedido.estado)
+                Column {
+                    Text(pedido.numeroOrden, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(formatearFecha(pedido.fechaMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                EstadoPedidoChip(pedido.estado)
             }
-            Text(formatearFechaLarga(pedido.fechaMillis), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            HorizontalDivider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant)
+            pedido.detalles.forEach { detalle ->
+                Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                    Text("${detalle.cantidad}x ${detalle.nombrePlato}", Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
+                    Text("RD$ ${String.format("%.2f", detalle.subtotal)}", color = MaterialTheme.colorScheme.onSurface)
+                }
+                val configuracion = listOfNotNull(detalle.termino.takeIf { it.isNotBlank() }, detalle.guarnicion.takeIf { it.isNotBlank() }, detalle.salsa.takeIf { it.isNotBlank() }).joinToString(" • ")
+                if (configuracion.isNotBlank()) {
+                    Text(configuracion, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 7.dp))
+                }
+            }
+            HorizontalDivider(Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text("${pedido.detalles.sumOf { it.cantidad }} artículos")
-                Text("RD$ ${String.format("%.2f", pedido.total)}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text(if (pedido.tipoEntrega == "DELIVERY") "Delivery" else "Recoger", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(pedido.metodoPago.lowercase().replaceFirstChar { it.uppercase() }, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.height(10.dp))
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+                Text("Total", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("RD$ ${String.format("%.2f", pedido.total)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
 }
 
 @Composable
-private fun EstadoChip(estado: EstadoPedido) {
+private fun EstadoPedidoChip(estado: EstadoPedido) {
     val color = when (estado) {
-        EstadoPedido.PENDIENTE -> MaterialTheme.colorScheme.tertiary
-        EstadoPedido.EN_PROCESO -> MaterialTheme.colorScheme.secondary
-        EstadoPedido.ENTREGADO -> MaterialTheme.colorScheme.primary
+        EstadoPedido.PENDIENTE -> MaterialTheme.colorScheme.secondary
+        EstadoPedido.EN_PROCESO -> MaterialTheme.colorScheme.primary
+        EstadoPedido.ENTREGADO -> MaterialTheme.colorScheme.tertiary
         EstadoPedido.CANCELADO -> MaterialTheme.colorScheme.error
     }
-    Surface(color = color.copy(alpha = 0.15f), shape = RoundedCornerShape(12.dp)) {
-        Text(estado.descripcion, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = color, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+    Surface(color = color.copy(alpha = 0.15f), contentColor = color, shape = RoundedCornerShape(20.dp)) {
+        Text(estado.descripcion, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
     }
 }
 
 @Composable
 private fun HistorialVacio(modifier: Modifier = Modifier) {
-    Column(modifier, Arrangement.Center, Alignment.CenterHorizontally) {
-        Icon(Icons.Default.ReceiptLong, null, Modifier.size(80.dp), tint = MaterialTheme.colorScheme.outlineVariant)
+    Column(modifier.padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(Icons.Default.ReceiptLong, null, Modifier.size(70.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(16.dp))
-        Text("No tienes pedidos aún", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Aún no tienes pedidos", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(6.dp))
+        Text("Cuando realices un pedido aparecerá aquí.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
-private fun formatearFechaLarga(millis: Long): String {
-    val sdf = SimpleDateFormat("dd 'de' MMMM, yyyy", Locale("es", "ES"))
-    return sdf.format(Date(millis))
+private fun formatearFecha(millis: Long): String {
+    if (millis <= 0L) return ""
+    val formato = SimpleDateFormat("dd/MM/yyyy • hh:mm a", Locale.getDefault())
+    return formato.format(Date(millis))
 }
+
