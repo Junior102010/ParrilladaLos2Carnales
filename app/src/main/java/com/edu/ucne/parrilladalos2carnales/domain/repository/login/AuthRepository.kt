@@ -32,3 +32,4 @@ interface AuthRepository {
 
     fun cerrarSesion()
 }
+

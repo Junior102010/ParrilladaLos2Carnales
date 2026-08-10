@@ -21,9 +21,9 @@ val IconosOscuro = Color(0xFFFDFBF7)
 val FondoCamposTextoOscuro = Color(0xFF424242)
 val BotonPrincipalOscuro = Color(0xFFA0522D)
 val TextoBotonBlanco = Color(0xFFFFFFFF)
-val PasoActivoOscuro = Color(0xBFA0522D) // 75% opacidad
+val PasoActivoOscuro = Color(0xBFA0522D)
 val BotonSecundarioOscuro = Color(0xFF37474F)
-val PasosInactivosOscuro = Color(0xBF757575) // 75% opacidad
+val PasosInactivosOscuro = Color(0xBF757575)
 
 
 val FondoPrincipalClaro = Color(0xFFFFFFFF)
@@ -36,6 +36,6 @@ val IconosClaro = Color(0xFF37474F)
 val FondoCamposTextoClaro = Color(0xFFF5F5F5)
 val TrazoCamposTextoClaro = Color(0xFFE0E0E0)
 val BotonPrincipalClaro = Color(0xFF8B4513)
-val PasoActivoClaro = Color(0xBF8B4513) // 75% opacidad
+val PasoActivoClaro = Color(0xBF8B4513)
 val BotonSecundarioClaro = Color(0xFFD7CCC8)
-val PasosInactivosClaro = Color(0xBFE0E0E0) // 75% opacidad
+val PasosInactivosClaro = Color(0xBFE0E0E0)

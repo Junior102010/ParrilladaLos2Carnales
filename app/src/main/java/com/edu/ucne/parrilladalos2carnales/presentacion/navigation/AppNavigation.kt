@@ -29,6 +29,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.carrito.CarritoScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.carrito.CarritoViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.confirmacion.ConfirmacionPedidoScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.confirmacion.ConfirmacionPedidoViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.historial.HistorialScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.historial.HistorialViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginScreen
@@ -117,6 +119,18 @@ fun ParrilladaNavDisplay(
                 )
             }
 
+            entry<Screen.Historial> {
+                val viewModel: HistorialViewModel = hiltViewModel()
+                HistorialScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }
+                )
+            }
+
             entry<Screen.Menu> {
                 val platoListViewModel: PlatoListViewModel = hiltViewModel()
                 MenuScreen(
@@ -177,7 +191,7 @@ fun ParrilladaNavDisplay(
                         backStack.add(Screen.Inicio)
                     },
                     onVerEstado = { idPedido ->
-                        // Pendiente: SeguimientoPedido
+
                     }
                 )
             }
@@ -256,3 +270,4 @@ fun ParrilladaNavDisplay(
         }
     )
 }
+
