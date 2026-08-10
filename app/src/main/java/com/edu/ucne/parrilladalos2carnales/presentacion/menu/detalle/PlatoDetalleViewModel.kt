@@ -132,3 +132,4 @@ class PlatoDetalleViewModel @Inject constructor(
         super.onCleared()
     }
 }
+

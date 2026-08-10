@@ -29,3 +29,4 @@ data class PagoUiState(
     val errorMessage: String? = null,
     val pedidoCreadoId: Int? = null
 )
+

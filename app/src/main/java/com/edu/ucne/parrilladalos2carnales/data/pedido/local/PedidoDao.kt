@@ -39,3 +39,4 @@ interface PedidoDao {
     @Query("DELETE FROM DetallesPedido WHERE idDetalle = :idDetalle")
     suspend fun deleteDetalle(idDetalle: Int)
 }
+

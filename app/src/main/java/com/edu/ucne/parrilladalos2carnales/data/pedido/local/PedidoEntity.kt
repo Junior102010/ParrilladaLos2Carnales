@@ -21,3 +21,4 @@ data class PedidoEntity(
     val tiempoEstimado: String = "",
     val estado: String = ""
 )
+

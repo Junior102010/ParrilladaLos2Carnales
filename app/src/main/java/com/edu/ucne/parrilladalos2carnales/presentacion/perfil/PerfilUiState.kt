@@ -6,3 +6,4 @@ data class PerfilUiState(
     val fotoUrl: String? = null,
     val sesionCerrada: Boolean = false
 )
+

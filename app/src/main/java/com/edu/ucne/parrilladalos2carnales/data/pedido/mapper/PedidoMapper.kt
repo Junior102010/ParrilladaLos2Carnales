@@ -70,3 +70,4 @@ fun DetallePedidoEntity.toDomain() = DetallePedido(
     guarnicion = guarnicion,
     salsa = salsa
 )
+

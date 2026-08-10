@@ -14,3 +14,4 @@ sealed interface PagoUiEvent {
     data object OnConfirmarPago : PagoUiEvent
     data object OnPedidoCreadoConsumido : PagoUiEvent
 }
+

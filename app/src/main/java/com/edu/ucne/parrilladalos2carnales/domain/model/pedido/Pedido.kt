@@ -6,9 +6,9 @@ import java.util.Locale
 
 data class Pedido(
     val idPedido: Int = 0,
-    // Se mantiene por compatibilidad.
+
     val idUsuario: Int = 0,
-    // ID verdadero del usuario Firebase.
+
     val usuarioUid: String = "",
     val clienteNombre: String = "",
     val fecha: String = obtenerFechaHoy(),
@@ -16,10 +16,10 @@ data class Pedido(
     val subtotal: Double = 0.0,
     val costoDelivery: Double = 0.0,
     val total: Double = 0.0,
-    // DELIVERY / RECOGER
+
     val tipoEntrega: String = "",
     val direccion: String = "",
-    // EFECTIVO / TARJETA / TRANSFERENCIA
+
     val metodoPago: String = "",
     val tiempoEstimado: String = "",
     val estado: EstadoPedido = EstadoPedido.PENDIENTE,
@@ -33,3 +33,4 @@ fun obtenerFechaHoy(): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return sdf.format(Date())
 }
+
