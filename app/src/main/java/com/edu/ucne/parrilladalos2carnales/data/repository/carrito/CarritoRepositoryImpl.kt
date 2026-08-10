@@ -22,8 +22,7 @@ class CarritoRepositoryImpl @Inject constructor() : CarritoRepository {
 
         val actual = _items.value.toMutableList()
 
-        // Verificamos si ya existe exactamente la
-        // misma combinación.
+
         val index = actual.indexOfFirst {
 
             it.plato.idPlato == item.plato.idPlato &&
