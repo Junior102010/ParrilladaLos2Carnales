@@ -17,3 +17,4 @@ data class DetallePedidoEntity(
     val guarnicion: String = "",
     val salsa: String = ""
 )
+

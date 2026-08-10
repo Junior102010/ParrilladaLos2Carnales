@@ -20,3 +20,4 @@ interface GuarnicionDao {
     @Query("SELECT * FROM Guarniciones")
     fun getGuarniciones(): Flow<List<GuarnicionEntity>>
 }
+

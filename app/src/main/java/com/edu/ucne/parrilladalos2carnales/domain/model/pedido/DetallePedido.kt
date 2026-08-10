@@ -12,3 +12,4 @@ data class DetallePedido(
     val guarnicion: String = "",
     val salsa: String = ""
 )
+

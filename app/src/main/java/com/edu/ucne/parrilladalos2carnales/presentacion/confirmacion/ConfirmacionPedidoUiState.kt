@@ -7,3 +7,4 @@ data class ConfirmacionPedidoUiState(
     val pedido: Pedido? = null,
     val errorMessage: String? = null
 )
+

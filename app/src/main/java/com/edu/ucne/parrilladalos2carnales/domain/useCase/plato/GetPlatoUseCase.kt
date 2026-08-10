@@ -12,3 +12,4 @@ class GetPlatoUseCase @Inject constructor(
         return platoRepository.getPlato(idPlato)
     }
 }
+
