@@ -94,6 +94,7 @@ fun InicioScreen(
 
         topBar = {
             InicioTopBar(
+                fotoUsuario = uiState.fotoUsuario,
                 onPerfilClick = {
                     onNavigate(Screen.Perfil)
                 }
@@ -121,7 +122,7 @@ fun InicioScreen(
             )
 
             Text(
-                text = "Hola, Victor",
+                text = "Hola, ${uiState.nombreUsuario}",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground

@@ -13,6 +13,11 @@ interface AuthRepository {
 
     fun isUsuarioLogueado(): Boolean
 
-    fun cerrarSesion()
+    fun getNombreUsuario(): String?
 
+    fun getCorreoUsuario(): String?
+
+    fun getFotoUsuario(): String?
+
+    fun cerrarSesion()
 }

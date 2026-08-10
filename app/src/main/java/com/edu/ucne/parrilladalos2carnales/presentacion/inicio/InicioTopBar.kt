@@ -24,8 +24,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import coil.compose.AsyncImage
+
 @Composable
 fun InicioTopBar(
+    fotoUsuario: String? = null,
     onPerfilClick: () -> Unit
 ) {
     Surface(
@@ -70,12 +75,23 @@ fun InicioTopBar(
                 IconButton(
                     onClick = onPerfilClick
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "Perfil",
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
+                    if (!fotoUsuario.isNullOrBlank()) {
+                        AsyncImage(
+                            model = fotoUsuario,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = "Perfil",
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
 
                 IconButton(

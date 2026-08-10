@@ -51,14 +51,35 @@ class LoginViewModel @Inject constructor(
             isLoading = false
         }
     }
-    fun loginConGoogle(context: Context, onSuccess: () -> Unit) {
+    fun loginConGoogle(
+        context: Context,
+        onSuccess: () -> Unit
+    ) {
+
         viewModelScope.launch {
-            val result = authRepository.signInWithGoogle(context)
+
+            isLoading = true
+            errorMessage = null
+
+            val result =
+                authRepository
+                    .signInWithGoogle(
+                        context
+                    )
+
             if (result.isSuccess) {
+
                 onSuccess()
+
             } else {
 
+                errorMessage =
+                    result.exceptionOrNull()
+                        ?.localizedMessage
+                        ?: "No se pudo iniciar sesión con Google"
             }
+
+            isLoading = false
         }
     }
 

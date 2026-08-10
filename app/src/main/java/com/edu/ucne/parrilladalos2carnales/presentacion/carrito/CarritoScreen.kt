@@ -198,6 +198,34 @@ fun CarritoScreen(
                             uiState.total
                     )
                 }
+                item {
+
+                    Button(
+                        onClick = {
+                            onNavigate(
+                                Screen.Pago
+                            )
+                        },
+
+                        shape =
+                            RoundedCornerShape(
+                                28.dp
+                            ),
+
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+
+                        Text(
+                            text =
+                                "Continuar al pago",
+
+                            fontWeight =
+                                FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }

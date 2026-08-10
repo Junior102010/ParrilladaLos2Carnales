@@ -34,6 +34,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.MenuScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterScreen
@@ -133,6 +135,33 @@ fun ParrilladaNavDisplay(
                     },
                     onAgregadoAlCarrito = {
                         backStack.add(Screen.Carrito)
+                    }
+                )
+            }
+            entry<Screen.Pago> {
+
+                val pagoViewModel:
+                        PagoViewModel =
+                    hiltViewModel()
+
+                PagoScreen(
+                    viewModel =
+                        pagoViewModel,
+
+                    onBack = {
+
+                        if (
+                            backStack.isNotEmpty()
+                        ) {
+
+                            backStack.removeAt(
+                                backStack.size - 1
+                            )
+                        }
+                    },
+
+                    onPagoConfirmado = {
+
                     }
                 )
             }
