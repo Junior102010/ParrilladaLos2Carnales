@@ -14,6 +14,16 @@ interface PedidoDao {
     @Query("SELECT * FROM Pedidos WHERE idPedido = :idPedido")
     fun getPedido(idPedido: Int): Flow<PedidoEntity?>
 
+    @Query(
+        """
+        SELECT * 
+        FROM Pedidos 
+        WHERE usuarioUid = :usuarioUid
+        ORDER BY fechaMillis DESC
+        """
+    )
+    fun getPedidosPorUsuario(usuarioUid: String): Flow<List<PedidoEntity>>
+
     @Query("SELECT * FROM Pedidos")
     fun getPedidos(): Flow<List<PedidoEntity>>
 

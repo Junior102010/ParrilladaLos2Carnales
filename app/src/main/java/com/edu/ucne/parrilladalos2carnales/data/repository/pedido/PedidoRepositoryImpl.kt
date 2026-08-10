@@ -49,6 +49,20 @@ class PedidoRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getPedidosPorUsuario(usuarioUid: String): Flow<List<Pedido>> {
+        return pedidoDao.getPedidosPorUsuario(usuarioUid).flatMapLatest { entities ->
+            if (entities.isEmpty()) flowOf(emptyList())
+            else {
+                val flows = entities.map { entity ->
+                    pedidoDao.getDetallesPorPedido(entity.idPedido).map { detallesEntities ->
+                        entity.toDomain(detallesEntities.map { it.toDomain() })
+                    }
+                }
+                combine(flows) { it.toList() }
+            }
+        }
+    }
+
     override fun getPedidosPorFecha(fecha: String): Flow<List<Pedido>> {
         return pedidoDao.getPedidosPorFecha(fecha).flatMapLatest { entities ->
             if (entities.isEmpty()) flowOf(emptyList())

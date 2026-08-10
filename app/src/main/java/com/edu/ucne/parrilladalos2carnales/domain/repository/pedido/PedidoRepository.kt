@@ -13,6 +13,8 @@ interface PedidoRepository {
     
     fun getPedidos(): Flow<List<Pedido>>
 
+    fun getPedidosPorUsuario(usuarioUid: String): Flow<List<Pedido>>
+
     fun getPedidosPorFecha(fecha: String): Flow<List<Pedido>>
 
     suspend fun deleteDetalle(idDetalle: Int)
