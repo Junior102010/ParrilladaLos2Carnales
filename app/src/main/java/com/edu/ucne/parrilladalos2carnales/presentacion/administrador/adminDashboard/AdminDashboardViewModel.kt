@@ -30,16 +30,13 @@ class AdminDashboardViewModel @Inject constructor(
         loadData()
     }
 
-    // Calcula el total de ventas del día y los pedidos activos
     fun calcularVentasYPedidos(pedidos: List<Pedido>) {
         val hoy = obtenerFechaHoy()
 
-        // Ventas de Hoy: Suma del costo total de pedidos realizados hoy (excluyendo cancelados)
         val totalVentasHoy = pedidos
             .filter { it.fecha == hoy && it.estado != EstadoPedido.CANCELADO }
             .sumOf { it.total }
 
-        // Pedidos Activos: Cantidad de pedidos pendientes o en proceso
         val activosCount = pedidos.count { it.estado.esActivo }
 
         val pedidosTotalHoy = pedidos.count { it.fecha == hoy }

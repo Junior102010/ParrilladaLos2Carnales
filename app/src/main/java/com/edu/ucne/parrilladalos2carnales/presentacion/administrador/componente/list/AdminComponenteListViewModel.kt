@@ -30,9 +30,9 @@ class AdminComponenteListViewModel @Inject constructor(
     fun onEvent(event: AdminComponenteListUiEvent) {
         when (event) {
             is AdminComponenteListUiEvent.OnDeleteComponenteClick -> borrarComponente(event.componente)
-            AdminComponenteListUiEvent.OnAddComponenteClick -> { /* Manejado por navegación */ }
-            is AdminComponenteListUiEvent.OnEditComponenteClick -> { /* Manejado por navegación */ }
-            AdminComponenteListUiEvent.OnBackClick -> { /* Manejado por navegación */ }
+            AdminComponenteListUiEvent.OnAddComponenteClick -> {  }
+            is AdminComponenteListUiEvent.OnEditComponenteClick -> {  }
+            AdminComponenteListUiEvent.OnBackClick -> {  }
         }
     }
 
