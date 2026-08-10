@@ -24,6 +24,9 @@ sealed class Screen : NavKey {
     data object Perfil : Screen()
 
     @Serializable
+    data object Historial : Screen()
+
+    @Serializable
     data class PlatoDetail(val idPlato: Int) : Screen()
 
     @Serializable
