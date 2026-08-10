@@ -52,11 +52,7 @@ fun MenuScreen(
             MaterialTheme.colorScheme.background,
 
         topBar = {
-            MenuTopBar(
-                onPerfilClick = {
-                    onNavigate(Screen.Perfil)
-                }
-            )
+            MenuTopBar()
         },
 
         bottomBar = {

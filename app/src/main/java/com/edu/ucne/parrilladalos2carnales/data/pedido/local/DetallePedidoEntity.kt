@@ -12,5 +12,8 @@ data class DetallePedidoEntity(
     val nombrePlato: String = "",
     val cantidad: Int = 0,
     val precioUnitario: Double = 0.0,
-    val subtotal: Double = 0.0
+    val subtotal: Double = 0.0,
+    val termino: String = "",
+    val guarnicion: String = "",
+    val salsa: String = ""
 )

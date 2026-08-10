@@ -27,6 +27,5 @@ data class PagoUiState(
     val total: Double = 0.0,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-
-    val datosPagoValidos: Boolean = false
+    val pedidoCreadoId: Int? = null
 )
