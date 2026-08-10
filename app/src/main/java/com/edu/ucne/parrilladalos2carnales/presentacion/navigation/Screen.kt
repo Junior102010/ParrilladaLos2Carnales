@@ -51,6 +51,10 @@ sealed class Screen : NavKey {
 
     @Serializable
     data object AdminPedidos : Screen()
+
     @Serializable
     data object Pago : Screen()
+
+    @Serializable
+    data class ConfirmacionPedido(val idPedido: Int) : Screen()
 }

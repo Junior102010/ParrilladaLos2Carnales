@@ -26,7 +26,7 @@ import com.edu.ucne.parrilladalos2carnales.data.plato.local.PlatoEntity
         PedidoEntity::class,
         DetallePedidoEntity::class
     ],
-    version = 4,
+    version = 8,
     exportSchema = false
 )
 abstract class ParrilladaDb : RoomDatabase() {

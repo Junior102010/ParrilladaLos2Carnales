@@ -9,21 +9,39 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 fun Pedido.toEntity() = PedidoEntity(
     idPedido = idPedido,
     idUsuario = idUsuario,
+    usuarioUid = usuarioUid,
     clienteNombre = clienteNombre,
     fecha = fecha,
     fechaMillis = fechaMillis,
+    subtotal = subtotal,
+    costoDelivery = costoDelivery,
     total = total,
+    tipoEntrega = tipoEntrega,
+    direccion = direccion,
+    metodoPago = metodoPago,
+    tiempoEstimado = tiempoEstimado,
     estado = estado.name
 )
 
 fun PedidoEntity.toDomain(detalles: List<DetallePedido>) = Pedido(
     idPedido = idPedido,
     idUsuario = idUsuario,
+    usuarioUid = usuarioUid,
     clienteNombre = clienteNombre,
     fecha = fecha,
     fechaMillis = fechaMillis,
+    subtotal = subtotal,
+    costoDelivery = costoDelivery,
     total = total,
-    estado = try { EstadoPedido.valueOf(estado) } catch (e: Exception) { EstadoPedido.PENDIENTE },
+    tipoEntrega = tipoEntrega,
+    direccion = direccion,
+    metodoPago = metodoPago,
+    tiempoEstimado = tiempoEstimado,
+    estado = try {
+        EstadoPedido.valueOf(estado)
+    } catch (_: Exception) {
+        EstadoPedido.PENDIENTE
+    },
     detalles = detalles
 )
 
@@ -34,7 +52,10 @@ fun DetallePedido.toEntity() = DetallePedidoEntity(
     nombrePlato = nombrePlato,
     cantidad = cantidad,
     precioUnitario = precioUnitario,
-    subtotal = subtotal
+    subtotal = subtotal,
+    termino = termino,
+    guarnicion = guarnicion,
+    salsa = salsa
 )
 
 fun DetallePedidoEntity.toDomain() = DetallePedido(
@@ -44,5 +65,8 @@ fun DetallePedidoEntity.toDomain() = DetallePedido(
     nombrePlato = nombrePlato,
     cantidad = cantidad,
     precioUnitario = precioUnitario,
-    subtotal = subtotal
+    subtotal = subtotal,
+    termino = termino,
+    guarnicion = guarnicion,
+    salsa = salsa
 )

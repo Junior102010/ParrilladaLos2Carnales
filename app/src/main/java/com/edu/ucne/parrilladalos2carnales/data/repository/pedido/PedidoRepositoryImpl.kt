@@ -13,10 +13,11 @@ import javax.inject.Inject
 class PedidoRepositoryImpl @Inject constructor(
     private val pedidoDao: PedidoDao
 ) : PedidoRepository {
-    override suspend fun upsertPedido(pedido: Pedido) {
-        val id = pedidoDao.upsertPedido(pedido.toEntity())
-        val detalles = pedido.detalles.map { it.copy(idPedido = id.toInt()).toEntity() }
+    override suspend fun upsertPedido(pedido: Pedido): Int {
+        val id = pedidoDao.upsertPedido(pedido.toEntity()).toInt()
+        val detalles = pedido.detalles.map { it.copy(idPedido = id).toEntity() }
         pedidoDao.upsertDetalles(detalles)
+        return id
     }
 
     override suspend fun deletePedido(pedido: Pedido) {
@@ -58,17 +59,6 @@ class PedidoRepositoryImpl @Inject constructor(
                     }
                 }
                 combine(flows) { it.toList() }
-            }
-        }
-    }
-
-    override fun getCarrito(): Flow<Pedido?> {
-        return pedidoDao.getCarrito().flatMapLatest { pedidoEntity ->
-            if (pedidoEntity == null) flowOf(null)
-            else {
-                pedidoDao.getDetallesPorPedido(pedidoEntity.idPedido).map { detallesEntities ->
-                    pedidoEntity.toDomain(detallesEntities.map { it.toDomain() })
-                }
             }
         }
     }

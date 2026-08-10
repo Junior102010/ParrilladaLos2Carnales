@@ -7,16 +7,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
@@ -26,9 +32,18 @@ import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
-    rolUsuario: Rol = Rol.ADMINISTRADOR,
-    onNavigate: (Screen) -> Unit = {}
+    viewModel: PerfilViewModel,
+    onNavigate: (Screen) -> Unit,
+    onLogout: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.sesionCerrada) {
+        if (uiState.sesionCerrada) {
+            onLogout()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -42,7 +57,7 @@ fun PerfilScreen(
         bottomBar = {
             ParrilladaBottomBar(
                 currentScreen = Screen.Perfil,
-                rolUsuario = rolUsuario,
+                rolUsuario = Rol.CLIENTE,
                 onNavigate = onNavigate
             )
         },
@@ -68,32 +83,42 @@ fun PerfilScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(32.dp)
+                    if (!uiState.fotoUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = uiState.fotoUrl,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
                         )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(45.dp)
+                            )
+                        }
                     }
 
                     Column {
                         Text(
-                            text = if (rolUsuario == Rol.ADMINISTRADOR) "Administrador Parrillada" else "Cliente Parrillada",
-                            style = MaterialTheme.typography.titleMedium,
+                            text = uiState.nombre,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = MaterialTheme.typography.titleLarge
                         )
                         Text(
-                            text = "Rol: ${rolUsuario.name}",
+                            text = uiState.correo,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -147,6 +172,27 @@ fun PerfilScreen(
                         onClick = { ThemeManager.themeMode = ThemeMode.SISTEMA }
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = { viewModel.cerrarSesion() },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = null
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "Cerrar sesión",
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
