@@ -233,7 +233,9 @@ fun ParrilladaBottomBar(
 
                         isSelected =
                             currentScreen
-                                    is Screen.Perfil,
+                                    is Screen.Perfil ||
+                                    currentScreen
+                                            is Screen.Historial,
 
                         onClick = {
                             onNavigate(

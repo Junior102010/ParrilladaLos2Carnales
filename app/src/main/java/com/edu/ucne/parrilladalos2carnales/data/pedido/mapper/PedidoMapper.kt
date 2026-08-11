@@ -50,12 +50,16 @@ fun DetallePedido.toEntity() = DetallePedidoEntity(
     idPedido = idPedido,
     idPlato = idPlato,
     nombrePlato = nombrePlato,
+    imagenUrl = imagenUrl,
     cantidad = cantidad,
     precioUnitario = precioUnitario,
     subtotal = subtotal,
     termino = termino,
+    idTermino = idTermino,
     guarnicion = guarnicion,
-    salsa = salsa
+    idGuarnicion = idGuarnicion,
+    salsa = salsa,
+    idSalsa = idSalsa
 )
 
 fun DetallePedidoEntity.toDomain() = DetallePedido(
@@ -63,11 +67,14 @@ fun DetallePedidoEntity.toDomain() = DetallePedido(
     idPedido = idPedido,
     idPlato = idPlato,
     nombrePlato = nombrePlato,
+    imagenUrl = imagenUrl,
     cantidad = cantidad,
     precioUnitario = precioUnitario,
     subtotal = subtotal,
     termino = termino,
+    idTermino = idTermino,
     guarnicion = guarnicion,
-    salsa = salsa
+    idGuarnicion = idGuarnicion,
+    salsa = salsa,
+    idSalsa = idSalsa
 )
-

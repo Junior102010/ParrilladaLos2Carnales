@@ -7,19 +7,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
+import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,12 +32,21 @@ import java.util.Locale
 @Composable
 fun HistorialScreen(
     viewModel: HistorialViewModel = hiltViewModel(),
+    onNavigate: (Screen) -> Unit,
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.pedidoRepetidoExitosamente) {
+        if (uiState.pedidoRepetidoExitosamente) {
+            viewModel.onMensajeConsumido()
+            onNavigate(Screen.Carrito)
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { HistorialTopBar(onBack = onBack) }
+        topBar = { HistorialTopBar(onBack = onBack, onPerfilClick = { onNavigate(Screen.Perfil) }) }
     ) { innerPadding ->
         when {
             uiState.isLoading -> {
@@ -55,7 +69,10 @@ fun HistorialScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(items = uiState.pedidos, key = { it.idPedido }) { pedido ->
-                        HistorialPedidoCard(pedido = pedido)
+                        HistorialPedidoCard(
+                            pedido = pedido,
+                            onRepetir = { viewModel.repetirPedido(pedido) }
+                        )
                     }
                 }
             }
@@ -64,53 +81,66 @@ fun HistorialScreen(
 }
 
 @Composable
-private fun HistorialTopBar(onBack: () -> Unit) {
+private fun HistorialTopBar(onBack: () -> Unit, onPerfilClick: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).height(56.dp)) {
             IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = MaterialTheme.colorScheme.onSurface)
             }
-            Text("Historial", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
+            Text("Mi Historial", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
+            IconButton(onClick = onPerfilClick, modifier = Modifier.align(Alignment.CenterEnd)) {
+                Icon(Icons.Default.Person, "Perfil", tint = MaterialTheme.colorScheme.onSurface)
+            }
         }
     }
 }
 
 @Composable
-private fun HistorialPedidoCard(pedido: Pedido) {
+private fun HistorialPedidoCard(pedido: Pedido, onRepetir: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(18.dp)) {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
                 Column {
-                    Text(pedido.numeroOrden, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(pedido.numeroOrden, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Text(formatearFecha(pedido.fechaMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 EstadoPedidoChip(pedido.estado)
             }
-            HorizontalDivider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant)
+            HorizontalDivider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            
             pedido.detalles.forEach { detalle ->
                 Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                    Text("${detalle.cantidad}x ${detalle.nombrePlato}", Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
-                    Text("RD$ ${String.format("%.2f", detalle.subtotal)}", color = MaterialTheme.colorScheme.onSurface)
+                    Text("${detalle.cantidad}x ${detalle.nombrePlato}", Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("RD$ ${String.format("%.2f", detalle.subtotal)}")
                 }
-                val configuracion = listOfNotNull(detalle.termino.takeIf { it.isNotBlank() }, detalle.guarnicion.takeIf { it.isNotBlank() }, detalle.salsa.takeIf { it.isNotBlank() }).joinToString(" • ")
-                if (configuracion.isNotBlank()) {
-                    Text(configuracion, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 7.dp))
+                val config = listOfNotNull(detalle.termino.takeIf { it.isNotBlank() }, detalle.guarnicion.takeIf { it.isNotBlank() }, detalle.salsa.takeIf { it.isNotBlank() }).joinToString(" • ")
+                if (config.isNotBlank()) {
+                    Text(config, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
                 }
             }
-            HorizontalDivider(Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(if (pedido.tipoEntrega == "DELIVERY") "Delivery" else "Recoger", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(pedido.metodoPago.lowercase().replaceFirstChar { it.uppercase() }, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Spacer(Modifier.height(10.dp))
+
+            HorizontalDivider(Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text("Total", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("RD$ ${String.format("%.2f", pedido.total)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Column {
+                    Text("Total", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("RD$ ${String.format("%.2f", pedido.total)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                }
+                Button(
+                    onClick = onRepetir,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Icon(Icons.Default.Replay, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Repetir", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
             }
         }
     }
@@ -132,7 +162,7 @@ private fun EstadoPedidoChip(estado: EstadoPedido) {
 @Composable
 private fun HistorialVacio(modifier: Modifier = Modifier) {
     Column(modifier.padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(Icons.Default.ReceiptLong, null, Modifier.size(70.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(Icons.Default.ReceiptLong, null, Modifier.size(70.dp), tint = MaterialTheme.colorScheme.outlineVariant)
         Spacer(Modifier.height(16.dp))
         Text("Aún no tienes pedidos", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(6.dp))
@@ -145,4 +175,3 @@ private fun formatearFecha(millis: Long): String {
     val formato = SimpleDateFormat("dd/MM/yyyy • hh:mm a", Locale.getDefault())
     return formato.format(Date(millis))
 }
-

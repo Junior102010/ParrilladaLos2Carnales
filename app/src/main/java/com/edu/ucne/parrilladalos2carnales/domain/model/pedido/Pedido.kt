@@ -26,7 +26,7 @@ data class Pedido(
     val detalles: List<DetallePedido> = emptyList()
 ) {
     val numeroOrden: String
-        get() = "ORD-${idPedido.toString().padStart(5, '0')}"
+        get() = "#${idPedido.toString().padStart(5, '0')}"
 }
 
 fun obtenerFechaHoy(): String {
