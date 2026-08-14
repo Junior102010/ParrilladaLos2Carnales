@@ -235,7 +235,9 @@ fun ParrilladaBottomBar(
                             currentScreen
                                     is Screen.Perfil ||
                                     currentScreen
-                                            is Screen.Historial,
+                                            is Screen.Historial ||
+                                    currentScreen
+                                            is Screen.Seguimiento,
 
                         onClick = {
                             onNavigate(

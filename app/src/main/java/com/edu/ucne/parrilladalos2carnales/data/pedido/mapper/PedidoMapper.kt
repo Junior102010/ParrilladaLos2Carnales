@@ -37,10 +37,14 @@ fun PedidoEntity.toDomain(detalles: List<DetallePedido>) = Pedido(
     direccion = direccion,
     metodoPago = metodoPago,
     tiempoEstimado = tiempoEstimado,
-    estado = try {
-        EstadoPedido.valueOf(estado)
-    } catch (_: Exception) {
-        EstadoPedido.PENDIENTE
+    estado = when (estado) {
+        "PENDIENTE" -> EstadoPedido.RECIBIDO
+        "EN_PROCESO" -> EstadoPedido.PREPARANDO
+        else -> try {
+            EstadoPedido.valueOf(estado)
+        } catch (_: Exception) {
+            EstadoPedido.RECIBIDO
+        }
     },
     detalles = detalles
 )

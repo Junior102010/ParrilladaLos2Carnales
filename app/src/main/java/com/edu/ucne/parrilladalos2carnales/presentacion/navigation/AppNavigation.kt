@@ -45,6 +45,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.seguimiento.SeguimientoScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.seguimiento.SeguimientoViewModel
 
 @Composable
 fun ParrilladaNavDisplay(
@@ -192,8 +194,19 @@ fun ParrilladaNavDisplay(
                         backStack.add(Screen.Inicio)
                     },
                     onVerEstado = { idPedido ->
-
+                        backStack.add(Screen.Seguimiento(idPedido = idPedido))
                     }
+                )
+            }
+
+            entry<Screen.Seguimiento> { seguimiento ->
+                val viewModel: SeguimientoViewModel = hiltViewModel()
+                LaunchedEffect(seguimiento.idPedido) {
+                    viewModel.setPedidoId(seguimiento.idPedido)
+                }
+                SeguimientoScreen(
+                    viewModel = viewModel,
+                    onNavigate = handleNavigation
                 )
             }
 
