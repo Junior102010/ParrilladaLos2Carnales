@@ -34,6 +34,7 @@ class RegisterViewModel @Inject constructor(
     var numero by mutableStateOf("")
     var ciudad by mutableStateOf("")
     var codigoPostal by mutableStateOf("")
+    var referencia by mutableStateOf("")
 
     var estaCargando by mutableStateOf(false)
     var mensajeError by mutableStateOf<String?>(null)
@@ -46,10 +47,21 @@ class RegisterViewModel @Inject constructor(
         mensajeError = null
         when (pasoActual) {
             1 -> {
-                if (nombreUsuario.isBlank() || correo.isBlank() || contrasena.isBlank() || confirmarContrasena.isBlank()) {
-                    mensajeError = "Por favor, llena todos los campos"
+                if (correo.isBlank()) {
+                    mensajeError = "El correo es obligatorio"
                     return
                 }
+                if (!correoEsValido(correo)) {
+                    mensajeError = "Ingresa un correo electrónico válido"
+                    return
+                }
+                if (contrasena.length < 6) {
+                    mensajeError =
+                        "La contraseña debe tener al menos 6 caracteres"
+                    return
+                }
+
+
                 if (contrasena != confirmarContrasena) {
                     mensajeError = "Las contraseñas no coinciden"
                     return
@@ -58,7 +70,7 @@ class RegisterViewModel @Inject constructor(
             }
             2 -> {
                 if (nombre.isBlank() || apellido.isBlank() || telefono.isBlank()) {
-                    mensajeError = "Por favor, llena tus datos personales"
+                    mensajeError = "Por favor, completa tus datos personales"
                     return
                 }
                 pasoActual = 3
@@ -74,42 +86,77 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun registrarse(onSuccess: (Rol) -> Unit) {
-        if (calle.isBlank() || numero.isBlank() || ciudad.isBlank() || codigoPostal.isBlank()) {
-            mensajeError = "Por favor, llena los datos de dirección"
+        if (calle.isBlank() || numero.isBlank() || ciudad.isBlank()) {
+            mensajeError = "Por favor, completa los datos de dirección"
             return
         }
-        val rolAsignado = if (correo.lowercase() == "admin@parrillada.com") {
-            Rol.ADMINISTRADOR
-        } else {
-            Rol.CLIENTE
-        }
+
 
         viewModelScope.launch {
             estaCargando = true
             mensajeError = null
 
+
             val usuario = RegistroUsuario(
-                nombreUsuario = nombreUsuario,
-                correo = correo,
+                nombreUsuario = nombreUsuario.ifBlank {
+                    correo
+                        .trim()
+                        .substringBefore("@")
+                },
+                correo = correo.trim(),
                 contrasena = contrasena,
-                nombre = nombre,
-                apellido = apellido,
-                telefono = telefono,
-                calle = calle,
-                numero = numero,
-                ciudad = ciudad,
-                codigoPostal = codigoPostal
+                nombre = nombre.trim(),
+                apellido = apellido.trim(),
+                telefono = telefono.trim(),
+                calle = calle.trim(),
+                numero = numero.trim(),
+                ciudad = ciudad.trim(),
+                codigoPostal = codigoPostal.trim(),
+                referencia = referencia.trim()
             )
 
-            val resultado = authRepository.registro(usuario)
 
-            if (resultado.isSuccess) {
-                onSuccess(rolAsignado)
-            } else {
-                mensajeError = "Error al registrar. Inténtalo de nuevo."
+            try {
+                val resultado =
+                    authRepository.registro(usuario)
+
+
+                if (resultado.isSuccess) {
+                    onSuccess(rolUsuarioActual())
+                } else {
+                    mensajeError =
+                        resultado
+                            .exceptionOrNull()
+                            ?.localizedMessage
+                            ?: "Error al registrar. Inténtalo de nuevo."
+                }
+            } finally {
+                estaCargando = false
             }
+        }
+    }
 
-            estaCargando = false
+
+    private fun correoEsValido(
+        correo: String
+    ): Boolean {
+        return correo
+            .trim()
+            .matches(
+                Regex(
+                    "^[A-Za-z0-9+_.-]+@" +
+                        "[A-Za-z0-9.-]+\\." +
+                        "[A-Za-z]{2,}$"
+                )
+            )
+    }
+
+
+    private fun rolUsuarioActual(): Rol {
+        return if (authRepository.esAdministrador()) {
+            Rol.ADMINISTRADOR
+        } else {
+            Rol.CLIENTE
         }
     }
 }

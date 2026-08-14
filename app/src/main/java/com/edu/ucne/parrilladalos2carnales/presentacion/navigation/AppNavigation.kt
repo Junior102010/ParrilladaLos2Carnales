@@ -57,37 +57,60 @@ fun ParrilladaNavDisplay(
         backStack.add(screen)
     }
 
+    val openAuthenticatedStart: (Rol) -> Unit = { rol ->
+        while (backStack.isNotEmpty()) {
+            backStack.removeAt(
+                backStack.lastIndex
+            )
+        }
+
+
+        backStack.add(
+            if (rol == Rol.ADMINISTRADOR) {
+                Screen.AdminDashboard
+            } else {
+                Screen.Inicio
+            }
+        )
+    }
+
     NavDisplay(
         backStack = backStack,
         entryProvider = entryProvider {
 
             entry<Screen.Login> {
-                val loginViewModel: LoginViewModel = hiltViewModel()
+                val loginViewModel: LoginViewModel =
+                    hiltViewModel()
+
+
                 LoginScreen(
                     viewModel = loginViewModel,
-                    onNavigateToRegister = { backStack.add(Screen.Register) },
-                    onLoginSuccess = { rol: Rol ->
-                        if (rol == Rol.ADMINISTRADOR) {
-                            backStack.add(Screen.AdminDashboard)
-                        } else {
-                            backStack.add(Screen.Inicio)
-                        }
-                    }
+                    onNavigateToRegister = {
+                        backStack.add(
+                            Screen.Register
+                        )
+                    },
+                    onLoginSuccess =
+                        openAuthenticatedStart
                 )
             }
 
             entry<Screen.Register> {
-                val registerViewModel: RegisterViewModel = hiltViewModel()
+                val registerViewModel: RegisterViewModel =
+                    hiltViewModel()
+
+
                 RegisterScreen(
                     viewModel = registerViewModel,
-                    onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
-                    onRegisterSuccess = { rol: Rol ->
-                        if (rol == Rol.ADMINISTRADOR) {
-                            backStack.add(Screen.AdminDashboard)
-                        } else {
-                            backStack.add(Screen.Inicio)
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(
+                                backStack.lastIndex
+                            )
                         }
-                    }
+                    },
+                    onRegisterSuccess =
+                        openAuthenticatedStart
                 )
             }
 
