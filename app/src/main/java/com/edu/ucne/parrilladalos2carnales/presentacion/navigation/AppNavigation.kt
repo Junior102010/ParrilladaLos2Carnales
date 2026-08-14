@@ -1,5 +1,13 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.navigation
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +56,77 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterViewMod
 import com.edu.ucne.parrilladalos2carnales.presentacion.seguimiento.SeguimientoScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.seguimiento.SeguimientoViewModel
 
+private const val NAVIGATION_ANIMATION_DURATION = 280
+private const val NAVIGATION_FADE_DURATION = 200
+private val SmoothNavigationEasing = CubicBezierEasing(0.3f, 0f, 0.1f, 1f)
+
+
+private fun forwardNavigationTransition(): ContentTransform =
+    (
+        slideInHorizontally(
+            initialOffsetX = { fullWidth ->
+                fullWidth / 10
+            },
+            animationSpec = tween(
+                durationMillis = NAVIGATION_ANIMATION_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = NAVIGATION_FADE_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        )
+    ) togetherWith (
+        slideOutHorizontally(
+            targetOffsetX = { fullWidth ->
+                -fullWidth / 20
+            },
+            animationSpec = tween(
+                durationMillis = NAVIGATION_ANIMATION_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = NAVIGATION_FADE_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        )
+    )
+
+
+private fun backwardNavigationTransition(): ContentTransform =
+    (
+        slideInHorizontally(
+            initialOffsetX = { fullWidth ->
+                -fullWidth / 10
+            },
+            animationSpec = tween(
+                durationMillis = NAVIGATION_ANIMATION_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = NAVIGATION_FADE_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        )
+    ) togetherWith (
+        slideOutHorizontally(
+            targetOffsetX = { fullWidth -> fullWidth / 10 },
+            animationSpec = tween(
+                durationMillis = NAVIGATION_ANIMATION_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = NAVIGATION_FADE_DURATION,
+                easing = SmoothNavigationEasing
+            )
+        )
+    )
+
+
 @Composable
 fun ParrilladaNavDisplay(
     backStack: NavBackStack<NavKey>,
@@ -76,6 +155,9 @@ fun ParrilladaNavDisplay(
 
     NavDisplay(
         backStack = backStack,
+        transitionSpec = { forwardNavigationTransition() },
+        popTransitionSpec = { backwardNavigationTransition() },
+        predictivePopTransitionSpec = { backwardNavigationTransition() },
         entryProvider = entryProvider {
 
             entry<Screen.Login> {
