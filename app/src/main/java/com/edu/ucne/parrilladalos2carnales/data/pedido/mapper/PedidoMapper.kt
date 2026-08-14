@@ -37,10 +37,14 @@ fun PedidoEntity.toDomain(detalles: List<DetallePedido>) = Pedido(
     direccion = direccion,
     metodoPago = metodoPago,
     tiempoEstimado = tiempoEstimado,
-    estado = try {
-        EstadoPedido.valueOf(estado)
-    } catch (_: Exception) {
-        EstadoPedido.PENDIENTE
+    estado = when (estado) {
+        "PENDIENTE" -> EstadoPedido.RECIBIDO
+        "EN_PROCESO" -> EstadoPedido.PREPARANDO
+        else -> try {
+            EstadoPedido.valueOf(estado)
+        } catch (_: Exception) {
+            EstadoPedido.RECIBIDO
+        }
     },
     detalles = detalles
 )
@@ -50,12 +54,16 @@ fun DetallePedido.toEntity() = DetallePedidoEntity(
     idPedido = idPedido,
     idPlato = idPlato,
     nombrePlato = nombrePlato,
+    imagenUrl = imagenUrl,
     cantidad = cantidad,
     precioUnitario = precioUnitario,
     subtotal = subtotal,
     termino = termino,
+    idTermino = idTermino,
     guarnicion = guarnicion,
-    salsa = salsa
+    idGuarnicion = idGuarnicion,
+    salsa = salsa,
+    idSalsa = idSalsa
 )
 
 fun DetallePedidoEntity.toDomain() = DetallePedido(
@@ -63,11 +71,14 @@ fun DetallePedidoEntity.toDomain() = DetallePedido(
     idPedido = idPedido,
     idPlato = idPlato,
     nombrePlato = nombrePlato,
+    imagenUrl = imagenUrl,
     cantidad = cantidad,
     precioUnitario = precioUnitario,
     subtotal = subtotal,
     termino = termino,
+    idTermino = idTermino,
     guarnicion = guarnicion,
-    salsa = salsa
+    idGuarnicion = idGuarnicion,
+    salsa = salsa,
+    idSalsa = idSalsa
 )
-

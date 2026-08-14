@@ -60,4 +60,7 @@ sealed class Screen : NavKey {
 
     @Serializable
     data class ConfirmacionPedido(val idPedido: Int) : Screen()
+
+    @Serializable
+    data class Seguimiento(val idPedido: Int) : Screen()
 }

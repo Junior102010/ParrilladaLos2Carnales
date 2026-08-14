@@ -22,11 +22,11 @@ data class Pedido(
 
     val metodoPago: String = "",
     val tiempoEstimado: String = "",
-    val estado: EstadoPedido = EstadoPedido.PENDIENTE,
+    val estado: EstadoPedido = EstadoPedido.RECIBIDO,
     val detalles: List<DetallePedido> = emptyList()
 ) {
     val numeroOrden: String
-        get() = "ORD-${idPedido.toString().padStart(5, '0')}"
+        get() = "#${idPedido.toString().padStart(5, '0')}"
 }
 
 fun obtenerFechaHoy(): String {

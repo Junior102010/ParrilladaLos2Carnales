@@ -98,12 +98,16 @@ class PagoViewModel @Inject constructor(
                     DetallePedido(
                         idPlato = item.plato.idPlato,
                         nombrePlato = item.plato.nombre,
+                        imagenUrl = item.plato.imagenUrl,
                         cantidad = item.cantidad,
                         precioUnitario = item.precioUnitario,
                         subtotal = item.subtotal,
                         termino = item.termino?.nombreComponente.orEmpty(),
+                        idTermino = item.termino?.idComponente,
                         guarnicion = item.guarnicion?.nombreGuarnicion.orEmpty(),
-                        salsa = item.salsa?.nombreComponente.orEmpty()
+                        idGuarnicion = item.guarnicion?.idGuarnicion,
+                        salsa = item.salsa?.nombreComponente.orEmpty(),
+                        idSalsa = item.salsa?.idComponente
                     )
                 }
 
@@ -145,4 +149,3 @@ class PagoViewModel @Inject constructor(
         return mes in 1..12
     }
 }
-

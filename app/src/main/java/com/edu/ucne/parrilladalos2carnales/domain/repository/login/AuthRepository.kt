@@ -30,6 +30,6 @@ interface AuthRepository {
 
     fun esAdministrador(): Boolean
 
-    fun cerrarSesion()
+    suspend fun cerrarSesion()
 }
 

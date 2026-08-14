@@ -342,8 +342,9 @@ private fun AdminPedidoCard(
     var expandedMenu by remember { mutableStateOf(false) }
 
     val (badgeBgColor, badgeTextColor) = when (pedido.estado) {
-        EstadoPedido.PENDIENTE -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f) to MaterialTheme.colorScheme.tertiary
-        EstadoPedido.EN_PROCESO -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) to MaterialTheme.colorScheme.primary
+        EstadoPedido.RECIBIDO -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f) to MaterialTheme.colorScheme.tertiary
+        EstadoPedido.PREPARANDO -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) to MaterialTheme.colorScheme.primary
+        EstadoPedido.EN_CAMINO -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f) to MaterialTheme.colorScheme.secondary
         EstadoPedido.ENTREGADO -> Color(0xFF4CAF50).copy(alpha = 0.2f) to Color(0xFF2E7D32)
         EstadoPedido.CANCELADO -> MaterialTheme.colorScheme.error.copy(alpha = 0.2f) to MaterialTheme.colorScheme.error
     }
