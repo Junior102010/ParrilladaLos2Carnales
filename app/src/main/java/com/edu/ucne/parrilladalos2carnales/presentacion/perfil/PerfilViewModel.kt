@@ -21,10 +21,10 @@ class PerfilViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        cargarUsuario()
+        refrescarUsuario()
     }
 
-    private fun cargarUsuario() {
+    fun refrescarUsuario() {
         _uiState.update {
             it.copy(
                 nombre = authRepository.getNombreUsuario() ?: "Cliente",

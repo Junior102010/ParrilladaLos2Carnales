@@ -43,6 +43,10 @@ fun InicioScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.refrescarUsuario()
+    }
+
     val ofertas = remember(uiState.ofertas) {
         if (uiState.ofertas.isNotEmpty()) {
             uiState.ofertas

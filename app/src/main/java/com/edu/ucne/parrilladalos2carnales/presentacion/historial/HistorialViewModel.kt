@@ -28,17 +28,20 @@ class HistorialViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HistorialUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var historialJob: kotlinx.coroutines.Job? = null
+
     init {
-        cargarHistorial()
+        refrescarHistorial()
     }
 
-    private fun cargarHistorial() {
+    fun refrescarHistorial() {
+        historialJob?.cancel()
         val uid = authRepository.getUsuarioUid()
         if (uid.isNullOrBlank()) {
             _uiState.update { it.copy(isLoading = false, errorMessage = "No hay una sesión iniciada") }
             return
         }
-        viewModelScope.launch {
+        historialJob = viewModelScope.launch {
             pedidoRepository.getPedidosPorUsuario(uid)
                 .catch { error ->
                     _uiState.update { it.copy(isLoading = false, errorMessage = error.localizedMessage ?: "Error al cargar historial") }

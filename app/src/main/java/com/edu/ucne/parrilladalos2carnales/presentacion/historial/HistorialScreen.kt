@@ -37,6 +37,10 @@ fun HistorialScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.refrescarHistorial()
+    }
+
     LaunchedEffect(uiState.pedidoRepetidoExitosamente) {
         if (uiState.pedidoRepetidoExitosamente) {
             viewModel.onMensajeConsumido()
@@ -149,9 +153,10 @@ private fun HistorialPedidoCard(pedido: Pedido, onRepetir: () -> Unit) {
 @Composable
 private fun EstadoPedidoChip(estado: EstadoPedido) {
     val color = when (estado) {
-        EstadoPedido.PENDIENTE -> MaterialTheme.colorScheme.secondary
-        EstadoPedido.EN_PROCESO -> MaterialTheme.colorScheme.primary
-        EstadoPedido.ENTREGADO -> MaterialTheme.colorScheme.tertiary
+        EstadoPedido.RECIBIDO -> MaterialTheme.colorScheme.tertiary
+        EstadoPedido.PREPARANDO -> MaterialTheme.colorScheme.primary
+        EstadoPedido.EN_CAMINO -> MaterialTheme.colorScheme.secondary
+        EstadoPedido.ENTREGADO -> Color(0xFF4CAF50)
         EstadoPedido.CANCELADO -> MaterialTheme.colorScheme.error
     }
     Surface(color = color.copy(alpha = 0.15f), contentColor = color, shape = RoundedCornerShape(20.dp)) {

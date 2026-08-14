@@ -1,6 +1,7 @@
 package com.edu.ucne.parrilladalos2carnales.data.repository
 
 import android.content.Context
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -64,7 +65,7 @@ class AuthRepositoryImpl @Inject constructor(
                     .Builder()
                     .setFilterByAuthorizedAccounts(false)
                     .setServerClientId("37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com")
-                    .setAutoSelectEnabled(true)
+                    .setAutoSelectEnabled(false)
                     .build()
             val request =
                 GetCredentialRequest.Builder().addCredentialOption(googleIdOption).build()
@@ -125,7 +126,10 @@ class AuthRepositoryImpl @Inject constructor(
         return firebaseAuth.currentUser?.email.equals("admin@parrillada.com", ignoreCase = true)
     }
 
-    override fun cerrarSesion() {
+    override suspend fun cerrarSesion() {
         firebaseAuth.signOut()
+        try {
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        } catch (_: Exception) { }
     }
 }

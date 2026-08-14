@@ -33,6 +33,10 @@ fun PerfilScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.refrescarUsuario()
+    }
+
     LaunchedEffect(uiState.sesionCerrada) {
         if (uiState.sesionCerrada) onLogout()
     }

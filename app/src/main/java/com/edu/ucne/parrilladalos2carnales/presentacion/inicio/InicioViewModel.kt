@@ -23,7 +23,7 @@ class InicioViewModel @Inject constructor(
     val uiState: StateFlow<InicioUiState> = _uiState.asStateFlow()
 
     init {
-        cargarUsuario()
+        refrescarUsuario()
         loadPlatos()
     }
 
@@ -34,7 +34,6 @@ class InicioViewModel @Inject constructor(
     }
 
     private fun loadPlatos() {
-
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             getPlatosUseCase().catch { error ->
@@ -55,7 +54,7 @@ class InicioViewModel @Inject constructor(
         }
     }
 
-    private fun cargarUsuario() {
+    fun refrescarUsuario() {
         val nombreCompleto = authRepository.getNombreUsuario().orEmpty().trim()
         val primerNombre = nombreCompleto.substringBefore(" ").ifBlank { "Cliente" }
         val foto = authRepository.getFotoUsuario()
