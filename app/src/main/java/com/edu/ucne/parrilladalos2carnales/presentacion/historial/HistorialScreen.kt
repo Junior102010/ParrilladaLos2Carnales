@@ -4,12 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
-import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,8 +35,9 @@ import java.util.Locale
 @Composable
 fun HistorialScreen(
     viewModel: HistorialViewModel = hiltViewModel(),
-    onNavigate: (Screen) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSeguimiento: (Int) -> Unit,
+    onNavigate: (Screen) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -76,6 +79,7 @@ fun HistorialScreen(
                     items(items = uiState.pedidos, key = { it.idPedido }) { pedido ->
                         HistorialPedidoCard(
                             pedido = pedido,
+                            onSeguimiento = { onSeguimiento(pedido.idPedido) },
                             onRepetir = { viewModel.repetirPedido(pedido) }
                         )
                     }
@@ -101,50 +105,73 @@ private fun HistorialTopBar(onBack: () -> Unit, onPerfilClick: () -> Unit) {
 }
 
 @Composable
-private fun HistorialPedidoCard(pedido: Pedido, onRepetir: () -> Unit) {
+private fun HistorialPedidoCard(
+    pedido: Pedido,
+    onSeguimiento: () -> Unit,
+    onRepetir: () -> Unit
+) {
     Card(
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        modifier = Modifier.fillMaxWidth()
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     ) {
-        Column(Modifier.padding(18.dp)) {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column {
-                    Text(pedido.numeroOrden, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(pedido.numeroOrden, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     Text(formatearFecha(pedido.fechaMillis), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 EstadoPedidoChip(pedido.estado)
             }
-            HorizontalDivider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             
             pedido.detalles.forEach { detalle ->
-                Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                    Text("${detalle.cantidad}x ${detalle.nombrePlato}", Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("RD$ ${String.format("%.2f", detalle.subtotal)}")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("${detalle.cantidad}x ${detalle.nombrePlato}", modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
+                    Text("RD$ ${String.format("%.2f", detalle.subtotal)}", color = MaterialTheme.colorScheme.onSurface)
                 }
                 val config = listOfNotNull(detalle.termino.takeIf { it.isNotBlank() }, detalle.guarnicion.takeIf { it.isNotBlank() }, detalle.salsa.takeIf { it.isNotBlank() }).joinToString(" • ")
                 if (config.isNotBlank()) {
-                    Text(config, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 4.dp))
+                    Text(config, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 7.dp))
                 }
             }
 
-            HorizontalDivider(Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column {
                     Text("Total", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("RD$ ${String.format("%.2f", pedido.total)}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
-                Button(
-                    onClick = onRepetir,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Icon(Icons.Default.Replay, null, Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Repetir", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    if (pedido.estado.esActivo) {
+                        IconButton(
+                            onClick = onSeguimiento,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocalShipping,
+                                contentDescription = "Ver seguimiento",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    FilledIconButton(
+                        onClick = onRepetir,
+                        modifier = Modifier.size(48.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Repetir pedido"
+                        )
+                    }
                 }
             }
         }

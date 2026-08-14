@@ -35,10 +35,9 @@ fun PerfilScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refrescarUsuario()
-    }
-
-    LaunchedEffect(uiState.sesionCerrada) {
-        if (uiState.sesionCerrada) onLogout()
+        viewModel.logoutEvent.collect {
+            onLogout()
+        }
     }
 
     Scaffold(

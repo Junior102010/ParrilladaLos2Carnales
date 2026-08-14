@@ -125,12 +125,15 @@ fun ParrilladaNavDisplay(
                 val viewModel: HistorialViewModel = hiltViewModel()
                 HistorialScreen(
                     viewModel = viewModel,
-                    onNavigate = handleNavigation,
                     onBack = {
                         if (backStack.isNotEmpty()) {
                             backStack.removeAt(backStack.lastIndex)
                         }
-                    }
+                    },
+                    onSeguimiento = { idPedido ->
+                        backStack.add(Screen.Seguimiento(idPedido = idPedido))
+                    },
+                    onNavigate = handleNavigation
                 )
             }
 
