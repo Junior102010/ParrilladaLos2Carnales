@@ -55,7 +55,7 @@ fun OfertaInicioCard(
             ) {
 
                 Text(
-                    text = oferta.titulo,
+                    text = oferta.tituloOferta,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -66,7 +66,7 @@ fun OfertaInicioCard(
                 )
 
                 Text(
-                    text = "${oferta.descuentoPorcentaje.toInt()}% OFF",
+                    text = "${oferta.descuento.toInt()}% OFF",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary

@@ -6,6 +6,6 @@ data class Oferta(
     val descripcionOferta: String = "",
     val descuento: Double = 0.0,
     val imagenUrl: String = "",
-    val descuentoPorcentaje: Double = 0.0,
-    val titulo: String = ""
+    val idPlato: Int? = null,
+    val activa: Boolean = true
 )

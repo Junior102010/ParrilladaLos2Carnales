@@ -29,7 +29,8 @@ import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
 fun PerfilScreen(
     viewModel: PerfilViewModel,
     onNavigate: (Screen) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    rolUsuario: Rol = Rol.CLIENTE
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -52,7 +53,7 @@ fun PerfilScreen(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
-                        text = "Perfil y ajustes",
+                        text = if (rolUsuario == Rol.ADMINISTRADOR) "Perfil Administrador" else "Perfil y ajustes",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -62,8 +63,8 @@ fun PerfilScreen(
         },
         bottomBar = {
             ParrilladaBottomBar(
-                currentScreen = Screen.Perfil,
-                rolUsuario = Rol.CLIENTE,
+                currentScreen = if (rolUsuario == Rol.ADMINISTRADOR) Screen.AdminPerfil else Screen.Perfil,
+                rolUsuario = rolUsuario,
                 onNavigate = onNavigate
             )
         },
@@ -122,18 +123,20 @@ fun PerfilScreen(
                 }
             }
 
-            Card(
-                onClick = { onNavigate(Screen.Historial) },
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(Modifier.fillMaxWidth().padding(18.dp), Arrangement.spacedBy(14.dp), Alignment.CenterVertically) {
-                    Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, tint = MaterialTheme.colorScheme.primary)
-                    Column(Modifier.weight(1f)) {
-                        Text("Mis pedidos", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                        Text("Ver historial", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (rolUsuario == Rol.CLIENTE) {
+                Card(
+                    onClick = { onNavigate(Screen.Historial) },
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(Modifier.fillMaxWidth().padding(18.dp), Arrangement.spacedBy(14.dp), Alignment.CenterVertically) {
+                        Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, tint = MaterialTheme.colorScheme.primary)
+                        Column(Modifier.weight(1f)) {
+                            Text("Mis pedidos", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                            Text("Ver historial", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
             }

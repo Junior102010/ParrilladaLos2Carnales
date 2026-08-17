@@ -8,8 +8,8 @@ class UpsertOfertaUseCase @Inject constructor(
     private val ofertaRepository: OfertaRepository
 ) {
     suspend operator fun invoke(oferta: Oferta): Result<Unit> {
-        val tituloResult = validateTituloOferta(oferta.titulo)
-        val descuentoResult = validateDescuentoOferta(oferta.descuentoPorcentaje)
+        val tituloResult = validateTituloOferta(oferta.tituloOferta)
+        val descuentoResult = validateDescuentoOferta(oferta.descuento)
 
         if (!tituloResult.isValid) {
             return Result.failure(IllegalArgumentException(tituloResult.errorMessage))

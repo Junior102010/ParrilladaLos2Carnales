@@ -66,6 +66,8 @@ private fun Screen.bottomNavIndex(rolUsuario: Rol): Int =
             is Screen.AdminComponenteList,
             is Screen.AdminComponenteEntry -> 2
 
+            is Screen.AdminPerfil -> 3
+
             else -> 3
         }
     } else {
@@ -193,7 +195,9 @@ fun ParrilladaBottomBar(
                             itemIndex = 3,
                             icon = Icons.Outlined.Person,
                             contentDescription = "Perfil",
-                            onClick = { }
+                            onClick = {
+                                onNavigate(Screen.AdminPerfil)
+                            }
                         )
                     } else {
                         FloatingBottomNavItem(
