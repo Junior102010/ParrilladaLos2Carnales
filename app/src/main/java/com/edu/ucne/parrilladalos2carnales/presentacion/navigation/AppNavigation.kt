@@ -217,6 +217,22 @@ fun ParrilladaNavDisplay(
                 PerfilScreen(
                     viewModel = perfilViewModel,
                     onNavigate = handleNavigation,
+                    rolUsuario = Rol.CLIENTE,
+                    onLogout = {
+                        while (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                        backStack.add(Screen.Login)
+                    }
+                )
+            }
+
+            entry<Screen.AdminPerfil> {
+                val perfilViewModel: PerfilViewModel = hiltViewModel()
+                PerfilScreen(
+                    viewModel = perfilViewModel,
+                    onNavigate = handleNavigation,
+                    rolUsuario = Rol.ADMINISTRADOR,
                     onLogout = {
                         while (backStack.isNotEmpty()) {
                             backStack.removeAt(backStack.lastIndex)
@@ -318,6 +334,20 @@ fun ParrilladaNavDisplay(
                 )
             }
 
+            entry<Screen.MenuCategoria> { menuCategoria ->
+                val viewModel: PlatoListViewModel = hiltViewModel()
+                LaunchedEffect(menuCategoria.idCategoria) {
+                    viewModel.setCategoria(menuCategoria.idCategoria)
+                }
+                MenuScreen(
+                    viewModel = viewModel,
+                    onNavigate = handleNavigation,
+                    onPlatoClick = { idPlato ->
+                        backStack.add(Screen.PlatoDetail(idPlato = idPlato))
+                    }
+                )
+            }
+
             entry<Screen.AdminPlatoList> {
                 val adminListViewModel: AdminPlatoListViewModel = hiltViewModel()
                 AdminPlatoListScreen(
@@ -328,11 +358,20 @@ fun ParrilladaNavDisplay(
                 )
             }
 
-            entry<Screen.AdminPlatoEntry> {
+            entry<Screen.AdminPlatoEntry> { entry ->
                 val adminEntryViewModel: AdminPlatoEntryViewModel = hiltViewModel()
+
+                LaunchedEffect(entry.idPlato) {
+                    adminEntryViewModel.prepararEntrada(entry.idPlato)
+                }
+
                 AdminPlatoEntryScreen(
                     viewModel = adminEntryViewModel,
-                    onBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }
                 )
             }
 
@@ -342,16 +381,24 @@ fun ParrilladaNavDisplay(
                     viewModel = viewModel,
                     onNavigateToAdd = { backStack.add(Screen.AdminGuarnicionEntry(idGuarnicion = 0)) },
                     onNavigateToEdit = { id -> backStack.add(Screen.AdminGuarnicionEntry(idGuarnicion = id)) },
-                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
                     onNavigate = handleNavigation
                 )
             }
 
-            entry<Screen.AdminGuarnicionEntry> {
+            entry<Screen.AdminGuarnicionEntry> { entry ->
                 val viewModel: AdminGuarnicionViewModel = hiltViewModel()
+
+                LaunchedEffect(entry.idGuarnicion) {
+                    viewModel.prepararEntrada(entry.idGuarnicion)
+                }
+
                 AdminGuarnicionScreen(
                     viewModel = viewModel,
-                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                    onNavigateBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }
                 )
             }
 
@@ -361,16 +408,24 @@ fun ParrilladaNavDisplay(
                     viewModel = viewModel,
                     onNavigateToAdd = { backStack.add(Screen.AdminComponenteEntry(idComponente = 0)) },
                     onNavigateToEdit = { id -> backStack.add(Screen.AdminComponenteEntry(idComponente = id)) },
-                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) },
                     onNavigate = handleNavigation
                 )
             }
 
-            entry<Screen.AdminComponenteEntry> {
+            entry<Screen.AdminComponenteEntry> { entry ->
                 val viewModel: AdminComponenteViewModel = hiltViewModel()
+
+                LaunchedEffect(entry.idComponente) {
+                    viewModel.prepararEntrada(entry.idComponente)
+                }
+
                 AdminComponenteScreen(
                     viewModel = viewModel,
-                    onNavigateBack = { if (backStack.isNotEmpty()) backStack.removeAt(backStack.size - 1) }
+                    onNavigateBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }
                 )
             }
 
@@ -392,4 +447,3 @@ fun ParrilladaNavDisplay(
         }
     )
 }
-

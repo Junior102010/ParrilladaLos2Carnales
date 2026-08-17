@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GuarnicionDao {
     @Upsert
-    suspend fun save(guarnicion: GuarnicionEntity)
+    suspend fun save(guarnicion: GuarnicionEntity): Long
 
     @Delete
     suspend fun delete(guarnicion: GuarnicionEntity)

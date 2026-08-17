@@ -16,8 +16,8 @@ class GuarnicionRepositoryImpl @Inject constructor(
 ) : GuarnicionRepository {
 
     override suspend fun upsertGuarnicion(guarnicion: Guarnicion): Int {
-        guarnicionDao.save(guarnicion.toEntity())
-        return guarnicion.idGuarnicion
+        val id = guarnicionDao.save(guarnicion.toEntity())
+        return id.toInt()
     }
 
     override suspend fun deleteGuarnicion(id: Int) {

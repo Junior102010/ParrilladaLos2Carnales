@@ -24,6 +24,8 @@ fun Componente.toEntity(): ComponenteEntity {
         descripcionComponente = this.descripcionComponente,
         precioComponente = this.precioComponente,
         categoriaComponente = this.categoriaComponente,
+        cantidadComponente = this.cantidadComponente,
+        coccion = this.coccion ?: "",
         disponible = this.disponible
     )
 }
