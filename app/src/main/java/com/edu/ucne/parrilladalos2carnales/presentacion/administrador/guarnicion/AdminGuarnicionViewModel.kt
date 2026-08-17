@@ -1,6 +1,5 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
@@ -17,17 +16,26 @@ import javax.inject.Inject
 @HiltViewModel
 class AdminGuarnicionViewModel @Inject constructor(
     private val upsertGuarnicionUseCase: UpsertGuarnicionUseCase,
-    private val guarnicionRepository: GuarnicionRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val guarnicionRepository: GuarnicionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminGuarnicionUiState())
     val uiState: StateFlow<AdminGuarnicionUiState> = _uiState.asStateFlow()
 
-    init {
-        val guarnicionId = savedStateHandle.get<Int>("idGuarnicion") ?: 0
-        if (guarnicionId > 0) {
-            cargarGuarnicion(guarnicionId)
+    fun prepararEntrada(idGuarnicion: Int) {
+        if (idGuarnicion == 0) {
+            _uiState.value = AdminGuarnicionUiState()
+        } else {
+            _uiState.value = AdminGuarnicionUiState(isLoading = true)
+            cargarGuarnicion(idGuarnicion)
+        }
+    }
+
+    fun consumirGuardadoExitoso() {
+        _uiState.update {
+            it.copy(
+                guardadoExitoso = false
+            )
         }
     }
 
@@ -43,9 +51,14 @@ class AdminGuarnicionViewModel @Inject constructor(
                         precioGuarnicion = guarnicion.precioGuarnicion.toString(),
                         cantidadGuarnicion = guarnicion.cantidadGuarnicion,
                         categoria = guarnicion.categoria,
-                        disponible = guarnicion.disponible
+                        disponible = guarnicion.disponible,
+                        isLoading = false,
+                        guardadoExitoso = false,
+                        error = null
                     )
                 }
+            } else {
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -72,6 +85,7 @@ class AdminGuarnicionViewModel @Inject constructor(
             }
             AdminGuarnicionUiEvent.OnGuardarClick -> guardarGuarnicion()
             AdminGuarnicionUiEvent.OnBackClick -> {  }
+            AdminGuarnicionUiEvent.ResetSuccess -> consumirGuardadoExitoso()
         }
     }
 

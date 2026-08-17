@@ -9,4 +9,5 @@ sealed interface AdminPlatoEntryUiEvent {
     data class OnDisponibleChanged(val disponible: Boolean) : AdminPlatoEntryUiEvent
     data class OnImagenSelected(val uriString: String) : AdminPlatoEntryUiEvent
     data object OnSave : AdminPlatoEntryUiEvent
+    data object ResetSuccess : AdminPlatoEntryUiEvent
 }

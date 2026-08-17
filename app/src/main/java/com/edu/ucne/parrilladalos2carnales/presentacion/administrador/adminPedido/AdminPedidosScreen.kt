@@ -1,8 +1,6 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminPedido
 
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -10,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -28,10 +27,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.AdminDrawerContent
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,129 +50,41 @@ fun AdminPedidosScreen(
         }
     }
 
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            AdminDrawerContent(
-                currentScreen = Screen.AdminGuarnicionList,
-                onNavigate = onNavigate,
-                onLogout = { onNavigate(Screen.Login) },
-                onCloseDrawer = { scope.launch { drawerState.close() } }
+    Scaffold(
+        topBar = {
+            AdminTopBar(
+                title = "Gestión de Pedidos"
             )
-        }
+        },
+        bottomBar = {
+            ParrilladaBottomBar(
+                currentScreen = Screen.AdminPedidos,
+                rolUsuario = Rol.ADMINISTRADOR,
+                onNavigate = onNavigate
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Gestión de Pedidos",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menú",
-                                tint = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {  }) {
-                            Box {
-                                Icon(
-                                    imageVector = Icons.Outlined.Notifications,
-                                    contentDescription = "Notificaciones",
-                                    tint = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.size(26.dp)
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .size(9.dp)
-                                        .align(Alignment.TopEnd)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.error)
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    )
-                )
-            },
-            bottomBar = {
-                ParrilladaBottomBar(
-                    currentScreen = Screen.AdminPedidos,
-                    rolUsuario = Rol.ADMINISTRADOR,
-                    onNavigate = onNavigate
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp)
-            ) {
-
-
-                Text(
-                    text = "Supervisa y actualiza el estado de las órdenes en tiempo real.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
-                )
-
-                OutlinedTextField(
+            item {
+                Spacer(modifier = Modifier.height(14.dp))
+                
+                AdminSearchField(
                     value = uiState.searchQuery,
-                    onValueChange = { viewModel.onEvent(AdminPedidosUiEvent.OnSearchQueryChanged(it)) },
-                    placeholder = {
-                        Text(
-                            "Buscar orden por cliente o # ID...",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    onValueChange = {
+                        viewModel.onEvent(
+                            AdminPedidosUiEvent.OnSearchQueryChanged(it)
                         )
                     },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Buscar"
-                        )
-                    },
-                    trailingIcon = {
-                        if (uiState.searchQuery.isNotEmpty()) {
-                            IconButton(onClick = {
-                                viewModel.onEvent(
-                                    AdminPedidosUiEvent.OnSearchQueryChanged(
-                                        ""
-                                    )
-                                )
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Limpiar"
-                                )
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(20.dp),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
+                    placeholder = "Buscar por cliente o # de orden..."
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier
@@ -190,13 +101,15 @@ fun AdminPedidosScreen(
                                 selected = uiState.filtroEstado == null,
                                 onClick = {
                                     viewModel.onEvent(
-                                        AdminPedidosUiEvent.OnFiltrarPorEstado(
-                                            null
-                                        )
+                                        AdminPedidosUiEvent.OnFiltrarPorEstado(null)
                                     )
                                 },
                                 label = { Text("Todos") },
-                                shape = RoundedCornerShape(20.dp)
+                                shape = RoundedCornerShape(20.dp),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             )
                         }
                         items(EstadoPedido.entries.toTypedArray()) { estado ->
@@ -204,13 +117,15 @@ fun AdminPedidosScreen(
                                 selected = uiState.filtroEstado == estado,
                                 onClick = {
                                     viewModel.onEvent(
-                                        AdminPedidosUiEvent.OnFiltrarPorEstado(
-                                            estado
-                                        )
+                                        AdminPedidosUiEvent.OnFiltrarPorEstado(estado)
                                     )
                                 },
                                 label = { Text(estado.descripcion) },
-                                shape = RoundedCornerShape(20.dp)
+                                shape = RoundedCornerShape(20.dp),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                )
                             )
                         }
                     }
@@ -229,104 +144,55 @@ fun AdminPedidosScreen(
                         )
                     }
                 }
+            }
 
-                if (uiState.isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else if (pedidosFiltrados.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Card(
-                            shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                            modifier = Modifier.fillMaxWidth(0.9f)
+            when {
+                uiState.isLoading -> {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .height(220.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Column(
-                                modifier = Modifier.padding(32.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(72.dp)
-                                        .clip(CircleShape)
-                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.ReceiptLong,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text(
-                                    text = "No hay pedidos registrados",
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                Text(
-                                    text = "Cuando los clientes realicen órdenes, aparecerán aquí automáticamente para ser gestionadas.",
-                                    fontSize = 13.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
-                                    lineHeight = 18.sp
-                                )
-
-                                Spacer(modifier = Modifier.height(20.dp))
-
-                                OutlinedButton(
-                                    onClick = { viewModel.onEvent(AdminPedidosUiEvent.OnRefrescar) },
-                                    shape = RoundedCornerShape(20.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Refrescar lista")
-                                }
-                            }
+                            CircularProgressIndicator()
                         }
                     }
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(bottom = 16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(pedidosFiltrados, key = { it.idPedido }) { pedido ->
-                            AdminPedidoCard(
-                                pedido = pedido,
-                                onCambiarEstado = { nuevoEstado ->
-                                    viewModel.onEvent(
-                                        AdminPedidosUiEvent.OnCambiarEstadoPedido(
-                                            pedido.idPedido,
-                                            nuevoEstado
-                                        )
-                                    )
-                                }
+                }
+
+                pedidosFiltrados.isEmpty() -> {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .height(300.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No hay pedidos para mostrar",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+
+                else -> {
+                    items(
+                        pedidosFiltrados,
+                        key = { it.idPedido }
+                    ) { pedido ->
+                        AdminPedidoCard(
+                            pedido = pedido,
+                            onCambiarEstado = { nuevoEstado ->
+                                viewModel.onEvent(
+                                    AdminPedidosUiEvent.OnCambiarEstadoPedido(
+                                        pedido.idPedido,
+                                        nuevoEstado
+                                    )
+                                )
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }
@@ -400,7 +266,7 @@ private fun AdminPedidoCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = if (pedido.clienteNombre.isBlank()) "Cliente #${pedido.idUsuario}" else pedido.clienteNombre,
+                text = pedido.clienteNombre.ifBlank { "Cliente #${pedido.idUsuario}" },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
