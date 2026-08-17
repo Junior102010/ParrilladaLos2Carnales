@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +31,7 @@ fun AdminPlatoEntryScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var expandedCategoria by remember { mutableStateOf(false) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -189,7 +191,7 @@ fun AdminPlatoEntryScreen(
                         value = uiState.precio,
                         onValueChange = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnPrecioChanged(it)) },
                         placeholder = { Text("Ej: 850.00", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         shape = RoundedCornerShape(20.dp),
                         singleLine = true,
                         isError = uiState.precioError != null,
@@ -202,6 +204,58 @@ fun AdminPlatoEntryScreen(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Categoría del Plato",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    ExposedDropdownMenuBox(
+                        expanded = expandedCategoria,
+                        onExpandedChange = { expandedCategoria = !expandedCategoria },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val categoriaActualNombre = uiState.categorias
+                            .find { cat: Categoria -> cat.idCategoria == uiState.idCategoria }?.nombreCategoria ?: "Seleccionar Categoría"
+
+                        OutlinedTextField(
+                            value = categoriaActualNombre,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCategoria) },
+                            shape = RoundedCornerShape(20.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expandedCategoria,
+                            onDismissRequest = { expandedCategoria = false }
+                        ) {
+                            uiState.categorias.forEach { categoria: Categoria ->
+                                DropdownMenuItem(
+                                    text = { Text(categoria.nombreCategoria) },
+                                    onClick = {
+                                        viewModel.onEvent(AdminPlatoEntryUiEvent.OnCategoriaChanged(categoria.idCategoria))
+                                        expandedCategoria = false
+                                    }
+                                )
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -227,6 +281,25 @@ fun AdminPlatoEntryScreen(
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Disponible para venta",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Switch(
+                            checked = uiState.disponible,
+                            onCheckedChange = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnDisponibleChanged(it)) }
+                        )
+                    }
 
                     uiState.errorMessage?.let { errorMsg ->
                         Spacer(modifier = Modifier.height(12.dp))
