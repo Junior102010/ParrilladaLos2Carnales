@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.obtenerFechaHoy
+import com.edu.ucne.parrilladalos2carnales.domain.repository.pedido.PedidoRepository
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.categoria.GetCategoriasUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminDashboardViewModel @Inject constructor(
+    private val pedidoRepository: PedidoRepository,
     private val getPlatosUseCase: GetPlatosUseCase,
     private val getCategoriasUseCase: GetCategoriasUseCase
 ) : ViewModel() {
@@ -30,46 +32,76 @@ class AdminDashboardViewModel @Inject constructor(
         loadData()
     }
 
-    fun calcularVentasYPedidos(pedidos: List<Pedido>) {
-        val hoy = obtenerFechaHoy()
-
-        val totalVentasHoy = pedidos
-            .filter { it.fecha == hoy && it.estado != EstadoPedido.CANCELADO }
-            .sumOf { it.total }
-
-        val activosCount = pedidos.count { it.estado.esActivo }
-
-        val pedidosTotalHoy = pedidos.count { it.fecha == hoy }
-
-        _uiState.update { state ->
-            state.copy(
-                ventasHoy = totalVentasHoy,
-                pedidosActivosCount = activosCount,
-                pedidosTotalHoy = pedidosTotalHoy,
-                pedidos = pedidos
-            )
-        }
-    }
-
     private fun loadData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update {
+                it.copy(
+                    isLoading = true,
+                    errorMessage = null
+                )
+            }
 
             combine(
+                pedidoRepository.getPedidos(),
                 getPlatosUseCase(),
                 getCategoriasUseCase()
-            ) { platosList, categoriasList ->
-                val catMap = categoriasList.associate { it.idCategoria to it.nombreCategoria }
-                _uiState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        platos = platosList,
-                        categoriasMap = catMap
-                    )
+            ) { pedidos, platos, categorias ->
+                Triple(
+                    pedidos,
+                    platos,
+                    categorias
+                )
+            }
+                .catch { error ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.localizedMessage
+                                ?: "No se pudo cargar el Dashboard"
+                        )
+                    }
                 }
-            }.catch { e ->
-                _uiState.update { it.copy(isLoading = false, errorMessage = e.localizedMessage) }
-            }.collect {}
+                .collect { (pedidos, platos, categorias) ->
+                    val hoy = obtenerFechaHoy()
+
+                    val pedidosHoy =
+                        pedidos.filter {
+                            it.fecha == hoy
+                        }
+
+                    val ventasHoy =
+                        pedidosHoy
+                            .filter {
+                                it.estado != EstadoPedido.CANCELADO
+                            }
+                            .sumOf {
+                                it.total
+                            }
+
+                    val pedidosActivos =
+                        pedidos.count {
+                            it.estado.esActivo
+                        }
+
+                    val categoriasMap =
+                        categorias.associate {
+                            it.idCategoria to
+                                    it.nombreCategoria
+                        }
+
+                    _uiState.update {
+                        it.copy(
+                            ventasHoy = ventasHoy,
+                            pedidosActivosCount = pedidosActivos,
+                            pedidosTotalHoy = pedidosHoy.size,
+                            pedidos = pedidos,
+                            platos = platos,
+                            categoriasMap = categoriasMap,
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
+                }
         }
     }
 }

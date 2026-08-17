@@ -1,11 +1,11 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
@@ -17,6 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminInventoryTabs
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 
@@ -26,24 +29,14 @@ fun AdminComponenteListScreen(
     viewModel: AdminComponenteListViewModel,
     onNavigateToAdd: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
-    onNavigateBack: () -> Unit,
     onNavigate: (Screen) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Gestión de Complementos", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            AdminTopBar(
+                title = "Salsas y Términos"
             )
         },
         bottomBar = {
@@ -56,44 +49,35 @@ fun AdminComponenteListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir", tint = MaterialTheme.colorScheme.onPrimary)
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Añadir"
+                )
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            Spacer(
+                modifier = Modifier.height(14.dp)
+            )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FilterChip(
-                    selected = false,
-                    onClick = { onNavigate(Screen.AdminPlatoList) },
-                    label = { Text("🥩 Platos") }
-                )
-                FilterChip(
-                    selected = false,
-                    onClick = { onNavigate(Screen.AdminGuarnicionList) },
-                    label = { Text("🍟 Guarniciones") }
-                )
-                FilterChip(
-                    selected = true,
-                    onClick = { },
-                    label = { Text("🥗 Complementos", fontWeight = FontWeight.Bold) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                )
-            }
+            AdminInventoryTabs(
+                currentScreen = Screen.AdminComponenteList,
+                onNavigate = onNavigate
+            )
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 if (uiState.isLoading) {
@@ -107,14 +91,24 @@ fun AdminComponenteListScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.componentes) { componente ->
+                            val tipoVisible = when (componente.categoriaComponente) {
+                                "Salsa" -> "Salsa"
+                                "Coccion" -> "Término de carne"
+                                else -> componente.categoriaComponente
+                            }
+
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { onNavigateToEdit(componente.idComponente) },
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                )
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -125,7 +119,7 @@ fun AdminComponenteListScreen(
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = "Tipo: ${componente.categoriaComponente} | RD$ ${componente.precioComponente}",
+                                            text = "Tipo: $tipoVisible | RD$ ${componente.precioComponente}",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -136,7 +130,11 @@ fun AdminComponenteListScreen(
                                         )
                                     }
                                     IconButton(onClick = { viewModel.onEvent(AdminComponenteListUiEvent.OnDeleteComponenteClick(componente)) }) {
-                                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Borrar", tint = MaterialTheme.colorScheme.error)
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Borrar",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
                                     }
                                 }
                             }

@@ -7,7 +7,6 @@ data class AdminDashboardUiState(
     val ventasHoy: Double = 0.0,
     val pedidosActivosCount: Int = 0,
     val pedidosTotalHoy: Int = 0,
-    val pedidosCapacidadMax: Int = 20,
     val pedidos: List<Pedido> = emptyList(),
     val platos: List<Plato> = emptyList(),
     val categoriasMap: Map<Int, String> = emptyMap(),
