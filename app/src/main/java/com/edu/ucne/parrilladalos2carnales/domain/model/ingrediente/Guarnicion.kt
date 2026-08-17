@@ -10,4 +10,5 @@ data class Guarnicion(
     val disponible : Boolean,
     val categoria: String,
 
+
     )
