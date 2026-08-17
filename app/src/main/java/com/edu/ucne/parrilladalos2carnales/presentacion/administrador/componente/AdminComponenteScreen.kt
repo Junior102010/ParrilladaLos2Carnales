@@ -8,7 +8,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +20,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminAvailabilitySwitch
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,28 +34,17 @@ fun AdminComponenteScreen(
 
     LaunchedEffect(uiState.guardadoExitoso) {
         if (uiState.guardadoExitoso) {
+            viewModel.consumirGuardadoExitoso()
             onNavigateBack()
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (uiState.idComponente == 0) "Nuevo Complemento" else "Editar Complemento",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            AdminTopBar(
+                title = if (uiState.idComponente == 0) "Nuevo Complemento" else "Editar Complemento",
+                onBack = onNavigateBack,
+                compactTitle = true
             )
         },
         containerColor = MaterialTheme.colorScheme.background
@@ -99,20 +93,58 @@ fun AdminComponenteScreen(
                     ) {
                         FilterChip(
                             selected = uiState.categoriaComponente == "Salsa",
-                            onClick = { viewModel.onEvent(AdminComponenteUiEvent.OnCategoriaChange("Salsa")) },
-                            label = { Text("🥣 Salsa / Aderezo") },
+                            onClick = {
+                                viewModel.onEvent(
+                                    AdminComponenteUiEvent.OnCategoriaChange(
+                                        "Salsa"
+                                    )
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.WaterDrop,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = "Salsa / Aderezo",
+                                    maxLines = 1
+                                )
+                            },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                             )
                         )
                         FilterChip(
                             selected = uiState.categoriaComponente == "Coccion",
-                            onClick = { viewModel.onEvent(AdminComponenteUiEvent.OnCategoriaChange("Coccion")) },
-                            label = { Text("🔥 Término de Cocción") },
+                            onClick = {
+                                viewModel.onEvent(
+                                    AdminComponenteUiEvent.OnCategoriaChange(
+                                        "Coccion"
+                                    )
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.LocalFireDepartment,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = "Término de carne",
+                                    maxLines = 1
+                                )
+                            },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                             )
                         )
                     }
@@ -171,7 +203,7 @@ fun AdminComponenteScreen(
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Switch(
+                        AdminAvailabilitySwitch(
                             checked = uiState.disponible,
                             onCheckedChange = { viewModel.onEvent(AdminComponenteUiEvent.OnDisponibleChange(it)) }
                         )

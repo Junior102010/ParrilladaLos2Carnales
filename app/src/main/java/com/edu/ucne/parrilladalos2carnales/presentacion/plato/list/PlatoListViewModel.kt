@@ -24,26 +24,24 @@ class PlatoListViewModel @Inject constructor(
     val uiState: StateFlow<PlatoListUiState> =
         _uiState.asStateFlow()
 
+    private var categoriaSeleccionada: Int? = null
+
     init {
         cargarPlatos()
     }
 
+    fun setCategoria(idCategoria: Int?) {
+        categoriaSeleccionada = idCategoria
+        aplicarFiltros()
+    }
+
     fun onEvent(event: PlatoListUiEvent) {
-
         when (event) {
-
             is PlatoListUiEvent.OnSearchChange -> {
                 buscarPlatos(event.query)
             }
-
-            is PlatoListUiEvent.OnPlatoClicked -> {
-
-            }
-
-            is PlatoListUiEvent.OnAddCarritoClicked -> {
-
-            }
-
+            is PlatoListUiEvent.OnPlatoClicked -> {}
+            is PlatoListUiEvent.OnAddCarritoClicked -> {}
             PlatoListUiEvent.OnRefresh -> {
                 cargarPlatos()
             }
@@ -51,64 +49,46 @@ class PlatoListViewModel @Inject constructor(
     }
 
     private fun cargarPlatos() {
-
         viewModelScope.launch {
-
-            _uiState.update {
-                it.copy(isLoading = true)
-            }
+            _uiState.update { it.copy(isLoading = true) }
 
             getPlatosUseCase()
                 .catch { error ->
-
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            errorMessage =
-                                error.localizedMessage
+                            errorMessage = error.localizedMessage
                         )
                     }
                 }
                 .collect { lista ->
-
-                    val disponibles =
-                        lista.filter { plato ->
-                            plato.disponible
-                        }
-
-                    val query =
-                        _uiState.value.searchQuery
-
-                    val filtrados =
-                        filtrar(
-                            platos = disponibles,
-                            query = query
-                        )
-
+                    val disponibles = lista.filter { it.disponible }
+                    
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            platos = disponibles,
-                            platosFiltrados = filtrados
+                            platos = disponibles
                         )
                     }
+                    aplicarFiltros()
                 }
         }
     }
 
     private fun buscarPlatos(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+        aplicarFiltros()
+    }
 
-        val filtrados =
-            filtrar(
-                platos = _uiState.value.platos,
-                query = query
-            )
+    private fun aplicarFiltros() {
+        val query = _uiState.value.searchQuery
+        val filtrados = filtrar(
+            platos = _uiState.value.platos,
+            query = query
+        )
 
         _uiState.update {
-            it.copy(
-                searchQuery = query,
-                platosFiltrados = filtrados
-            )
+            it.copy(platosFiltrados = filtrados)
         }
     }
 
@@ -116,21 +96,15 @@ class PlatoListViewModel @Inject constructor(
         platos: List<Plato>,
         query: String
     ): List<Plato> {
-
-        if (query.isBlank()) {
-            return platos
-        }
-
         return platos.filter { plato ->
+            val coincideCategoria = categoriaSeleccionada == null || 
+                                   plato.idCategoria == categoriaSeleccionada
 
-            plato.nombre.contains(
-                query,
-                ignoreCase = true
-            ) ||
-                    plato.descripcion.contains(
-                        query,
-                        ignoreCase = true
-                    )
+            val coincideBusqueda = query.isBlank() ||
+                    plato.nombre.contains(query, ignoreCase = true) ||
+                    plato.descripcion.contains(query, ignoreCase = true)
+
+            coincideCategoria && coincideBusqueda
         }
     }
 }

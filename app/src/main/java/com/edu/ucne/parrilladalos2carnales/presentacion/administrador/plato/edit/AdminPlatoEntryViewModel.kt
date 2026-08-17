@@ -2,12 +2,12 @@ package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.plato.edi
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.categoria.GetCategoriasUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.categoria.UpsertCategoriaUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatoUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.UpsertPlatoUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.validateNombrePlato
@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,7 +32,7 @@ class AdminPlatoEntryViewModel @Inject constructor(
     private val getPlatoUseCase: GetPlatoUseCase,
     private val upsertPlatoUseCase: UpsertPlatoUseCase,
     private val getCategoriasUseCase: GetCategoriasUseCase,
-    private val savedStateHandle: SavedStateHandle,
+    private val upsertCategoriaUseCase: UpsertCategoriaUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -41,30 +41,88 @@ class AdminPlatoEntryViewModel @Inject constructor(
 
     init {
         cargarCategorias()
-        val platoId = savedStateHandle.get<Int>("idPlato") ?: savedStateHandle.get<Int>("platoId") ?: 0
-        if (platoId != 0) {
-            cargarPlatoParaEdicion(platoId)
-        }
     }
 
     private fun cargarCategorias() {
         viewModelScope.launch {
-            getCategoriasUseCase()
-                .catch { /* fallback en caso de error */ }
-                .collect { lista ->
-                    val defaultCategorias = if (lista.isNotEmpty()) lista else listOf(
-                        Categoria(idCategoria = 1, nombreCategoria = "Termino medio"),
-                        Categoria(idCategoria = 2, nombreCategoria = "frita"),
-                        Categoria(idCategoria = 3, nombreCategoria = "Azada"),
-                        Categoria(idCategoria = 4, nombreCategoria = "Alexis")
+            try {
+                val categoriasActuales = getCategoriasUseCase().first()
+
+                if (categoriasActuales.isEmpty()) {
+                    val categoriasIniciales = listOf(
+                        Categoria(
+                            nombreCategoria = "Parrilladas",
+                            descripcionCategoria = "Platos completos preparados a la parrilla"
+                        ),
+                        Categoria(
+                            nombreCategoria = "Cortes",
+                            descripcionCategoria = "Cortes de carne preparados al gusto"
+                        ),
+                        Categoria(
+                            nombreCategoria = "Bebidas",
+                            descripcionCategoria = "Bebidas disponibles en el menú"
+                        ),
+                        Categoria(
+                            nombreCategoria = "Combos",
+                            descripcionCategoria = "Combinaciones y especiales de la casa"
+                        )
                     )
+
+                    categoriasIniciales.forEach { categoria ->
+                        upsertCategoriaUseCase(categoria)
+                    }
+                }
+
+                getCategoriasUseCase().collect { categorias ->
                     _uiState.update { state ->
                         state.copy(
-                            categorias = defaultCategorias,
-                            idCategoria = if (state.idCategoria == 0 && defaultCategorias.isNotEmpty()) defaultCategorias.first().idCategoria else state.idCategoria
+                            categorias = categorias,
+                            idCategoria = if (state.idCategoria <= 0 && categorias.isNotEmpty()) {
+                                categorias.first().idCategoria
+                            } else {
+                                state.idCategoria
+                            }
                         )
                     }
                 }
+            } catch (error: Exception) {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = error.localizedMessage
+                            ?: "No se pudieron cargar las categorías"
+                    )
+                }
+            }
+        }
+    }
+
+    fun prepararEntrada(idPlato: Int) {
+        if (idPlato == 0) {
+            _uiState.update { state ->
+                AdminPlatoEntryUiState(
+                    categorias = state.categorias,
+                    idCategoria = state.categorias.firstOrNull()?.idCategoria ?: 0
+                )
+            }
+        } else {
+            _uiState.update {
+                it.copy(
+                    isSuccess = false,
+                    errorMessage = null,
+                    nombreError = null,
+                    precioError = null,
+                    isLoading = true
+                )
+            }
+            cargarPlatoParaEdicion(idPlato)
+        }
+    }
+
+    fun consumirGuardadoExitoso() {
+        _uiState.update {
+            it.copy(
+                isSuccess = false
+            )
         }
     }
 
@@ -89,6 +147,7 @@ class AdminPlatoEntryViewModel @Inject constructor(
                 copiarYGuardarImagen(event.uriString)
             }
             is AdminPlatoEntryUiEvent.OnSave -> savePlato()
+            AdminPlatoEntryUiEvent.ResetSuccess -> consumirGuardadoExitoso()
         }
     }
 

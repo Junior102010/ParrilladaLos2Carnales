@@ -18,6 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,28 +30,17 @@ fun AdminGuarnicionScreen(
 
     LaunchedEffect(uiState.guardadoExitoso) {
         if (uiState.guardadoExitoso) {
+            viewModel.consumirGuardadoExitoso()
             onNavigateBack()
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (uiState.idGuarnicion == 0) "Nueva Guarnición" else "Editar Guarnición",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            AdminTopBar(
+                title = if (uiState.idGuarnicion == 0) "Nueva Guarnición" else "Editar Guarnición",
+                onBack = onNavigateBack,
+                compactTitle = true
             )
         },
         containerColor = MaterialTheme.colorScheme.background

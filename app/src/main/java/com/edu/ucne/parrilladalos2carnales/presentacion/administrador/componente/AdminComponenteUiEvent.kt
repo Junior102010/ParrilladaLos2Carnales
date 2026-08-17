@@ -10,4 +10,5 @@ sealed interface AdminComponenteUiEvent {
     data class OnDisponibleChange(val disponible: Boolean) : AdminComponenteUiEvent
     data object OnGuardarClick : AdminComponenteUiEvent
     data object OnBackClick : AdminComponenteUiEvent
+    data object ResetSuccess : AdminComponenteUiEvent
 }

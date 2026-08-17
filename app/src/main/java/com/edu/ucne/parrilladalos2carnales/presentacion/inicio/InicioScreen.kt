@@ -54,23 +54,23 @@ fun InicioScreen(
             listOf(
                 Oferta(
                     idOferta = 1,
-                    titulo = "Parrillada Especial",
-                    descuentoPorcentaje = 20.0
+                    tituloOferta = "Parrillada Especial",
+                    descuento = 20.0
                 ),
                 Oferta(
                     idOferta = 2,
-                    titulo = "Combo Carnales",
-                    descuentoPorcentaje = 15.0
+                    tituloOferta = "Combo Carnales",
+                    descuento = 15.0
                 ),
                 Oferta(
                     idOferta = 3,
-                    titulo = "Especial de Cortes",
-                    descuentoPorcentaje = 25.0
+                    tituloOferta = "Especial de Cortes",
+                    descuento = 25.0
                 ),
                 Oferta(
                     idOferta = 4,
-                    titulo = "Especial de la Casa",
-                    descuentoPorcentaje = 10.0
+                    tituloOferta = "Especial de la Casa",
+                    descuento = 10.0
                 )
             )
         }
@@ -187,8 +187,16 @@ fun InicioScreen(
             )
 
             CategoriasInicio(
-                onCategoriaClick = {
-                    onNavigate(Screen.Menu)
+                categorias = uiState.categorias,
+                onCategoriaClick = { categoria ->
+                    if (categoria.idCategoria > 0) {
+                        onNavigate(Screen.MenuCategoria(
+                            idCategoria = categoria.idCategoria,
+                            nombreCategoria = categoria.nombreCategoria
+                        ))
+                    } else {
+                        onNavigate(Screen.Menu)
+                    }
                 }
             )
 

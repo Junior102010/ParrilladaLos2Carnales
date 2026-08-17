@@ -9,4 +9,5 @@ sealed interface AdminGuarnicionUiEvent {
     data class OnDisponibleChange(val disponible: Boolean) : AdminGuarnicionUiEvent
     data object OnGuardarClick : AdminGuarnicionUiEvent
     data object OnBackClick : AdminGuarnicionUiEvent
+    data object ResetSuccess : AdminGuarnicionUiEvent
 }

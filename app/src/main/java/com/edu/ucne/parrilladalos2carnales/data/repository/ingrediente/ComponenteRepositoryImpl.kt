@@ -14,8 +14,8 @@ class ComponenteRepositoryImpl @Inject constructor(
 ) : ComponenteRepository {
 
     override suspend fun upsertComponente(componente: Componente): Int {
-        componenteDao.upsertComponente(componente.toEntity())
-        return componente.idComponente
+        val id = componenteDao.upsertComponente(componente.toEntity())
+        return id.toInt()
     }
 
     override suspend fun deleteComponente(id: Int) {

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ComponenteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertComponente(componente: ComponenteEntity)
+    suspend fun upsertComponente(componente: ComponenteEntity): Long
 
     @Query("SELECT * FROM Componentes WHERE idComponente = :id")
     suspend fun getComponente(id: Int): ComponenteEntity?

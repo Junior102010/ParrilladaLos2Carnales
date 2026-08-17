@@ -10,5 +10,7 @@ data class OfertaEntity(
     val tituloOferta: String = "",
     val descripcionOferta: String = "",
     val descuento: Double = 0.0,
-    val imagenUrl: String = ""
+    val imagenUrl: String = "",
+    val idPlato: Int? = null,
+    val activa: Boolean = true
 )

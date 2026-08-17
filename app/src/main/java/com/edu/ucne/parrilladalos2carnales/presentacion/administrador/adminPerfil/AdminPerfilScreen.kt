@@ -1,11 +1,10 @@
-package com.edu.ucne.parrilladalos2carnales.presentacion.perfil
+package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminPerfil
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,11 +25,10 @@ import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeManager
 import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
 
 @Composable
-fun PerfilScreen(
-    viewModel: PerfilViewModel,
+fun AdminPerfilScreen(
+    viewModel: AdminPerfilViewModel,
     onNavigate: (Screen) -> Unit,
-    onLogout: () -> Unit,
-    rolUsuario: Rol = Rol.CLIENTE
+    onLogout: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -53,7 +51,7 @@ fun PerfilScreen(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
-                        text = if (rolUsuario == Rol.ADMINISTRADOR) "Perfil Administrador" else "Perfil y ajustes",
+                        text = "Perfil Administrador",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -63,8 +61,8 @@ fun PerfilScreen(
         },
         bottomBar = {
             ParrilladaBottomBar(
-                currentScreen = if (rolUsuario == Rol.ADMINISTRADOR) Screen.AdminPerfil else Screen.Perfil,
-                rolUsuario = rolUsuario,
+                currentScreen = Screen.AdminPerfil,
+                rolUsuario = Rol.ADMINISTRADOR,
                 onNavigate = onNavigate
             )
         },
@@ -119,24 +117,6 @@ fun PerfilScreen(
                     Column {
                         Text(uiState.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
                         Text(uiState.correo, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-
-            if (rolUsuario == Rol.CLIENTE) {
-                Card(
-                    onClick = { onNavigate(Screen.Historial) },
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(Modifier.fillMaxWidth().padding(18.dp), Arrangement.spacedBy(14.dp), Alignment.CenterVertically) {
-                        Icon(Icons.AutoMirrored.Filled.ReceiptLong, null, tint = MaterialTheme.colorScheme.primary)
-                        Column(Modifier.weight(1f)) {
-                            Text("Mis pedidos", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                            Text("Ver historial", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
                     }
                 }
             }

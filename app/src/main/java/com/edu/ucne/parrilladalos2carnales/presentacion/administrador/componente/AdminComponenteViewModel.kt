@@ -1,6 +1,5 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
@@ -17,17 +16,26 @@ import javax.inject.Inject
 @HiltViewModel
 class AdminComponenteViewModel @Inject constructor(
     private val upsertComponenteUseCase: UpsertComponenteUseCase,
-    private val componenteRepository: ComponenteRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val componenteRepository: ComponenteRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminComponenteUiState())
     val uiState: StateFlow<AdminComponenteUiState> = _uiState.asStateFlow()
 
-    init {
-        val componenteId = savedStateHandle.get<Int>("idComponente") ?: 0
-        if (componenteId > 0) {
-            cargarComponente(componenteId)
+    fun prepararEntrada(idComponente: Int) {
+        if (idComponente == 0) {
+            _uiState.value = AdminComponenteUiState()
+        } else {
+            _uiState.value = AdminComponenteUiState(isLoading = true)
+            cargarComponente(idComponente)
+        }
+    }
+
+    fun consumirGuardadoExitoso() {
+        _uiState.update {
+            it.copy(
+                guardadoExitoso = false
+            )
         }
     }
 
@@ -44,9 +52,14 @@ class AdminComponenteViewModel @Inject constructor(
                         cantidadComponente = componente.cantidadComponente,
                         categoriaComponente = componente.categoriaComponente,
                         coccion = componente.coccion ?: "",
-                        disponible = componente.disponible
+                        disponible = componente.disponible,
+                        isLoading = false,
+                        guardadoExitoso = false,
+                        error = null
                     )
                 }
+            } else {
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
@@ -60,7 +73,6 @@ class AdminComponenteViewModel @Inject constructor(
             is AdminComponenteUiEvent.OnCategoriaChange -> _uiState.update {
                 it.copy(
                     categoriaComponente = event.categoria,
-
                     precioComponente = if (event.categoria == "Coccion") "0.0" else it.precioComponente
                 )
             }
@@ -68,6 +80,7 @@ class AdminComponenteViewModel @Inject constructor(
             is AdminComponenteUiEvent.OnDisponibleChange -> _uiState.update { it.copy(disponible = event.disponible) }
             AdminComponenteUiEvent.OnGuardarClick -> guardarComponente()
             AdminComponenteUiEvent.OnBackClick -> {  }
+            AdminComponenteUiEvent.ResetSuccess -> consumirGuardadoExitoso()
         }
     }
 

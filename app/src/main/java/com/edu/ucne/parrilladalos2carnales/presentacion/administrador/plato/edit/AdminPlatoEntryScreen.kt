@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,44 +44,18 @@ fun AdminPlatoEntryScreen(
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
+            viewModel.consumirGuardadoExitoso()
             onBack()
         }
     }
 
     Scaffold(
         topBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-            ) {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = if (uiState.idPlato == 0) "Nuevo Plato" else "Editar Plato",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                )
-            }
+            AdminTopBar(
+                title = if (uiState.idPlato == 0) "Nuevo Plato" else "Editar Plato",
+                onBack = onBack,
+                compactTitle = true
+            )
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->

@@ -9,7 +9,9 @@ fun OfertaEntity.toDomain(): Oferta {
         tituloOferta = this.tituloOferta,
         descripcionOferta = this.descripcionOferta,
         descuento = this.descuento,
-        imagenUrl = this.imagenUrl
+        imagenUrl = this.imagenUrl,
+        idPlato = this.idPlato,
+        activa = this.activa
     )
 }
 
@@ -19,6 +21,8 @@ fun Oferta.toEntity(): OfertaEntity {
         tituloOferta = this.tituloOferta,
         descripcionOferta = this.descripcionOferta,
         descuento = this.descuento,
-        imagenUrl = this.imagenUrl
+        imagenUrl = this.imagenUrl,
+        idPlato = this.idPlato,
+        activa = this.activa
     )
 }

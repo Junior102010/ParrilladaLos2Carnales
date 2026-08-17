@@ -8,7 +8,7 @@ data class AdminPlatoEntryUiState(
     val nombre: String = "",
     val descripcion: String = "",
     val precio: String = "",
-    val idCategoria: Int = 1,
+    val idCategoria: Int = 0,
     val disponible: Boolean = true,
     val imagenUrl: String = "",
     val categorias: List<Categoria> = emptyList(),
