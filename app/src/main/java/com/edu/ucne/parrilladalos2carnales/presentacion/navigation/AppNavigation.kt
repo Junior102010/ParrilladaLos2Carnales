@@ -16,6 +16,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.TipoNotificacion
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminDashboard.AdminDashboardScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminDashboard.AdminDashboardViewModel
@@ -505,7 +506,8 @@ fun ParrilladaNavDisplay(
                 )
             }
 
-            entry<Screen.Notificaciones> {
+            entry<Screen.Notificaciones> { pantalla ->
+
                 val viewModel: NotificacionViewModel = hiltViewModel()
 
                 NotificacionesScreen(
@@ -515,9 +517,19 @@ fun ParrilladaNavDisplay(
                             backStack.removeAt(backStack.lastIndex)
                         }
                     },
-                    onNotificacionClick = {
-                        // después aquí abrimos
-                        // pedido/oferta correspondiente
+                    onNotificacionClick = { notificacion ->
+                        when (notificacion.tipo) {
+                            TipoNotificacion.PEDIDO -> {
+                                val idPedido = notificacion.idReferencia
+                                if (pantalla.esAdministrador) {
+                                    backStack.add(Screen.AdminPedidos)
+                                } else if (idPedido != null) {
+                                    backStack.add(Screen.Seguimiento(idPedido = idPedido))
+                                }
+                            }
+                            TipoNotificacion.OFERTA -> { }
+                            TipoNotificacion.SISTEMA -> { }
+                        }
                     }
                 )
             }

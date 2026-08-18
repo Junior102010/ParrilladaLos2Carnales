@@ -13,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
-import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.*
@@ -26,16 +25,14 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminAvailabilitySwitch
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminInventoryTabs
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta.AdminOfertaScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta.AdminOfertaViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.io.File
-
 import androidx.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPlatoListScreen(
     viewModel: AdminPlatoListViewModel,
@@ -66,7 +63,6 @@ fun AdminPlatoListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPlatoListContent(
     uiState: AdminPlatoListUiState,
@@ -78,7 +74,7 @@ fun AdminPlatoListContent(
 ) {
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = "Gestión de Platos"
             )
         },

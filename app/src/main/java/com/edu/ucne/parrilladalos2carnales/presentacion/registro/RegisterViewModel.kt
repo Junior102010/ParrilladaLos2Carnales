@@ -56,12 +56,9 @@ class RegisterViewModel @Inject constructor(
                     return
                 }
                 if (contrasena.length < 6) {
-                    mensajeError =
-                        "La contraseña debe tener al menos 6 caracteres"
+                    mensajeError = "La contraseña debe tener al menos 6 caracteres"
                     return
                 }
-
-
                 if (contrasena != confirmarContrasena) {
                     mensajeError = "Las contraseñas no coinciden"
                     return
@@ -69,8 +66,26 @@ class RegisterViewModel @Inject constructor(
                 pasoActual = 2
             }
             2 -> {
-                if (nombre.isBlank() || apellido.isBlank() || telefono.isBlank()) {
-                    mensajeError = "Por favor, completa tus datos personales"
+                val telefonoLimpio = telefono.filter { it.isDigit() }
+
+                if (nombre.trim().length < 2) {
+                    mensajeError = "Introduce un nombre válido"
+                    return
+                }
+                if (nombre.any { it.isDigit() }) {
+                    mensajeError = "El nombre no debe contener números"
+                    return
+                }
+                if (apellido.trim().length < 2) {
+                    mensajeError = "Introduce un apellido válido"
+                    return
+                }
+                if (apellido.any { it.isDigit() }) {
+                    mensajeError = "El apellido no debe contener números"
+                    return
+                }
+                if (telefonoLimpio.length !in 10..15) {
+                    mensajeError = "Introduce un número de teléfono válido"
                     return
                 }
                 pasoActual = 3
@@ -86,22 +101,30 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun registrarse(onSuccess: (Rol) -> Unit) {
-        if (calle.isBlank() || numero.isBlank() || ciudad.isBlank()) {
-            mensajeError = "Por favor, completa los datos de dirección"
+        if (calle.trim().length < 3) {
+            mensajeError = "Introduce una calle válida"
             return
         }
-
+        if (numero.trim().isBlank()) {
+            mensajeError = "Introduce el número de la vivienda"
+            return
+        }
+        if (ciudad.trim().length < 2) {
+            mensajeError = "Introduce una ciudad válida"
+            return
+        }
+        if (codigoPostal.isNotBlank() && codigoPostal.any { !it.isDigit() }) {
+            mensajeError = "El código postal solo debe contener números"
+            return
+        }
 
         viewModelScope.launch {
             estaCargando = true
             mensajeError = null
 
-
             val usuario = RegistroUsuario(
                 nombreUsuario = nombreUsuario.ifBlank {
-                    correo
-                        .trim()
-                        .substringBefore("@")
+                    correo.trim().substringBefore("@")
                 },
                 correo = correo.trim(),
                 contrasena = contrasena,
@@ -115,20 +138,14 @@ class RegisterViewModel @Inject constructor(
                 referencia = referencia.trim()
             )
 
-
             try {
-                val resultado =
-                    authRepository.registro(usuario)
-
+                val resultado = authRepository.registro(usuario)
 
                 if (resultado.isSuccess) {
                     onSuccess(rolUsuarioActual())
                 } else {
-                    mensajeError =
-                        resultado
-                            .exceptionOrNull()
-                            ?.localizedMessage
-                            ?: "Error al registrar. Inténtalo de nuevo."
+                    mensajeError = resultado.exceptionOrNull()?.localizedMessage
+                        ?: "Error al registrar. Inténtalo de nuevo."
                 }
             } finally {
                 estaCargando = false
@@ -136,21 +153,11 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-
-    private fun correoEsValido(
-        correo: String
-    ): Boolean {
-        return correo
-            .trim()
-            .matches(
-                Regex(
-                    "^[A-Za-z0-9+_.-]+@" +
-                        "[A-Za-z0-9.-]+\\." +
-                        "[A-Za-z]{2,}$"
-                )
-            )
+    private fun correoEsValido(correo: String): Boolean {
+        return correo.trim().matches(
+            Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+        )
     }
-
 
     private fun rolUsuarioActual(): Rol {
         return if (authRepository.esAdministrador()) {

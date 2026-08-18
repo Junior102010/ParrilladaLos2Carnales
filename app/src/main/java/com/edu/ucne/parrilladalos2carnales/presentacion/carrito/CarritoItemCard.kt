@@ -75,7 +75,7 @@ fun CarritoItemCard(
 
         modifier = Modifier
             .fillMaxWidth()
-            .height(146.dp)
+            .height(170.dp)
     ) {
 
         Box(
@@ -155,7 +155,7 @@ fun CarritoItemCard(
                             .colorScheme
                             .onSurfaceVariant,
 
-                    maxLines = 2
+                    maxLines = 4
                 )
             }
 
@@ -254,18 +254,82 @@ private fun configuracionTexto(
     item: CarritoItem
 ): String {
 
-    return listOfNotNull(
-        item.termino
-            ?.nombreComponente,
 
-        item.guarnicion
-            ?.nombreGuarnicion,
+    val partes =
+        mutableListOf<String>()
 
-        item.salsa
-            ?.nombreComponente
-    )
-        .filter {
+
+    item.termino
+        ?.nombreComponente
+        ?.takeIf {
             it.isNotBlank()
         }
-        .joinToString(" | ")
+        ?.let {
+            partes.add(
+                "Término: $it"
+            )
+        }
+
+
+    item.guarnicion
+        ?.nombreGuarnicion
+        ?.takeIf {
+            it.isNotBlank()
+        }
+        ?.let {
+            partes.add(
+                "Guarnición: $it"
+            )
+        }
+
+
+    item.salsa
+        ?.nombreComponente
+        ?.takeIf {
+            it.isNotBlank()
+        }
+        ?.let {
+            partes.add(
+                "Salsa: $it"
+            )
+        }
+
+
+    if (
+        item.guarnicionesExtra
+            .isNotEmpty()
+    ) {
+
+
+        partes.add(
+            "Extras: ${
+                item.guarnicionesExtra
+                    .joinToString(", ") {
+                        it.nombreGuarnicion
+                    }
+            }"
+        )
+    }
+
+
+    if (
+        item.salsasExtra
+            .isNotEmpty()
+    ) {
+
+
+        partes.add(
+            "Salsas extra: ${
+                item.salsasExtra
+                    .joinToString(", ") {
+                        it.nombreComponente
+                    }
+            }"
+        )
+    }
+
+
+    return partes.joinToString(
+        " | "
+    )
 }

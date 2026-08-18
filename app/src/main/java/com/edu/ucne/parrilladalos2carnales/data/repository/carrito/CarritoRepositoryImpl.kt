@@ -23,19 +23,49 @@ class CarritoRepositoryImpl @Inject constructor() : CarritoRepository {
         val actual = _items.value.toMutableList()
 
 
-        val index = actual.indexOfFirst {
+        val index =
+            actual.indexOfFirst {
 
-            it.plato.idPlato == item.plato.idPlato &&
 
-                    it.termino?.idComponente ==
-                    item.termino?.idComponente &&
+                it.plato.idPlato ==
+                        item.plato.idPlato &&
 
-                    it.guarnicion?.idGuarnicion ==
-                    item.guarnicion?.idGuarnicion &&
 
-                    it.salsa?.idComponente ==
-                    item.salsa?.idComponente
-        }
+                it.termino?.idComponente ==
+                        item.termino?.idComponente &&
+
+
+                it.guarnicion?.idGuarnicion ==
+                        item.guarnicion?.idGuarnicion &&
+
+
+                it.salsa?.idComponente ==
+                        item.salsa?.idComponente &&
+
+
+                it.guarnicionesExtra
+                    .map { extra ->
+                        extra.idGuarnicion
+                    }
+                    .sorted() ==
+                item.guarnicionesExtra
+                    .map { extra ->
+                        extra.idGuarnicion
+                    }
+                    .sorted() &&
+
+
+                it.salsasExtra
+                    .map { extra ->
+                        extra.idComponente
+                    }
+                    .sorted() ==
+                item.salsasExtra
+                    .map { extra ->
+                        extra.idComponente
+                    }
+                    .sorted()
+            }
 
         if (index >= 0) {
 

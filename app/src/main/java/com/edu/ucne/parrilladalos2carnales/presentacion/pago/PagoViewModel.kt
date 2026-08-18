@@ -2,6 +2,10 @@ package com.edu.ucne.parrilladalos2carnales.presentacion.pago
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.edu.ucne.parrilladalos2carnales.data.repository.notificacion.NotificacionRepository
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.DestinoNotificacion
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.Notificacion
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.TipoNotificacion
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.DetallePedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepository
@@ -20,7 +24,8 @@ import javax.inject.Inject
 class PagoViewModel @Inject constructor(
     private val carritoRepository: CarritoRepository,
     private val pedidoRepository: PedidoRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val notificacionRepository: NotificacionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PagoUiState())
@@ -36,19 +41,13 @@ class PagoViewModel @Inject constructor(
             }
             is PagoUiEvent.OnDireccionChange -> _uiState.update { it.copy(direccion = event.direccion, errorMessage = null) }
             is PagoUiEvent.OnMetodoPagoChange -> _uiState.update { it.copy(metodoPago = event.metodo, errorMessage = null) }
-            is PagoUiEvent.OnNumeroTarjetaChange -> {
-                val num = event.numero.filter { it.isDigit() }.take(16)
-                _uiState.update { it.copy(numeroTarjeta = num, errorMessage = null) }
-            }
-            is PagoUiEvent.OnFechaTarjetaChange -> _uiState.update { it.copy(fechaTarjeta = formatearFecha(event.fecha), errorMessage = null) }
-            is PagoUiEvent.OnCvvChange -> {
-                val cvv = event.cvv.filter { it.isDigit() }.take(4)
-                _uiState.update { it.copy(cvv = cvv, errorMessage = null) }
-            }
             is PagoUiEvent.OnMontoRecibidoChange -> _uiState.update { it.copy(montoRecibido = event.monto.filter { it.isDigit() || it == '.' }, errorMessage = null) }
             is PagoUiEvent.OnTitularTransferenciaChange -> _uiState.update { it.copy(titularTransferencia = event.titular, errorMessage = null) }
-            is PagoUiEvent.OnCuentaOrigenChange -> _uiState.update { it.copy(cuentaOrigen = event.cuenta, errorMessage = null) }
             is PagoUiEvent.OnBancoChange -> _uiState.update { it.copy(banco = event.banco, errorMessage = null) }
+            is PagoUiEvent.OnReferenciaTransferenciaChange -> {
+                val referencia = event.referencia.filter { it.isLetterOrDigit() || it == '-' || it == '_' }.take(30)
+                _uiState.update { it.copy(referenciaTransferencia = referencia, errorMessage = null) }
+            }
             PagoUiEvent.OnConfirmarPago -> confirmarPedido()
             PagoUiEvent.OnPedidoCreadoConsumido -> _uiState.update { it.copy(pedidoCreadoId = null) }
         }
@@ -65,26 +64,87 @@ class PagoViewModel @Inject constructor(
 
     private fun confirmarPedido() {
         val state = _uiState.value
+        if (state.isLoading) return
         if (state.subtotal <= 0.0) return mostrarError("El carrito está vacío")
-        if (state.tipoEntrega == TipoEntrega.DELIVERY && state.direccion.isBlank()) return mostrarError("Debes indicar una dirección")
+
+        if (state.tipoEntrega == TipoEntrega.DELIVERY) {
+            val direccion = state.direccion.trim()
+            if (direccion.isBlank()) return mostrarError("Debes indicar la dirección de entrega")
+            if (direccion.length < 8) return mostrarError("Escribe una dirección más completa")
+            if (direccion.length > 150) return mostrarError("La dirección es demasiado larga")
+        }
 
         when (state.metodoPago) {
-            MetodoPago.TARJETA -> {
-                if (state.numeroTarjeta.length != 16) return mostrarError("Introduce un número de tarjeta válido")
-                if (!fechaValida(state.fechaTarjeta)) return mostrarError("Introduce una fecha válida")
-                if (state.cvv.length !in 3..4) return mostrarError("Introduce un CVV válido")
-            }
-            MetodoPago.EFECTIVO -> {
-                val monto = state.montoRecibido.toDoubleOrNull()
-                if (monto == null || monto < state.total) return mostrarError("El monto recibido es insuficiente")
-            }
-            MetodoPago.TRANSFERENCIA -> {
-                if (state.titularTransferencia.isBlank() || state.cuentaOrigen.isBlank() || state.banco.isBlank()) {
-                    return mostrarError("Completa los datos de transferencia")
-                }
-            }
+            MetodoPago.EFECTIVO -> if (!validarPagoEfectivo(state)) return
+            MetodoPago.TRANSFERENCIA -> if (!validarTransferencia(state)) return
         }
         crearPedido()
+    }
+
+    private fun validarPagoEfectivo(state: PagoUiState): Boolean {
+        if (state.montoRecibido.isBlank()) {
+            mostrarError("Indica con cuánto efectivo pagarás")
+            return false
+        }
+        val monto = state.montoRecibido.toDoubleOrNull()
+        if (monto == null) {
+            mostrarError("Introduce un monto válido")
+            return false
+        }
+        if (monto <= 0.0) {
+            mostrarError("El monto debe ser mayor que cero")
+            return false
+        }
+        if (monto < state.total) {
+            val faltante = state.total - monto
+            mostrarError("El monto es insuficiente. Faltan RD$ ${"%.2f".format(faltante)}")
+            return false
+        }
+        if (monto > 1_000_000.0) {
+            mostrarError("Verifica el monto ingresado")
+            return false
+        }
+        return true
+    }
+
+    private fun validarTransferencia(state: PagoUiState): Boolean {
+        val titular = state.titularTransferencia.trim()
+        val banco = state.banco.trim()
+        val referencia = state.referenciaTransferencia.trim()
+
+        if (titular.isBlank()) {
+            mostrarError("Ingresa el nombre del remitente")
+            return false
+        }
+        if (titular.length < 3) {
+            mostrarError("El nombre del remitente es demasiado corto")
+            return false
+        }
+        if (titular.length > 80) {
+            mostrarError("El nombre del remitente es demasiado largo")
+            return false
+        }
+        if (titular.any { it.isDigit() }) {
+            mostrarError("El nombre del remitente no debe contener números")
+            return false
+        }
+        if (banco.isBlank()) {
+            mostrarError("Indica el banco desde donde transferiste")
+            return false
+        }
+        if (banco.length < 3) {
+            mostrarError("Introduce un banco válido")
+            return false
+        }
+        if (referencia.isBlank()) {
+            mostrarError("Ingresa la referencia de la transferencia")
+            return false
+        }
+        if (referencia.length < 4) {
+            mostrarError("La referencia es demasiado corta")
+            return false
+        }
+        return true
     }
 
     private fun crearPedido() {
@@ -104,9 +164,15 @@ class PagoViewModel @Inject constructor(
                         subtotal = item.subtotal,
                         termino = item.termino?.nombreComponente.orEmpty(),
                         idTermino = item.termino?.idComponente,
-                        guarnicion = item.guarnicion?.nombreGuarnicion.orEmpty(),
+                        guarnicion = buildList {
+                            item.guarnicion?.nombreGuarnicion?.takeIf { it.isNotBlank() }?.let { add(it) }
+                            addAll(item.guarnicionesExtra.map { "${it.nombreGuarnicion} (Extra)" })
+                        }.joinToString(", "),
                         idGuarnicion = item.guarnicion?.idGuarnicion,
-                        salsa = item.salsa?.nombreComponente.orEmpty(),
+                        salsa = buildList {
+                            item.salsa?.nombreComponente?.takeIf { it.isNotBlank() }?.let { add(it) }
+                            addAll(item.salsasExtra.map { "${it.nombreComponente} (Extra)" })
+                        }.joinToString(", "),
                         idSalsa = item.salsa?.idComponente
                     )
                 }
@@ -127,6 +193,29 @@ class PagoViewModel @Inject constructor(
                 )
 
                 val idPedido = pedidoRepository.upsertPedido(pedido)
+                
+                notificacionRepository.agregar(
+                    Notificacion(
+                        titulo = "Pedido recibido",
+                        mensaje = "Tu pedido #$idPedido fue recibido correctamente.",
+                        tipo = TipoNotificacion.PEDIDO,
+                        destino = DestinoNotificacion.CLIENTE,
+                        usuarioUid = pedido.usuarioUid,
+                        idReferencia = idPedido
+                    )
+                )
+
+                notificacionRepository.agregar(
+                    Notificacion(
+                        titulo = "Nuevo pedido",
+                        mensaje = "${pedido.clienteNombre} realizó el pedido #$idPedido.",
+                        tipo = TipoNotificacion.PEDIDO,
+                        destino = DestinoNotificacion.ADMINISTRADOR,
+                        usuarioUid = null,
+                        idReferencia = idPedido
+                    )
+                )
+
                 carritoRepository.vaciar()
 
                 _uiState.update { it.copy(isLoading = false, pedidoCreadoId = idPedido) }
@@ -137,15 +226,4 @@ class PagoViewModel @Inject constructor(
     }
 
     private fun mostrarError(mensaje: String) = _uiState.update { it.copy(errorMessage = mensaje, isLoading = false) }
-
-    private fun formatearFecha(entrada: String): String {
-        val num = entrada.filter { it.isDigit() }.take(4)
-        return if (num.length <= 2) num else "${num.take(2)}/${num.drop(2)}"
-    }
-
-    private fun fechaValida(fecha: String): Boolean {
-        if (fecha.length != 5 || fecha[2] != '/') return false
-        val mes = fecha.substring(0, 2).toIntOrNull() ?: return false
-        return mes in 1..12
-    }
 }
