@@ -26,207 +26,168 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBot
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.io.File
 
+import androidx.compose.ui.tooling.preview.Preview
+
+import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
+
 @Composable
 fun CarritoScreen(
-    viewModel: CarritoViewModel =
-        hiltViewModel(),
-
+    viewModel: CarritoViewModel = hiltViewModel(),
     onNavigate: (Screen) -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val uiState by
-    viewModel.uiState
-        .collectAsStateWithLifecycle()
+    CarritoContent(
+        uiState = uiState,
+        onIncrementar = { viewModel.incrementar(it) },
+        onDecrementar = { viewModel.decrementar(it) },
+        onNavigate = onNavigate
+    )
+}
 
+@Composable
+fun CarritoContent(
+    uiState: CarritoUiState,
+    onIncrementar: (Long) -> Unit,
+    onDecrementar: (Long) -> Unit,
+    onNavigate: (Screen) -> Unit
+) {
     Scaffold(
-        containerColor =
-            MaterialTheme
-                .colorScheme
-                .background,
-
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-
             Surface(
-                color =
-                    MaterialTheme
-                        .colorScheme
-                        .surface,
-
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 4.dp
             ) {
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .windowInsetsPadding(
-                            WindowInsets.statusBars
-                        )
+                        .windowInsetsPadding(WindowInsets.statusBars)
                         .height(52.dp)
                 ) {
-
                     Text(
                         text = "Carrito",
-
-                        style =
-                            MaterialTheme
-                                .typography
-                                .headlineSmall,
-
-                        fontWeight =
-                            FontWeight.Bold,
-
-                        color =
-                            MaterialTheme
-                                .colorScheme
-                                .onSurface,
-
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .align(
-                                Alignment.CenterStart
-                            )
-                            .padding(
-                                start = 12.dp
-                            )
+                            .align(Alignment.CenterStart)
+                            .padding(start = 12.dp)
                     )
                 }
             }
         },
-
         bottomBar = {
-
             ParrilladaBottomBar(
-                currentScreen =
-                    Screen.Carrito,
-
-                rolUsuario =
-                    Rol.CLIENTE,
-
-                onNavigate =
-                    onNavigate
+                currentScreen = Screen.Carrito,
+                rolUsuario = Rol.CLIENTE,
+                onNavigate = onNavigate
             )
         }
     ) { innerPadding ->
-
-        if (
-            uiState.items.isEmpty()
-        ) {
-
+        if (uiState.items.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-
-                contentAlignment =
-                    Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
-
                 Text(
-                    text =
-                        "Tu carrito está vacío",
-
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .onSurfaceVariant
+                    text = "Tu carrito está vacío",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
         } else {
-
             LazyColumn(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(
-                            innerPadding
-                        ),
-
-                contentPadding =
-                    PaddingValues(
-                        start = 10.dp,
-                        end = 10.dp,
-                        top = 22.dp,
-                        bottom = 12.dp
-                    ),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(
-                        22.dp
-                    )
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentPadding = PaddingValues(
+                    start = 10.dp,
+                    end = 10.dp,
+                    top = 22.dp,
+                    bottom = 12.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(22.dp)
             ) {
-
                 items(
-                    items =
-                        uiState.items,
-
-                    key = {
-                        it.idCarritoItem
-                    }
+                    items = uiState.items,
+                    key = { it.idCarritoItem }
                 ) { item ->
-
                     CarritoItemCard(
                         item = item,
-
-                        onIncrementar = {
-
-                            viewModel
-                                .incrementar(
-                                    item.idCarritoItem
-                                )
-                        },
-
-                        onDecrementar = {
-
-                            viewModel
-                                .decrementar(
-                                    item.idCarritoItem
-                                )
-                        }
+                        onIncrementar = { onIncrementar(item.idCarritoItem) },
+                        onDecrementar = { onDecrementar(item.idCarritoItem) }
                     )
                 }
 
                 item {
-
                     ResumenCarrito(
-                        subtotal =
-                            uiState.subtotal,
-
-                        delivery =
-                            uiState.delivery,
-
-                        total =
-                            uiState.total
+                        subtotal = uiState.subtotal,
+                        delivery = uiState.delivery,
+                        total = uiState.total
                     )
                 }
                 item {
-
                     Button(
-                        onClick = {
-                            onNavigate(
-                                Screen.Pago
-                            )
-                        },
-
-                        shape =
-                            RoundedCornerShape(
-                                28.dp
-                            ),
-
+                        onClick = { onNavigate(Screen.Pago) },
+                        shape = RoundedCornerShape(28.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp)
                     ) {
-
                         Text(
-                            text =
-                                "Continuar al pago",
-
-                            fontWeight =
-                                FontWeight.Bold
+                            text = "Continuar al pago",
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CarritoPreview() {
+    CarritoContent(
+        uiState = CarritoUiState(
+            items = listOf(
+                CarritoItem(
+                    idCarritoItem = 1L,
+                    plato = Plato(
+                        idPlato = 1,
+                        nombre = "Parrillada Mixta",
+                        precio = 1200.0,
+                        disponible = true
+                    ),
+                    termino = null,
+                    guarnicion = null,
+                    salsa = null,
+                    cantidad = 1,
+                    precioUnitario = 1200.0
+                ),
+                CarritoItem(
+                    idCarritoItem = 2L,
+                    plato = Plato(
+                        idPlato = 2,
+                        nombre = "Churrasco",
+                        precio = 950.0,
+                        disponible = true
+                    ),
+                    termino = null,
+                    guarnicion = null,
+                    salsa = null,
+                    cantidad = 2,
+                    precioUnitario = 950.0
+                )
+            ),
+            subtotal = 3100.0,
+            delivery = 150.0,
+            total = 3250.0
+        ),
+        onIncrementar = {},
+        onDecrementar = {},
+        onNavigate = {}
+    )
 }

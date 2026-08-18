@@ -32,6 +32,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBa
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPedidosScreen(
@@ -40,6 +42,20 @@ fun AdminPedidosScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    AdminPedidosContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigate = onNavigate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminPedidosContent(
+    uiState: AdminPedidosUiState,
+    onEvent: (AdminPedidosUiEvent) -> Unit,
+    onNavigate: (Screen) -> Unit = {}
+) {
     val pedidosFiltrados = remember(uiState.pedidos, uiState.filtroEstado, uiState.searchQuery) {
         uiState.pedidos.filter { pedido ->
             val coincideEstado = uiState.filtroEstado == null || pedido.estado == uiState.filtroEstado
@@ -73,11 +89,11 @@ fun AdminPedidosScreen(
         ) {
             item {
                 Spacer(modifier = Modifier.height(14.dp))
-                
+
                 AdminSearchField(
                     value = uiState.searchQuery,
                     onValueChange = {
-                        viewModel.onEvent(
+                        onEvent(
                             AdminPedidosUiEvent.OnSearchQueryChanged(it)
                         )
                     },
@@ -100,7 +116,7 @@ fun AdminPedidosScreen(
                             FilterChip(
                                 selected = uiState.filtroEstado == null,
                                 onClick = {
-                                    viewModel.onEvent(
+                                    onEvent(
                                         AdminPedidosUiEvent.OnFiltrarPorEstado(null)
                                     )
                                 },
@@ -116,7 +132,7 @@ fun AdminPedidosScreen(
                             FilterChip(
                                 selected = uiState.filtroEstado == estado,
                                 onClick = {
-                                    viewModel.onEvent(
+                                    onEvent(
                                         AdminPedidosUiEvent.OnFiltrarPorEstado(estado)
                                     )
                                 },
@@ -131,7 +147,7 @@ fun AdminPedidosScreen(
                     }
 
                     IconButton(
-                        onClick = { viewModel.onEvent(AdminPedidosUiEvent.OnRefrescar) },
+                        onClick = { onEvent(AdminPedidosUiEvent.OnRefrescar) },
                         modifier = Modifier
                             .padding(start = 8.dp)
                             .clip(CircleShape)
@@ -184,7 +200,7 @@ fun AdminPedidosScreen(
                         AdminPedidoCard(
                             pedido = pedido,
                             onCambiarEstado = { nuevoEstado ->
-                                viewModel.onEvent(
+                                onEvent(
                                     AdminPedidosUiEvent.OnCambiarEstadoPedido(
                                         pedido.idPedido,
                                         nuevoEstado
@@ -198,6 +214,32 @@ fun AdminPedidosScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminPedidosPreview() {
+    AdminPedidosContent(
+        uiState = AdminPedidosUiState(
+            pedidos = listOf(
+                Pedido(
+                    idPedido = 1,
+                    clienteNombre = "Juan Pérez",
+                    total = 1500.0,
+                    estado = EstadoPedido.RECIBIDO,
+                    fecha = "20/05/2024"
+                ),
+                Pedido(
+                    idPedido = 2,
+                    clienteNombre = "María García",
+                    total = 850.0,
+                    estado = EstadoPedido.PREPARANDO,
+                    fecha = "20/05/2024"
+                )
+            )
+        ),
+        onEvent = {}
+    )
 }
 
 @Composable

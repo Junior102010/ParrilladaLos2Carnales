@@ -23,6 +23,9 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminComponenteListScreen(
@@ -33,6 +36,24 @@ fun AdminComponenteListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    AdminComponenteListContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigateToAdd = onNavigateToAdd,
+        onNavigateToEdit = onNavigateToEdit,
+        onNavigate = onNavigate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminComponenteListContent(
+    uiState: AdminComponenteListUiState,
+    onEvent: (AdminComponenteListUiEvent) -> Unit,
+    onNavigateToAdd: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigate: (Screen) -> Unit = {}
+) {
     Scaffold(
         topBar = {
             AdminTopBar(
@@ -129,7 +150,7 @@ fun AdminComponenteListScreen(
                                             color = if (componente.disponible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                                         )
                                     }
-                                    IconButton(onClick = { viewModel.onEvent(AdminComponenteListUiEvent.OnDeleteComponenteClick(componente)) }) {
+                                    IconButton(onClick = { onEvent(AdminComponenteListUiEvent.OnDeleteComponenteClick(componente)) }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
                                             contentDescription = "Borrar",
@@ -144,4 +165,38 @@ fun AdminComponenteListScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminComponenteListPreview() {
+    AdminComponenteListContent(
+        uiState = AdminComponenteListUiState(
+            componentes = listOf(
+                Componente(
+                    idComponente = 1,
+                    nombreComponente = "Salsa BBQ",
+                    descripcionComponente = "Salsa BBQ artesanal",
+                    cantidadComponente = 10.0,
+                    precioComponente = 50.0,
+                    disponible = true,
+                    coccion = null,
+                    categoriaComponente = "Salsa"
+                ),
+                Componente(
+                    idComponente = 2,
+                    nombreComponente = "Término Medio",
+                    descripcionComponente = "Término de cocción medio",
+                    cantidadComponente = 0.0,
+                    precioComponente = 0.0,
+                    disponible = true,
+                    coccion = "Medio",
+                    categoriaComponente = "Coccion"
+                )
+            )
+        ),
+        onEvent = {},
+        onNavigateToAdd = {},
+        onNavigateToEdit = {}
+    )
 }

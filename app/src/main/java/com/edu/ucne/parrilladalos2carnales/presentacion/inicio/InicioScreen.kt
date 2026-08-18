@@ -36,6 +36,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBot
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import kotlinx.coroutines.delay
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = hiltViewModel(),
@@ -47,6 +49,17 @@ fun InicioScreen(
         viewModel.refrescarUsuario()
     }
 
+    InicioContent(
+        uiState = uiState,
+        onNavigate = onNavigate
+    )
+}
+
+@Composable
+fun InicioContent(
+    uiState: InicioUiState,
+    onNavigate: (Screen) -> Unit
+) {
     val ofertas = remember(uiState.ofertas) {
         if (uiState.ofertas.isNotEmpty()) {
             uiState.ofertas
@@ -95,11 +108,9 @@ fun InicioScreen(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-
         topBar = {
             InicioTopBar()
         },
-
         bottomBar = {
             ParrilladaBottomBar(
                 currentScreen = Screen.Inicio,
@@ -252,8 +263,20 @@ fun InicioScreen(
                     )
                 }
             }
-
-
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InicioPreview() {
+    InicioContent(
+        uiState = InicioUiState(
+            nombreUsuario = "Cliente",
+            ofertas = emptyList(),
+            categorias = emptyList(),
+            platos = emptyList()
+        ),
+        onNavigate = {}
+    )
 }

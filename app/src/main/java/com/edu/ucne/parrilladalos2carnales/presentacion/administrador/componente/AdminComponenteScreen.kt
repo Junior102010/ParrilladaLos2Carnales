@@ -24,6 +24,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminAvail
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioTopBar
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminComponenteScreen(
@@ -39,6 +41,20 @@ fun AdminComponenteScreen(
         }
     }
 
+    AdminComponenteContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminComponenteContent(
+    uiState: AdminComponenteUiState,
+    onEvent: (AdminComponenteUiEvent) -> Unit,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             AdminTopBar(
@@ -94,7 +110,7 @@ fun AdminComponenteScreen(
                         FilterChip(
                             selected = uiState.categoriaComponente == "Salsa",
                             onClick = {
-                                viewModel.onEvent(
+                                onEvent(
                                     AdminComponenteUiEvent.OnCategoriaChange(
                                         "Salsa"
                                     )
@@ -122,7 +138,7 @@ fun AdminComponenteScreen(
                         FilterChip(
                             selected = uiState.categoriaComponente == "Coccion",
                             onClick = {
-                                viewModel.onEvent(
+                                onEvent(
                                     AdminComponenteUiEvent.OnCategoriaChange(
                                         "Coccion"
                                     )
@@ -151,7 +167,7 @@ fun AdminComponenteScreen(
 
                     OutlinedTextField(
                         value = uiState.nombreComponente,
-                        onValueChange = { viewModel.onEvent(AdminComponenteUiEvent.OnNombreChange(it)) },
+                        onValueChange = { onEvent(AdminComponenteUiEvent.OnNombreChange(it)) },
                         label = { Text("Nombre (Ej. Salsa BBQ, Término Medio 3/4)") },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -165,7 +181,7 @@ fun AdminComponenteScreen(
                     if (uiState.categoriaComponente == "Salsa") {
                         OutlinedTextField(
                             value = uiState.precioComponente,
-                            onValueChange = { viewModel.onEvent(AdminComponenteUiEvent.OnPrecioChange(it)) },
+                            onValueChange = { onEvent(AdminComponenteUiEvent.OnPrecioChange(it)) },
                             label = { Text("Precio Adicional (RD$)") },
                             placeholder = { Text("0.00 si es gratis") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -181,7 +197,7 @@ fun AdminComponenteScreen(
 
                     OutlinedTextField(
                         value = uiState.descripcionComponente,
-                        onValueChange = { viewModel.onEvent(AdminComponenteUiEvent.OnDescripcionChange(it)) },
+                        onValueChange = { onEvent(AdminComponenteUiEvent.OnDescripcionChange(it)) },
                         label = { Text("Descripción (Opcional)") },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -205,14 +221,14 @@ fun AdminComponenteScreen(
                         )
                         AdminAvailabilitySwitch(
                             checked = uiState.disponible,
-                            onCheckedChange = { viewModel.onEvent(AdminComponenteUiEvent.OnDisponibleChange(it)) }
+                            onCheckedChange = { onEvent(AdminComponenteUiEvent.OnDisponibleChange(it)) }
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
-                        onClick = { viewModel.onEvent(AdminComponenteUiEvent.OnGuardarClick) },
+                        onClick = { onEvent(AdminComponenteUiEvent.OnGuardarClick) },
                         enabled = !uiState.isLoading,
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
@@ -246,4 +262,18 @@ fun AdminComponenteScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminComponentePreview() {
+    AdminComponenteContent(
+        uiState = AdminComponenteUiState(
+            nombreComponente = "Salsa Honey Mustard",
+            categoriaComponente = "Salsa",
+            precioComponente = "25.00"
+        ),
+        onEvent = {},
+        onNavigateBack = {}
+    )
 }

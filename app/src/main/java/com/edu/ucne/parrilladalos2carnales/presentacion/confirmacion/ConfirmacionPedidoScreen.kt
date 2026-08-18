@@ -17,6 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
+
 @Composable
 fun ConfirmacionPedidoScreen(
     viewModel: ConfirmacionPedidoViewModel,
@@ -24,6 +27,20 @@ fun ConfirmacionPedidoScreen(
     onVerEstado: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ConfirmacionPedidoContent(
+        uiState = uiState,
+        onVolverInicio = onVolverInicio,
+        onVerEstado = onVerEstado
+    )
+}
+
+@Composable
+fun ConfirmacionPedidoContent(
+    uiState: ConfirmacionPedidoUiState,
+    onVolverInicio: () -> Unit,
+    onVerEstado: (Int) -> Unit
+) {
     val escala = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
@@ -153,5 +170,22 @@ fun ConfirmacionPedidoScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ConfirmacionPedidoPreview() {
+    ConfirmacionPedidoContent(
+        uiState = ConfirmacionPedidoUiState(
+            pedido = Pedido(
+                idPedido = 1,
+                total = 1500.0,
+                direccion = "Calle 123",
+                fecha = "20/05/2024"
+            )
+        ),
+        onVolverInicio = {},
+        onVerEstado = {}
+    )
 }
 

@@ -27,6 +27,9 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
+
 @Composable
 fun SeguimientoScreen(
     viewModel: SeguimientoViewModel,
@@ -34,6 +37,17 @@ fun SeguimientoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    SeguimientoContent(
+        uiState = uiState,
+        onNavigate = onNavigate
+    )
+}
+
+@Composable
+fun SeguimientoContent(
+    uiState: SeguimientoUiState,
+    onNavigate: (Screen) -> Unit
+) {
     Scaffold(
         topBar = {
             SeguimientoTopBar()
@@ -72,6 +86,21 @@ fun SeguimientoScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SeguimientoPreview() {
+    SeguimientoContent(
+        uiState = SeguimientoUiState(
+            pedido = Pedido(
+                idPedido = 1,
+                estado = EstadoPedido.PREPARANDO,
+                fecha = "20/05/2024"
+            )
+        ),
+        onNavigate = {}
+    )
 }
 
 @Composable

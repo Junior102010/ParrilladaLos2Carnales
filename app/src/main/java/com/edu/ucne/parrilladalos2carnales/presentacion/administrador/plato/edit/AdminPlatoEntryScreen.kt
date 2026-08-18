@@ -25,6 +25,8 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import java.io.File
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPlatoEntryScreen(
@@ -32,7 +34,6 @@ fun AdminPlatoEntryScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var expandedCategoria by remember { mutableStateOf(false) }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -48,6 +49,24 @@ fun AdminPlatoEntryScreen(
             onBack()
         }
     }
+
+    AdminPlatoEntryContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onBack = onBack,
+        onLaunchGallery = { galleryLauncher.launch("image/*") }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminPlatoEntryContent(
+    uiState: AdminPlatoEntryUiState,
+    onEvent: (AdminPlatoEntryUiEvent) -> Unit,
+    onBack: () -> Unit,
+    onLaunchGallery: () -> Unit
+) {
+    var expandedCategoria by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -97,7 +116,7 @@ fun AdminPlatoEntryScreen(
                             .size(130.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .clickable { galleryLauncher.launch("image/*") },
+                            .clickable { onLaunchGallery() },
                         contentAlignment = Alignment.Center
                     ) {
                         if (uiState.imagenUrl.isNotEmpty()) {
@@ -137,7 +156,7 @@ fun AdminPlatoEntryScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = uiState.nombre,
-                        onValueChange = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnNombreChanged(it)) },
+                        onValueChange = { onEvent(AdminPlatoEntryUiEvent.OnNombreChanged(it)) },
                         placeholder = { Text("Ej: Churrasco Angus 12oz", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         shape = RoundedCornerShape(20.dp),
                         singleLine = true,
@@ -164,7 +183,7 @@ fun AdminPlatoEntryScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = uiState.precio,
-                        onValueChange = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnPrecioChanged(it)) },
+                        onValueChange = { onEvent(AdminPlatoEntryUiEvent.OnPrecioChanged(it)) },
                         placeholder = { Text("Ej: 850.00", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         shape = RoundedCornerShape(20.dp),
@@ -224,7 +243,7 @@ fun AdminPlatoEntryScreen(
                                 DropdownMenuItem(
                                     text = { Text(categoria.nombreCategoria) },
                                     onClick = {
-                                        viewModel.onEvent(AdminPlatoEntryUiEvent.OnCategoriaChanged(categoria.idCategoria))
+                                        onEvent(AdminPlatoEntryUiEvent.OnCategoriaChanged(categoria.idCategoria))
                                         expandedCategoria = false
                                     }
                                 )
@@ -244,7 +263,7 @@ fun AdminPlatoEntryScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = uiState.descripcion,
-                        onValueChange = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnDescripcionChanged(it)) },
+                        onValueChange = { onEvent(AdminPlatoEntryUiEvent.OnDescripcionChanged(it)) },
                         placeholder = { Text("Acompañado de papas salteadas...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         shape = RoundedCornerShape(20.dp),
                         minLines = 3,
@@ -272,7 +291,7 @@ fun AdminPlatoEntryScreen(
                         )
                         Switch(
                             checked = uiState.disponible,
-                            onCheckedChange = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnDisponibleChanged(it)) }
+                            onCheckedChange = { onEvent(AdminPlatoEntryUiEvent.OnDisponibleChanged(it)) }
                         )
                     }
 
@@ -289,7 +308,7 @@ fun AdminPlatoEntryScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = { viewModel.onEvent(AdminPlatoEntryUiEvent.OnSave) },
+                        onClick = { onEvent(AdminPlatoEntryUiEvent.OnSave) },
                         enabled = !uiState.isLoading,
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
@@ -317,4 +336,18 @@ fun AdminPlatoEntryScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminPlatoEntryPreview() {
+    AdminPlatoEntryContent(
+        uiState = AdminPlatoEntryUiState(
+            nombre = "Parrillada Mixta",
+            precio = "1200.00"
+        ),
+        onEvent = {},
+        onBack = {},
+        onLaunchGallery = {}
+    )
 }

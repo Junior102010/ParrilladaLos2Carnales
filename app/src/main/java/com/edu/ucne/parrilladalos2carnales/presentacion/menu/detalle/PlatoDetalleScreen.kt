@@ -21,6 +21,9 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 import java.io.File
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onAgregadoAlCarrito: () -> Unit) {
@@ -31,6 +34,21 @@ fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onA
             onAgregadoAlCarrito()
         }
     }
+
+    PlatoDetalleContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onBack = onBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun PlatoDetalleContent(
+    uiState: PlatoDetalleUiState,
+    onEvent: (PlatoDetalleUiEvent) -> Unit,
+    onBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
@@ -47,12 +65,12 @@ fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onA
                 Row(modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(10.dp, 12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Surface(color = MaterialTheme.colorScheme.outlineVariant, shape = RoundedCornerShape(28.dp), modifier = Modifier.height(44.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton({ viewModel.onEvent(PlatoDetalleUiEvent.OnDecrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Remove, "Disminuir") }
+                            IconButton({ onEvent(PlatoDetalleUiEvent.OnDecrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Remove, "Disminuir") }
                             Text(uiState.cantidad.toString(), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                            IconButton({ viewModel.onEvent(PlatoDetalleUiEvent.OnIncrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Add, "Aumentar") }
+                            IconButton({ onEvent(PlatoDetalleUiEvent.OnIncrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Add, "Aumentar") }
                         }
                     }
-                    Button({ viewModel.onEvent(PlatoDetalleUiEvent.OnAgregarAlCarrito) }, shape = RoundedCornerShape(28.dp), contentPadding = PaddingValues(16.dp, 0.dp), modifier = Modifier.height(44.dp)) {
+                    Button({ onEvent(PlatoDetalleUiEvent.OnAgregarAlCarrito) }, shape = RoundedCornerShape(28.dp), contentPadding = PaddingValues(16.dp, 0.dp), modifier = Modifier.height(44.dp)) {
                         Icon(Icons.Default.Add, null)
                         Spacer(Modifier.width(5.dp))
                         Text("Añadir", fontWeight = FontWeight.Bold)
@@ -83,21 +101,38 @@ fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onA
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(0.5f))
                     Spacer(Modifier.height(24.dp))
                     if (uiState.terminosCoccionDisponibles.isNotEmpty()) {
-                        OptionSectionButtons("Término de la carne", uiState.terminosCoccionDisponibles, uiState.terminoSeleccionado?.idComponente, { viewModel.onEvent(PlatoDetalleUiEvent.OnCoccionSelect(it as Componente)) }, { (it as Componente).nombreComponente.ifBlank { it.coccion ?: "" } })
+                        OptionSectionButtons("Término de la carne", uiState.terminosCoccionDisponibles, uiState.terminoSeleccionado?.idComponente, { onEvent(PlatoDetalleUiEvent.OnCoccionSelect(it as Componente)) }, { (it as Componente).nombreComponente.ifBlank { it.coccion ?: "" } })
                         Spacer(Modifier.height(24.dp))
                     }
                     if (uiState.guarnicionesDisponibles.isNotEmpty()) {
-                        OptionSectionButtons("Elige tu Guarnición", uiState.guarnicionesDisponibles, uiState.guarnicionSeleccionada?.idGuarnicion, { viewModel.onEvent(PlatoDetalleUiEvent.OnGuarnicionSelect(it as Guarnicion)) }, { (it as Guarnicion).nombreGuarnicion })
+                        OptionSectionButtons("Elige tu Guarnición", uiState.guarnicionesDisponibles, uiState.guarnicionSeleccionada?.idGuarnicion, { onEvent(PlatoDetalleUiEvent.OnGuarnicionSelect(it as Guarnicion)) }, { (it as Guarnicion).nombreGuarnicion })
                         Spacer(Modifier.height(24.dp))
                     }
                     if (uiState.salsasDisponibles.isNotEmpty()) {
-                        OptionSectionButtons("Salsa Extra", uiState.salsasDisponibles, uiState.salsaSeleccionada?.idComponente, { viewModel.onEvent(PlatoDetalleUiEvent.OnSalsaSelect(it as Componente)) }, { (it as Componente).nombreComponente })
+                        OptionSectionButtons("Salsa Extra", uiState.salsasDisponibles, uiState.salsaSeleccionada?.idComponente, { onEvent(PlatoDetalleUiEvent.OnSalsaSelect(it as Componente)) }, { (it as Componente).nombreComponente })
                         Spacer(Modifier.height(24.dp))
                     }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlatoDetallePreview() {
+    PlatoDetalleContent(
+        uiState = PlatoDetalleUiState(
+            plato = Plato(
+                idPlato = 1,
+                nombre = "Parrillada Mixta",
+                precio = 1200.0,
+                descripcion = "Una deliciosa parrillada con carnes premium."
+            )
+        ),
+        onEvent = {},
+        onBack = {}
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
