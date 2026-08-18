@@ -2,8 +2,6 @@ package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -13,12 +11,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -26,13 +22,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminAvailabilitySwitch
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminOfertaEntryScreen(
     uiState: AdminOfertaUiState,
@@ -53,10 +47,9 @@ fun AdminOfertaEntryScreen(
 
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = if (uiState.idOfertaEditando == 0) "Nueva Oferta" else "Editar Oferta",
-                onBack = onBack,
-                compactTitle = true
+                onBack = onBack
             )
         },
         containerColor = MaterialTheme.colorScheme.background

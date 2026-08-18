@@ -5,18 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.outlined.AccountBalanceWallet
-import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.Restaurant
-import androidx.compose.material.icons.outlined.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,12 +30,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionViewModel
+import java.io.File
 
 private data class PlatoPopular(
     val idPlato: Int,
@@ -49,7 +45,6 @@ private data class PlatoPopular(
     val cantidad: Int
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminDashboardScreen(
     viewModel: AdminDashboardViewModel,
@@ -69,17 +64,17 @@ fun AdminDashboardScreen(
 @Composable
 fun AdminDashboardContent(
     uiState: AdminDashboardUiState,
-    cantidadNotificaciones: Int,
+    cantidadNotificaciones: Int = 0,
     onNavigate: (Screen) -> Unit
 ) {
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = "Dashboard",
                 showLogo = true,
                 cantidadNotificaciones = cantidadNotificaciones,
                 onNotificacionesClick = {
-                    onNavigate(Screen.Notificaciones)
+                    onNavigate(Screen.Notificaciones(esAdministrador = true))
                 }
             )
         },
@@ -315,7 +310,7 @@ private fun VentasHoyCard(
                 )
 
                 Text(
-                    text = "RD$ ${String.format("%,.2f", ventas)}",
+                    text = "RD$ ${"%,.2f".format(ventas)}",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.primary
@@ -552,7 +547,7 @@ private fun PlatoPopularItem(
         ) {
             if (plato.imagenUrl.isNotEmpty()) {
                 AsyncImage(
-                    model = if (plato.imagenUrl.startsWith("/")) java.io.File(plato.imagenUrl) else plato.imagenUrl,
+                    model = if (plato.imagenUrl.startsWith("/")) File(plato.imagenUrl) else plato.imagenUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

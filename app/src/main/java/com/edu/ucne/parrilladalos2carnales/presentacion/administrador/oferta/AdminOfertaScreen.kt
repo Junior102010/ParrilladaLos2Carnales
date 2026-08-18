@@ -13,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,11 +21,10 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminOfertaScreen(
     viewModel: AdminOfertaViewModel,
@@ -52,10 +50,9 @@ fun AdminOfertaScreen(
 
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = "Gestión de Ofertas",
-                onBack = onBack,
-                compactTitle = true
+                onBack = onBack
             )
         },
         bottomBar = {

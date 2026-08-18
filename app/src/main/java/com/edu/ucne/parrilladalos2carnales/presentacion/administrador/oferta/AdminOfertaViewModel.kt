@@ -137,11 +137,26 @@ class AdminOfertaViewModel @Inject constructor(
 
     fun guardarOferta() {
         val state = _uiState.value
-        val descuentoDouble = state.descuento.toDoubleOrNull() ?: 0.0
+        val descuento = state.descuento.toDoubleOrNull()
         val plato = state.platos.find { it.idPlato == state.idPlatoSeleccionado }
 
-        if (state.tituloOferta.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "El título es obligatorio") }
+        if (state.tituloOferta.trim().length < 3) {
+            _uiState.update { it.copy(errorMessage = "El título debe tener al menos 3 caracteres") }
+            return
+        }
+
+        if (state.idPlatoSeleccionado == null) {
+            _uiState.update { it.copy(errorMessage = "Selecciona el plato al que se aplicará la oferta") }
+            return
+        }
+
+        if (descuento == null) {
+            _uiState.update { it.copy(errorMessage = "Introduce un descuento válido") }
+            return
+        }
+
+        if (descuento <= 0.0 || descuento > 100.0) {
+            _uiState.update { it.copy(errorMessage = "El descuento debe estar entre 1% y 100%") }
             return
         }
 
@@ -151,7 +166,7 @@ class AdminOfertaViewModel @Inject constructor(
                 idOferta = state.idOfertaEditando,
                 tituloOferta = state.tituloOferta.trim(),
                 descripcionOferta = state.descripcionOferta.trim(),
-                descuento = descuentoDouble,
+                descuento = descuento,
                 imagenUrl = state.imagenUrl.trim().ifBlank { plato?.imagenUrl ?: "" },
                 idPlato = state.idPlatoSeleccionado,
                 activa = state.activa

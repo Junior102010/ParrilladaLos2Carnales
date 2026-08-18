@@ -1,32 +1,27 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion.list
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminInventoryTabs
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
-
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGuarnicionListScreen(
     viewModel: AdminGuarnicionListViewModel,
@@ -45,7 +40,6 @@ fun AdminGuarnicionListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGuarnicionListContent(
     uiState: AdminGuarnicionListUiState,
@@ -56,7 +50,7 @@ fun AdminGuarnicionListContent(
 ) {
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = "Guarniciones"
             )
         },

@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,13 +26,11 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
-
 import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPedidosScreen(
     viewModel: AdminPedidosViewModel = hiltViewModel(),
@@ -49,7 +45,6 @@ fun AdminPedidosScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPedidosContent(
     uiState: AdminPedidosUiState,
@@ -68,7 +63,7 @@ fun AdminPedidosContent(
 
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = "Gestión de Pedidos"
             )
         },

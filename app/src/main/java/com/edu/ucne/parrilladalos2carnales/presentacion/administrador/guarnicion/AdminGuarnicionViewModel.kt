@@ -91,10 +91,30 @@ class AdminGuarnicionViewModel @Inject constructor(
 
     private fun guardarGuarnicion() {
         val state = _uiState.value
-        val precio = state.precioGuarnicion.toDoubleOrNull() ?: 0.0
+        val precio = state.precioGuarnicion.toDoubleOrNull()
 
         if (state.nombreGuarnicion.isBlank()) {
             _uiState.update { it.copy(error = "El nombre no puede estar vacío") }
+            return
+        }
+
+        if (precio == null) {
+            _uiState.update { it.copy(error = "Introduce un precio válido") }
+            return
+        }
+
+        if (precio < 0) {
+            _uiState.update { it.copy(error = "El precio adicional no puede ser negativo") }
+            return
+        }
+
+        if (state.cantidadGuarnicion < 0) {
+            _uiState.update { it.copy(error = "La cantidad no puede ser negativa") }
+            return
+        }
+
+        if (state.categoria.isBlank()) {
+            _uiState.update { it.copy(error = "Selecciona una categoría") }
             return
         }
 

@@ -86,10 +86,36 @@ class AdminComponenteViewModel @Inject constructor(
 
     private fun guardarComponente() {
         val state = _uiState.value
-        val precio = state.precioComponente.toDoubleOrNull() ?: 0.0
+        val nombre = state.nombreComponente.trim()
+        val precio = state.precioComponente.toDoubleOrNull()
 
-        if (state.nombreComponente.isBlank()) {
-            _uiState.update { it.copy(error = "El nombre no puede estar vacío") }
+        if (nombre.length < 2) {
+            _uiState.update { it.copy(error = "Introduce un nombre válido") }
+            return
+        }
+
+        if (state.categoriaComponente.isBlank()) {
+            _uiState.update { it.copy(error = "Selecciona una categoría") }
+            return
+        }
+
+        if (state.cantidadComponente < 0) {
+            _uiState.update { it.copy(error = "La cantidad no puede ser negativa") }
+            return
+        }
+
+        if (precio == null) {
+            _uiState.update { it.copy(error = "Introduce un precio válido") }
+            return
+        }
+
+        if (precio < 0) {
+            _uiState.update { it.copy(error = "El precio no puede ser negativo") }
+            return
+        }
+
+        if (state.categoriaComponente.equals("Coccion", ignoreCase = true) && precio != 0.0) {
+            _uiState.update { it.copy(error = "El término de cocción no debe tener precio") }
             return
         }
 
