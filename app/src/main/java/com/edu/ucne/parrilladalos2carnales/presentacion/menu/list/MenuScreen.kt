@@ -41,6 +41,7 @@ fun MenuScreen(
 
     MenuContent(
         uiState = uiState,
+        titulo = titulo,
         onEvent = viewModel::onEvent,
         onNavigate = onNavigate,
         onPlatoClick = onPlatoClick
@@ -50,6 +51,7 @@ fun MenuScreen(
 @Composable
 fun MenuContent(
     uiState: PlatoListUiState,
+    titulo: String,
     onEvent: (PlatoListUiEvent) -> Unit,
     onNavigate: (Screen) -> Unit,
     onPlatoClick: (Int) -> Unit
@@ -214,6 +216,7 @@ fun MenuPreview() {
         uiState = PlatoListUiState(
             platosFiltrados = emptyList()
         ),
+        titulo = "Menú",
         onEvent = {},
         onNavigate = {},
         onPlatoClick = {}
