@@ -30,6 +30,10 @@ interface AuthRepository {
 
     fun esAdministrador(): Boolean
 
+    suspend fun actualizarPerfil(
+        nombre: String,
+        fotoUrl: String?
+    ): Result<Boolean>
+
     suspend fun cerrarSesion()
 }
-

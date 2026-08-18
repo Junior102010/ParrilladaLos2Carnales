@@ -46,10 +46,14 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.list.MenuScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionesScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.PerfilViewModel
+import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.editar.EditarPerfilScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.perfil.editar.EditarPerfilViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.registro.RegisterViewModel
@@ -238,6 +242,23 @@ fun ParrilladaNavDisplay(
                             backStack.removeAt(backStack.lastIndex)
                         }
                         backStack.add(Screen.Login)
+                    }
+                )
+            }
+
+            entry<Screen.EditarPerfil> {
+                val viewModel: EditarPerfilViewModel = hiltViewModel()
+                EditarPerfilScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    },
+                    onGuardado = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
                     }
                 )
             }
@@ -444,6 +465,23 @@ fun ParrilladaNavDisplay(
                 AdminPedidosScreen(
                     viewModel = viewModel,
                     onNavigate = handleNavigation
+                )
+            }
+
+            entry<Screen.Notificaciones> {
+                val viewModel: NotificacionViewModel = hiltViewModel()
+
+                NotificacionesScreen(
+                    viewModel = viewModel,
+                    onBack = {
+                        if (backStack.isNotEmpty()) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    },
+                    onNotificacionClick = {
+                        // después aquí abrimos
+                        // pedido/oferta correspondiente
+                    }
                 )
             }
         }

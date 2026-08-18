@@ -8,6 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
@@ -57,14 +61,13 @@ class LoginViewModel @Inject constructor(
                 if (result.isSuccess) {
                     onSuccess(currentUserRole())
                 } else {
-                    errorMessage = "Usuario o contraseña incorrectos"
+                    errorMessage = mensajeErrorLogin(result.exceptionOrNull())
                 }
             } finally {
                 isLoading = false
             }
         }
     }
-
 
     fun loginConGoogle(
         context: Context,
@@ -74,22 +77,17 @@ class LoginViewModel @Inject constructor(
             return
         }
 
-
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
 
-
             try {
                 val result = authRepository.signInWithGoogle(context)
-
 
                 if (result.isSuccess) {
                     onSuccess(currentUserRole())
                 } else {
-                    errorMessage =
-                        result.exceptionOrNull()?.localizedMessage
-                            ?: "No se pudo iniciar sesión con Google"
+                    errorMessage = mensajeErrorLogin(result.exceptionOrNull())
                 }
             } finally {
                 isLoading = false
@@ -97,6 +95,37 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    private fun mensajeErrorLogin(
+        error: Throwable?
+    ): String {
+
+        return when (
+            error
+        ) {
+
+            is FirebaseAuthInvalidCredentialsException ->
+                "Correo o contraseña incorrectos"
+
+            is FirebaseAuthInvalidUserException ->
+                "Esta cuenta no existe o está deshabilitada"
+
+            is FirebaseNetworkException ->
+                "No se pudo conectar con Firebase. Revisa tu conexión a internet"
+
+            is FirebaseTooManyRequestsException ->
+                "Demasiados intentos. Espera un momento e inténtalo nuevamente"
+
+            null ->
+                "No se pudo iniciar sesión"
+
+            else ->
+                error.localizedMessage
+                    ?.takeIf {
+                        it.isNotBlank()
+                    }
+                    ?: "No se pudo iniciar sesión"
+        }
+    }
 
     private fun currentUserRole(): Rol {
         return if (authRepository.esAdministrador()) {

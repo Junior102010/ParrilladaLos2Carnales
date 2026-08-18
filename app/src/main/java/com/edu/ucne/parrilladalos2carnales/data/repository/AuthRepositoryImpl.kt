@@ -12,13 +12,28 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val credentialManager: CredentialManager
+    private val credentialManager: CredentialManager,
+    @ApplicationContext private val context: Context
 ) : AuthRepository {
+
+    private val perfilPreferences by lazy {
+        context.getSharedPreferences(
+            "perfil_preferences",
+            Context.MODE_PRIVATE
+        )
+    }
+
+    private fun fotoKey(): String {
+        val uid = firebaseAuth.currentUser?.uid ?: "sin_usuario"
+        return "foto_perfil_$uid"
+    }
 
     override suspend fun login(
         username: String,
@@ -119,11 +134,60 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun getFotoUsuario(): String? {
+        val fotoGuardada = perfilPreferences.getString(fotoKey(), null)
+
+        if (!fotoGuardada.isNullOrBlank()) {
+            if (fotoGuardada.startsWith("/")) {
+                val archivo = File(fotoGuardada)
+                if (archivo.exists()) {
+                    return fotoGuardada
+                } else {
+                    perfilPreferences.edit().remove(fotoKey()).apply()
+                }
+            } else {
+                return fotoGuardada
+            }
+        }
         return firebaseAuth.currentUser?.photoUrl?.toString()
     }
 
     override fun esAdministrador(): Boolean {
         return firebaseAuth.currentUser?.email.equals("admin@parrillada.com", ignoreCase = true)
+    }
+
+    override suspend fun actualizarPerfil(
+        nombre: String,
+        fotoUrl: String?
+    ): Result<Boolean> {
+        return try {
+            val usuario = firebaseAuth.currentUser 
+                ?: return Result.failure(Exception("No hay una sesión activa"))
+
+            /*
+             * Firebase solamente recibe el nombre.
+             *
+             * NO mandamos la ruta local de Android
+             * como photoUrl a Firebase.
+             */
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(nombre.trim())
+                .build()
+
+            usuario.updateProfile(profileUpdates).await()
+
+            /*
+             * Foto personalizada guardada
+             * solamente en este dispositivo.
+             */
+            if (!fotoUrl.isNullOrBlank()) {
+                perfilPreferences.edit().putString(fotoKey(), fotoUrl).apply()
+            }
+
+            usuario.reload().await()
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun cerrarSesion() {

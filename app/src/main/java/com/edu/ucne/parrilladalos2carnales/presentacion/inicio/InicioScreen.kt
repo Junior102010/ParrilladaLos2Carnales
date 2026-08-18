@@ -22,14 +22,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
+import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = hiltViewModel(),
+    notificacionViewModel: NotificacionViewModel = hiltViewModel(),
     onNavigate: (Screen) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val notiUiState by notificacionViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.refrescarUsuario()
@@ -54,7 +57,12 @@ fun InicioScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            InicioTopBar()
+            InicioTopBar(
+                cantidadNotificaciones = notiUiState.noLeidas,
+                onNotificacionesClick = {
+                    onNavigate(Screen.Notificaciones)
+                }
+            )
         },
         bottomBar = {
             ParrilladaBottomBar(

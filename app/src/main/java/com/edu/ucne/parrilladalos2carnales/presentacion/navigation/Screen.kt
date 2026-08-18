@@ -59,6 +59,12 @@ sealed class Screen : NavKey {
     data object AdminPerfil : Screen()
 
     @Serializable
+    data object EditarPerfil : Screen()
+
+    @Serializable
+    data object Notificaciones : Screen()
+
+    @Serializable
     data object Pago : Screen()
 
     @Serializable

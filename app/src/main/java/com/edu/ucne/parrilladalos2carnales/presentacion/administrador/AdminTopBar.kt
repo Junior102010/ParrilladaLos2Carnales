@@ -16,13 +16,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.edu.ucne.parrilladalos2carnales.R
+import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionBell
 
 @Composable
 fun AdminTopBar(
     title: String,
     onBack: (() -> Unit)? = null,
     showLogo: Boolean = false,
-    compactTitle: Boolean = false
+    compactTitle: Boolean = false,
+    cantidadNotificaciones: Int = 0,
+    onNotificacionesClick: (() -> Unit)? = null
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -79,6 +82,13 @@ fun AdminTopBar(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
+
+            if (onNotificacionesClick != null) {
+                NotificacionBell(
+                    cantidad = cantidadNotificaciones,
+                    onClick = onNotificacionesClick
+                )
+            }
 
             if (showLogo) {
                 Spacer(
