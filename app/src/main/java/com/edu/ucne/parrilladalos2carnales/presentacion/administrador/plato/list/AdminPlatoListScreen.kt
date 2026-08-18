@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -17,6 +18,7 @@ import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
@@ -25,6 +27,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminAvail
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminInventoryTabs
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta.AdminOfertaScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta.AdminOfertaViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.io.File
@@ -37,9 +41,20 @@ fun AdminPlatoListScreen(
     viewModel: AdminPlatoListViewModel,
     onNavigateToCreate: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
-    onNavigate: (Screen) -> Unit = {}
+    onNavigate: (Screen) -> Unit = {},
+    ofertaViewModel: AdminOfertaViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var mostrarOfertas by remember { mutableStateOf(false) }
+
+    if (mostrarOfertas) {
+        AdminOfertaScreen(
+            viewModel = ofertaViewModel,
+            onBack = { mostrarOfertas = false },
+            onNavigate = onNavigate
+        )
+        return
+    }
 
     AdminPlatoListContent(
         uiState = uiState,
@@ -89,9 +104,7 @@ fun AdminPlatoListContent(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Spacer(
-                modifier = Modifier.height(14.dp)
-            )
+            Spacer(modifier = Modifier.height(14.dp))
 
             AdminSearchField(
                 value = uiState.searchQuery,
@@ -101,23 +114,51 @@ fun AdminPlatoListContent(
                     )
                 },
                 placeholder = "Buscar plato...",
-                modifier = Modifier.padding(
-                    horizontal = 16.dp
-                )
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
+            Spacer(modifier = Modifier.height(12.dp))
 
             AdminInventoryTabs(
                 currentScreen = Screen.AdminPlatoList,
                 onNavigate = onNavigate
             )
 
-            Spacer(
-                modifier = Modifier.height(10.dp)
-            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = { mostrarOfertas = true },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocalOffer,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Ver ofertas",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             if (uiState.isLoading) {
                 Box(

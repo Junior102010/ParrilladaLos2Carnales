@@ -24,6 +24,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBot
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeManager
 import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
+import java.io.File
+import androidx.compose.runtime.remember
 
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -35,6 +37,15 @@ fun PerfilScreen(
     rolUsuario: Rol = Rol.CLIENTE
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val fotoModel = remember(uiState.fotoUrl) {
+        val foto = uiState.fotoUrl
+        when {
+            foto.isNullOrBlank() -> null
+            foto.startsWith("/") -> File(foto)
+            else -> foto
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.refrescarUsuario()
@@ -108,9 +119,9 @@ fun PerfilContent(
                     Arrangement.spacedBy(16.dp),
                     Alignment.CenterVertically
                 ) {
-                    if (!uiState.fotoUrl.isNullOrBlank()) {
+                    if (fotoModel != null) {
                         AsyncImage(
-                            model = uiState.fotoUrl,
+                            model = fotoModel,
                             contentDescription = "Foto de perfil",
                             modifier = Modifier
                                 .size(70.dp)
@@ -133,9 +144,90 @@ fun PerfilContent(
                             )
                         }
                     }
-                    Column {
-                        Text(uiState.nombre, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
-                        Text(uiState.correo, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+
+                        Text(
+                            text = uiState.nombre,
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            text = uiState.correo,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(8.dp)
+                        )
+
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color =
+                                MaterialTheme
+                                    .colorScheme
+                                    .primaryContainer
+                        ) {
+
+                            Text(
+                                text =
+                                    if (
+                                        rolUsuario ==
+                                        Rol.ADMINISTRADOR
+                                    ) {
+                                        "Administrador"
+                                    } else {
+                                        "Cliente"
+                                    },
+
+                                modifier = Modifier.padding(
+                                    horizontal = 12.dp,
+                                    vertical = 5.dp
+                                ),
+
+                                style =
+                                    MaterialTheme
+                                        .typography
+                                        .labelMedium,
+
+                                fontWeight =
+                                    FontWeight.Bold,
+
+                                color =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onPrimaryContainer
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = {
+                            onNavigate(
+                                Screen.EditarPerfil(
+                                    esAdministrador =
+                                        rolUsuario == Rol.ADMINISTRADOR
+                                )
+                            )
+                        }
+                    ) {
+
+                        Icon(
+                            imageVector =
+                                Icons.Default.Edit,
+
+                            contentDescription =
+                                "Editar perfil",
+
+                            tint =
+                                MaterialTheme
+                                    .colorScheme
+                                    .primary
+                        )
                     }
                 }
             }
@@ -177,6 +269,54 @@ fun PerfilContent(
                         TemaCompactoItem("Claro", ThemeManager.themeMode == ThemeMode.CLARO, Modifier.weight(1f)) { ThemeManager.themeMode = ThemeMode.CLARO }
                         TemaCompactoItem("Oscuro", ThemeManager.themeMode == ThemeMode.OSCURO, Modifier.weight(1f)) { ThemeManager.themeMode = ThemeMode.OSCURO }
                     }
+                }
+            }
+
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    Arrangement.spacedBy(14.dp),
+                    Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "Notificaciones",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Text(
+                            text = if (rolUsuario == Rol.ADMINISTRADOR) {
+                                "Avisos de nuevos pedidos y cambios importantes."
+                            } else {
+                                "Avisos de pedidos y nuevas ofertas."
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Switch(
+                        checked = uiState.notificacionesActivas,
+                        onCheckedChange = {
+                            viewModel.setNotificaciones(it)
+                        }
+                    )
                 }
             }
 

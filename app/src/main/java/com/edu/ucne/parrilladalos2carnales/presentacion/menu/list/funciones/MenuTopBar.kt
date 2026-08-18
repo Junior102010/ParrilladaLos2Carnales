@@ -9,7 +9,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MenuTopBar() {
+fun MenuTopBar(
+    title: String = "Menú"
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
@@ -22,7 +24,7 @@ fun MenuTopBar() {
                 .height(48.dp)
         ) {
             Text(
-                text = "Menú",
+                text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,

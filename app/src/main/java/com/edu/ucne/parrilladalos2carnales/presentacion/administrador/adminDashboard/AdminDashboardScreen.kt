@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
@@ -39,6 +40,7 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBot
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
+import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionViewModel
 
 private data class PlatoPopular(
     val idPlato: Int,
@@ -51,9 +53,11 @@ private data class PlatoPopular(
 @Composable
 fun AdminDashboardScreen(
     viewModel: AdminDashboardViewModel,
+    notificacionViewModel: NotificacionViewModel = hiltViewModel(),
     onNavigate: (Screen) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val notiUiState by notificacionViewModel.uiState.collectAsStateWithLifecycle()
 
     AdminDashboardContent(
         uiState = uiState,
@@ -70,7 +74,11 @@ fun AdminDashboardContent(
         topBar = {
             AdminTopBar(
                 title = "Dashboard",
-                showLogo = true
+                showLogo = true,
+                cantidadNotificaciones = notiUiState.noLeidas,
+                onNotificacionesClick = {
+                    onNavigate(Screen.Notificaciones)
+                }
             )
         },
         bottomBar = {

@@ -4,18 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatosUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.GetOfertasUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.categoria.GetCategoriasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class InicioViewModel @Inject constructor(
     private val getPlatosUseCase: GetPlatosUseCase,
+    private val getOfertasUseCase: GetOfertasUseCase,
+    private val getCategoriasUseCase: GetCategoriasUseCase,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -24,30 +24,64 @@ class InicioViewModel @Inject constructor(
 
     init {
         refrescarUsuario()
-        loadPlatos()
+        loadCatalogoInicio()
+        loadOfertas()
     }
 
     fun onEvent(event: InicioUiEvent) {
         when (event) {
-            InicioUiEvent.OnRefresh -> loadPlatos()
+            InicioUiEvent.OnRefresh -> {
+                loadCatalogoInicio()
+                loadOfertas()
+            }
         }
     }
 
-    private fun loadPlatos() {
+    private fun loadCatalogoInicio() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            getPlatosUseCase().catch { error ->
-                _uiState.update { it.copy(
-                            isLoading = false,
+            combine(
+                getPlatosUseCase(),
+                getCategoriasUseCase()
+            ) { platos, categorias ->
+                val platosDisponibles = platos.filter { it.disponible }
+                Pair(platosDisponibles, categorias)
+            }.catch { error ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = error.localizedMessage ?: "No se pudo cargar el menú"
+                    )
+                }
+            }.collect { (platos, categorias) ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        platos = platos,
+                        categorias = categorias,
+                        errorMessage = null
+                    )
+                }
+            }
+        }
+    }
+
+    private fun loadOfertas() {
+        viewModelScope.launch {
+            getOfertasUseCase()
+                .catch { error ->
+                    _uiState.update {
+                        it.copy(
                             errorMessage = error.localizedMessage
                         )
                     }
-                }.collect { lista ->
-                    _uiState.update { it.copy(
-                            isLoading = false,
-                            platos = lista.filter { plato ->
-                                plato.disponible
-                            }
+                }
+                .collect { lista ->
+                    _uiState.update {
+                        it.copy(
+                            ofertas = lista
+                                .filter { oferta -> oferta.activa }
+                                .sortedByDescending { oferta -> oferta.idOferta }
                         )
                     }
                 }

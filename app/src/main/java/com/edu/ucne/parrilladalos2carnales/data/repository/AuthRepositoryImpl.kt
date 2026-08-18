@@ -7,17 +7,20 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.edu.ucne.parrilladalos2carnales.domain.model.Registro.RegistroUsuario
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val credentialManager: CredentialManager
+    private val credentialManager: CredentialManager,
+    @ApplicationContext private val context: Context
 ) : AuthRepository {
 
     override suspend fun login(
@@ -60,44 +63,102 @@ class AuthRepositoryImpl @Inject constructor(
 
         return try {
 
-            val googleIdOption =
-                GetGoogleIdOption
-                    .Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId("37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com")
-                    .setAutoSelectEnabled(false)
+            val googleOption =
+                GetSignInWithGoogleOption
+                    .Builder(
+                        serverClientId =
+                            "37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com"
+                    )
                     .build()
+
+
             val request =
-                GetCredentialRequest.Builder().addCredentialOption(googleIdOption).build()
+                GetCredentialRequest
+                    .Builder()
+                    .addCredentialOption(
+                        googleOption
+                    )
+                    .build()
+
+
             val result =
-                credentialManager.getCredential(context, request)
+                credentialManager
+                    .getCredential(
+                        context = context,
+                        request = request
+                    )
+
+
             val credential =
                 result.credential
+
+
             if (
                 credential is CustomCredential &&
                 credential.type ==
-                GoogleIdTokenCredential
-                    .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                    GoogleIdTokenCredential
+                        .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
+
+
                 val googleCredential =
-                    GoogleIdTokenCredential.createFrom(credential.data)
+                    GoogleIdTokenCredential
+                        .createFrom(
+                            credential.data
+                        )
+
+
                 val firebaseCredential =
                     GoogleAuthProvider
                         .getCredential(
                             googleCredential.idToken,
                             null
                         )
-                firebaseAuth
-                    .signInWithCredential(firebaseCredential).await()
-                firebaseAuth.currentUser?.reload()?.await()
-                Result.success(true)
+
+
+                val authResult =
+                    firebaseAuth
+                        .signInWithCredential(
+                            firebaseCredential
+                        )
+                        .await()
+
+
+                if (
+                    authResult.user != null
+                ) {
+
+
+                    Result.success(true)
+
+
+                } else {
+
+
+                    Result.failure(
+                        Exception(
+                            "Firebase no devolvió un usuario"
+                        )
+                    )
+                }
+
+
             } else {
+
+
                 Result.failure(
-                    Exception("Credencial de Google no válida")
+                    Exception(
+                        "Credencial de Google no válida"
+                    )
                 )
             }
 
-        } catch (e: Exception) {
+
+        } catch (
+            e: Exception
+        ) {
+
+
             Result.failure(e)
         }
     }
@@ -119,11 +180,79 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun getFotoUsuario(): String? {
-        return firebaseAuth.currentUser?.photoUrl?.toString()
+        val usuario =
+            firebaseAuth
+                .currentUser
+                ?: return null
+
+        val prefijo =
+            "perfil_${usuario.uid}_"
+
+        val fotoLocal =
+            context
+                .filesDir
+                .listFiles()
+                ?.filter { archivo ->
+                    archivo.isFile &&
+                    archivo.name.startsWith(prefijo) &&
+                    archivo.length() > 0
+                }
+                ?.maxByOrNull { archivo ->
+                    archivo.lastModified()
+                }
+
+        if (fotoLocal != null) {
+            return fotoLocal.absolutePath
+        }
+
+        /*
+         * Si no tiene foto personalizada,
+         * usamos la foto de Google.
+         */
+        return usuario
+            .photoUrl
+            ?.toString()
     }
 
     override fun esAdministrador(): Boolean {
         return firebaseAuth.currentUser?.email.equals("admin@parrillada.com", ignoreCase = true)
+    }
+
+    override suspend fun actualizarPerfil(
+        nombre: String,
+        fotoUrl: String?
+    ): Result<Boolean> {
+
+        return try {
+
+            val usuario =
+                firebaseAuth
+                    .currentUser
+                    ?: return Result.failure(
+                        Exception(
+                            "No hay una sesión activa"
+                        )
+                    )
+
+            val profileUpdates =
+                UserProfileChangeRequest
+                    .Builder()
+                    .setDisplayName(
+                        nombre.trim()
+                    )
+                    .build()
+
+            usuario
+                .updateProfile(
+                    profileUpdates
+                )
+                .await()
+
+            Result.success(true)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun cerrarSesion() {

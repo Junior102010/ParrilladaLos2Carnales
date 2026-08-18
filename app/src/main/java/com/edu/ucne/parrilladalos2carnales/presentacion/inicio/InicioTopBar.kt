@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.edu.ucne.parrilladalos2carnales.R
+import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionBell
 import kotlin.math.sin
 
 private const val LOGO_INTRO_DURATION = 1200
@@ -24,7 +25,10 @@ private val logoIntroEasing = LinearEasing
 private const val HALF_ROTATION_RADIANS = 3.14159f
 
 @Composable
-fun InicioTopBar() {
+fun InicioTopBar(
+    cantidadNotificaciones: Int = 0,
+    onNotificacionesClick: () -> Unit = {}
+) {
     val introProgress by animateFloatAsState(
         targetValue = 1f,
         animationSpec = tween(
@@ -104,6 +108,26 @@ fun InicioTopBar() {
                                 -4f + progress * 4f
                         },
                     contentScale = ContentScale.Fit
+                )
+            }
+
+            Box(
+                modifier =
+                    Modifier
+                        .align(
+                            Alignment.CenterEnd
+                        )
+                        .padding(
+                            end = 16.dp
+                        )
+            ) {
+
+                NotificacionBell(
+                    cantidad =
+                        cantidadNotificaciones,
+
+                    onClick =
+                        onNotificacionesClick
                 )
             }
         }

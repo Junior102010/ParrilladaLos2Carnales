@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -93,7 +94,43 @@ fun PlatoDetalleContent(
                 Column(Modifier.padding(24.dp, 8.dp)) {
                     Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.Top) {
                         Text(plato.nombre, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
-                        Text("RD$ ${plato.precio}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        
+                        Column(horizontalAlignment = Alignment.End) {
+                            if (uiState.ofertaActiva != null) {
+                                val precioConOferta = plato.precio * (1.0 - uiState.ofertaActiva!!.descuento / 100.0)
+                                Text(
+                                    text = "RD$ ${"%.2f".format(plato.precio)}",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textDecoration = TextDecoration.LineThrough
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "RD$ ${"%.2f".format(precioConOferta)}",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(4.dp)) {
+                                        Text(
+                                            text = "-${uiState.ofertaActiva!!.descuento.toInt()}%",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+                            } else {
+                                Text(
+                                    text = "RD$ ${"%.2f".format(plato.precio)}",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                     }
                     Spacer(Modifier.height(12.dp))
                     Text(plato.descripcion.ifBlank { "Acompañado con el sazón especial de D'Parrillada Los Dos Carnales." }, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 24.sp)
@@ -154,4 +191,3 @@ fun OptionSectionButtons(title: String, items: List<Any>, selectedId: Int?, onSe
         }
     }
 }
-

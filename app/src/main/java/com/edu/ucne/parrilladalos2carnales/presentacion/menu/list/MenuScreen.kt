@@ -1,4 +1,4 @@
-package com.edu.ucne.parrilladalos2carnales.presentacion.menu
+package com.edu.ucne.parrilladalos2carnales.presentacion.menu.list
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -33,6 +33,7 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListUiSt
 @Composable
 fun MenuScreen(
     viewModel: PlatoListViewModel = hiltViewModel(),
+    titulo: String = "Menú",
     onNavigate: (Screen) -> Unit,
     onPlatoClick: (Int) -> Unit
 ) {
@@ -56,7 +57,7 @@ fun MenuContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            MenuTopBar()
+            MenuTopBar(title = titulo)
         },
         bottomBar = {
             ParrilladaBottomBar(
