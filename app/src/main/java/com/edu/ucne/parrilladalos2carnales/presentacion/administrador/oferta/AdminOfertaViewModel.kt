@@ -6,9 +6,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.GetOfertasUseCase
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.UpsertOfertaUseCase
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.DeleteOfertaUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.*
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -137,28 +135,27 @@ class AdminOfertaViewModel @Inject constructor(
 
     fun guardarOferta() {
         val state = _uiState.value
-        val descuento = state.descuento.toDoubleOrNull()
+
+        val tituloVal = validateTituloOferta(state.tituloOferta)
+        if (!tituloVal.isValid) {
+            _uiState.update { it.copy(errorMessage = tituloVal.errorMessage) }
+            return
+        }
+
+        val platoVal = validatePlatoOferta(state.idPlatoSeleccionado)
+        if (!platoVal.isValid) {
+            _uiState.update { it.copy(errorMessage = platoVal.errorMessage) }
+            return
+        }
+
+        val descuentoVal = validateDescuentoOferta(state.descuento)
+        if (!descuentoVal.isValid) {
+            _uiState.update { it.copy(errorMessage = descuentoVal.errorMessage) }
+            return
+        }
+
+        val descuentoDouble = state.descuento.toDoubleOrNull() ?: 0.0
         val plato = state.platos.find { it.idPlato == state.idPlatoSeleccionado }
-
-        if (state.tituloOferta.trim().length < 3) {
-            _uiState.update { it.copy(errorMessage = "El título debe tener al menos 3 caracteres") }
-            return
-        }
-
-        if (state.idPlatoSeleccionado == null) {
-            _uiState.update { it.copy(errorMessage = "Selecciona el plato al que se aplicará la oferta") }
-            return
-        }
-
-        if (descuento == null) {
-            _uiState.update { it.copy(errorMessage = "Introduce un descuento válido") }
-            return
-        }
-
-        if (descuento <= 0.0 || descuento > 100.0) {
-            _uiState.update { it.copy(errorMessage = "El descuento debe estar entre 1% y 100%") }
-            return
-        }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
@@ -166,7 +163,7 @@ class AdminOfertaViewModel @Inject constructor(
                 idOferta = state.idOfertaEditando,
                 tituloOferta = state.tituloOferta.trim(),
                 descripcionOferta = state.descripcionOferta.trim(),
-                descuento = descuento,
+                descuento = descuentoDouble,
                 imagenUrl = state.imagenUrl.trim().ifBlank { plato?.imagenUrl ?: "" },
                 idPlato = state.idPlatoSeleccionado,
                 activa = state.activa

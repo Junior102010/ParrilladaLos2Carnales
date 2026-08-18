@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.GuarnicionRepository
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.guarnicion.UpsertGuarnicionUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.guarnicion.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -91,32 +91,32 @@ class AdminGuarnicionViewModel @Inject constructor(
 
     private fun guardarGuarnicion() {
         val state = _uiState.value
-        val precio = state.precioGuarnicion.toDoubleOrNull()
 
-        if (state.nombreGuarnicion.isBlank()) {
-            _uiState.update { it.copy(error = "El nombre no puede estar vacío") }
+        val nombreValidation = validateNombreGuarnicion(state.nombreGuarnicion)
+        if (!nombreValidation.isValid) {
+            mostrarError(nombreValidation.errorMessage)
             return
         }
 
-        if (precio == null) {
-            _uiState.update { it.copy(error = "Introduce un precio válido") }
+        val precioValidation = validatePrecioGuarnicion(state.precioGuarnicion)
+        if (!precioValidation.isValid) {
+            mostrarError(precioValidation.errorMessage)
             return
         }
 
-        if (precio < 0) {
-            _uiState.update { it.copy(error = "El precio adicional no puede ser negativo") }
+        val cantidadValidation = validateCantidadGuarnicion(state.cantidadGuarnicion)
+        if (!cantidadValidation.isValid) {
+            mostrarError(cantidadValidation.errorMessage)
             return
         }
 
-        if (state.cantidadGuarnicion < 0) {
-            _uiState.update { it.copy(error = "La cantidad no puede ser negativa") }
+        val categoriaValidation = validateCategoriaGuarnicion(state.categoria)
+        if (!categoriaValidation.isValid) {
+            mostrarError(categoriaValidation.errorMessage)
             return
         }
 
-        if (state.categoria.isBlank()) {
-            _uiState.update { it.copy(error = "Selecciona una categoría") }
-            return
-        }
+        val precio = state.precioGuarnicion.toDouble()
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -141,5 +141,9 @@ class AdminGuarnicionViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false, error = e.localizedMessage) }
             }
         }
+    }
+
+    private fun mostrarError(mensaje: String?) {
+        _uiState.update { it.copy(error = mensaje ?: "Datos no válidos", isLoading = false) }
     }
 }

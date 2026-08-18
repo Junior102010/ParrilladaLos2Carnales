@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.perfil.validateNombrePerfil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -147,24 +148,9 @@ class EditarPerfilViewModel @Inject constructor(
         val state = _uiState.value
         val nombre = state.nombre.trim()
 
-        if (nombre.length < 2) {
-            _uiState.update {
-                it.copy(error = "El nombre debe tener al menos 2 caracteres")
-            }
-            return
-        }
-
-        if (nombre.length > 60) {
-            _uiState.update {
-                it.copy(error = "El nombre no puede superar los 60 caracteres")
-            }
-            return
-        }
-
-        if (nombre.none { it.isLetter() }) {
-            _uiState.update {
-                it.copy(error = "Introduce un nombre válido")
-            }
+        val validation = validateNombrePerfil(state.nombre)
+        if (!validation.isValid) {
+            _uiState.update { it.copy(error = validation.errorMessage) }
             return
         }
 

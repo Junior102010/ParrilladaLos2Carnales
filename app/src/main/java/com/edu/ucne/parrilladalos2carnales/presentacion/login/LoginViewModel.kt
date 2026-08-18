@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.login.validateLoginCorreo
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.login.validateLoginPassword
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -39,20 +41,17 @@ class LoginViewModel @Inject constructor(
             return
         }
 
-        val correo = username.trim()
+        val correoValidation = validateLoginCorreo(username)
 
-        if (correo.isBlank()) {
-            errorMessage = "El correo es obligatorio"
+        if (!correoValidation.isValid) {
+            errorMessage = correoValidation.errorMessage
             return
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
-            errorMessage = "Introduce un correo electrónico válido"
-            return
-        }
+        val passwordValidation = validateLoginPassword(password)
 
-        if (password.isBlank()) {
-            errorMessage = "La contraseña es obligatoria"
+        if (!passwordValidation.isValid) {
+            errorMessage = passwordValidation.errorMessage
             return
         }
 

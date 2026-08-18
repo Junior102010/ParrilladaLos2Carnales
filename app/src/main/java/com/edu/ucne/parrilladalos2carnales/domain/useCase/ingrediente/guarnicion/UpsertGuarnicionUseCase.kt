@@ -15,18 +15,22 @@ class UpsertGuarnicionUseCase @Inject constructor(
         val descripcionResult = validateDescripcionGuarnicion(guarnicion.descripcionGuarnicion)
         val cantidadResult = validateCantidadGuarnicion(guarnicion.cantidadGuarnicion)
         val precioResult = validatePrecioGuarnicion(guarnicion.precioGuarnicion)
+        val categoriaResult = validateCategoriaGuarnicion(guarnicion.categoria)
 
         if (!nombreResult.isValid){
-            return Result.failure(IllegalArgumentException(nombreResult.error))
+            return Result.failure(IllegalArgumentException(nombreResult.errorMessage))
         }
         if (!descripcionResult.isValid){
-            return Result.failure(IllegalArgumentException(descripcionResult.error))
+            return Result.failure(IllegalArgumentException(descripcionResult.errorMessage))
         }
         if (!cantidadResult.isValid){
-            return Result.failure(IllegalArgumentException(cantidadResult.error))
+            return Result.failure(IllegalArgumentException(cantidadResult.errorMessage))
         }
         if (!precioResult.isValid){
-            return Result.failure(IllegalArgumentException(precioResult.error))
+            return Result.failure(IllegalArgumentException(precioResult.errorMessage))
+        }
+        if (!categoriaResult.isValid){
+            return Result.failure(IllegalArgumentException(categoriaResult.errorMessage))
         }
 
         return runCatching { repository.upsertGuarnicion(guarnicion) }

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.Registro.RegistroUsuario
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.registro.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -47,47 +48,45 @@ class RegisterViewModel @Inject constructor(
         mensajeError = null
         when (pasoActual) {
             1 -> {
-                if (correo.isBlank()) {
-                    mensajeError = "El correo es obligatorio"
+                val correoValidation = validateRegistroCorreo(correo)
+                if (!correoValidation.isValid) {
+                    mensajeError = correoValidation.errorMessage
                     return
                 }
-                if (!correoEsValido(correo)) {
-                    mensajeError = "Ingresa un correo electrónico válido"
+
+                val passwordValidation = validateRegistroPassword(contrasena)
+                if (!passwordValidation.isValid) {
+                    mensajeError = passwordValidation.errorMessage
                     return
                 }
-                if (contrasena.length < 6) {
-                    mensajeError = "La contraseña debe tener al menos 6 caracteres"
+
+                val confirmarValidation = validateConfirmarPassword(contrasena, confirmarContrasena)
+                if (!confirmarValidation.isValid) {
+                    mensajeError = confirmarValidation.errorMessage
                     return
                 }
-                if (contrasena != confirmarContrasena) {
-                    mensajeError = "Las contraseñas no coinciden"
-                    return
-                }
+
                 pasoActual = 2
             }
             2 -> {
-                val telefonoLimpio = telefono.filter { it.isDigit() }
+                val nombreValidation = validateNombrePersona(nombre, "nombre")
+                if (!nombreValidation.isValid) {
+                    mensajeError = nombreValidation.errorMessage
+                    return
+                }
 
-                if (nombre.trim().length < 2) {
-                    mensajeError = "Introduce un nombre válido"
+                val apellidoValidation = validateNombrePersona(apellido, "apellido")
+                if (!apellidoValidation.isValid) {
+                    mensajeError = apellidoValidation.errorMessage
                     return
                 }
-                if (nombre.any { it.isDigit() }) {
-                    mensajeError = "El nombre no debe contener números"
+
+                val telefonoValidation = validateTelefono(telefono)
+                if (!telefonoValidation.isValid) {
+                    mensajeError = telefonoValidation.errorMessage
                     return
                 }
-                if (apellido.trim().length < 2) {
-                    mensajeError = "Introduce un apellido válido"
-                    return
-                }
-                if (apellido.any { it.isDigit() }) {
-                    mensajeError = "El apellido no debe contener números"
-                    return
-                }
-                if (telefonoLimpio.length !in 10..15) {
-                    mensajeError = "Introduce un número de teléfono válido"
-                    return
-                }
+
                 pasoActual = 3
             }
         }
@@ -101,20 +100,27 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun registrarse(onSuccess: (Rol) -> Unit) {
-        if (calle.trim().length < 3) {
-            mensajeError = "Introduce una calle válida"
+        val calleValidation = validateCalle(calle)
+        if (!calleValidation.isValid) {
+            mensajeError = calleValidation.errorMessage
             return
         }
-        if (numero.trim().isBlank()) {
-            mensajeError = "Introduce el número de la vivienda"
+
+        val numeroValidation = validateNumeroVivienda(numero)
+        if (!numeroValidation.isValid) {
+            mensajeError = numeroValidation.errorMessage
             return
         }
-        if (ciudad.trim().length < 2) {
-            mensajeError = "Introduce una ciudad válida"
+
+        val ciudadValidation = validateCiudad(ciudad)
+        if (!ciudadValidation.isValid) {
+            mensajeError = ciudadValidation.errorMessage
             return
         }
-        if (codigoPostal.isNotBlank() && codigoPostal.any { !it.isDigit() }) {
-            mensajeError = "El código postal solo debe contener números"
+
+        val postalValidation = validateCodigoPostal(codigoPostal)
+        if (!postalValidation.isValid) {
+            mensajeError = postalValidation.errorMessage
             return
         }
 
@@ -153,11 +159,6 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private fun correoEsValido(correo: String): Boolean {
-        return correo.trim().matches(
-            Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
-        )
-    }
 
     private fun rolUsuarioActual(): Rol {
         return if (authRepository.esAdministrador()) {

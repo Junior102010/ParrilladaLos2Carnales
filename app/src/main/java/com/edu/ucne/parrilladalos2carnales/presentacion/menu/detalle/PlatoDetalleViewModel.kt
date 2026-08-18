@@ -10,6 +10,7 @@ import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepo
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.componente.GetComponenteUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.guarnicion.GetGuarnicionUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatoUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.validateSeleccionDetalle
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.GetOfertasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -283,9 +284,22 @@ class PlatoDetalleViewModel @Inject constructor(
 
     private fun agregarAlCarrito() {
         val state = _uiState.value
-        val plato =
-            state.plato
-                ?: return
+
+        val validation = validateSeleccionDetalle(
+            tieneGuarniciones = state.guarnicionesDisponibles.isNotEmpty(),
+            guarnicionSeleccionada = state.guarnicionSeleccionada != null,
+            tieneSalsas = state.salsasDisponibles.isNotEmpty(),
+            salsaSeleccionada = state.salsaSeleccionada != null,
+            tieneTerminos = state.terminosCoccionDisponibles.isNotEmpty(),
+            terminoSeleccionado = state.terminoSeleccionado != null
+        )
+
+        if (!validation.isValid) {
+            _uiState.update { it.copy(error = validation.errorMessage) }
+            return
+        }
+
+        val plato = state.plato ?: return
 
         viewModelScope.launch {
             val extrasGuarnicion =

@@ -8,10 +8,7 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.categoria.GetCategoriasUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.categoria.UpsertCategoriaUseCase
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatoUseCase
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.UpsertPlatoUseCase
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.validateNombrePlato
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.validatePrecioPlato
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -207,21 +204,19 @@ class AdminPlatoEntryViewModel @Inject constructor(
         val nombreVal = validateNombrePlato(state.nombre)
         val precioDouble = state.precio.toDoubleOrNull() ?: 0.0
         val precioVal = validatePrecioPlato(precioDouble)
+        val categoriaVal = validateCategoriaPlato(state.idCategoria)
+        val descripcionVal = validateDescripcionPlato(state.descripcion)
 
-        if (!nombreVal.isValid || !precioVal.isValid) {
+        if (!nombreVal.isValid || !precioVal.isValid || !categoriaVal.isValid || !descripcionVal.isValid) {
             _uiState.update {
                 it.copy(
                     nombreError = nombreVal.errorMessage,
                     precioError = precioVal.errorMessage,
-                    errorMessage = nombreVal.errorMessage ?: precioVal.errorMessage
+                    errorMessage = nombreVal.errorMessage 
+                        ?: precioVal.errorMessage 
+                        ?: categoriaVal.errorMessage 
+                        ?: descripcionVal.errorMessage
                 )
-            }
-            return
-        }
-
-        if (state.idCategoria <= 0) {
-            _uiState.update {
-                it.copy(errorMessage = "Selecciona una categoría")
             }
             return
         }
