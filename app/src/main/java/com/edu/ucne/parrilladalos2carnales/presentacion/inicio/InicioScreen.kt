@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +27,7 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.Notificacio
 import kotlinx.coroutines.delay
 
 import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
 
 @Composable
 fun InicioScreen(
@@ -42,6 +44,7 @@ fun InicioScreen(
 
     InicioContent(
         uiState = uiState,
+        cantidadNotificaciones = notiUiState.noLeidas,
         onNavigate = onNavigate
     )
 }
@@ -49,6 +52,7 @@ fun InicioScreen(
 @Composable
 fun InicioContent(
     uiState: InicioUiState,
+    cantidadNotificaciones: Int,
     onNavigate: (Screen) -> Unit
 ) {
     val ofertas = remember(uiState.ofertas) {
@@ -98,7 +102,7 @@ fun InicioContent(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             InicioTopBar(
-                cantidadNotificaciones = notiUiState.noLeidas,
+                cantidadNotificaciones = cantidadNotificaciones,
                 onNotificacionesClick = {
                     onNavigate(Screen.Notificaciones)
                 }
@@ -225,6 +229,7 @@ fun InicioPreview() {
             categorias = emptyList(),
             platos = emptyList()
         ),
+        cantidadNotificaciones = 3,
         onNavigate = {}
     )
 }

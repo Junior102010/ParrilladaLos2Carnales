@@ -61,7 +61,8 @@ fun AdminPlatoListScreen(
         onEvent = viewModel::onEvent,
         onNavigateToCreate = onNavigateToCreate,
         onNavigateToEdit = onNavigateToEdit,
-        onNavigate = onNavigate
+        onNavigate = onNavigate,
+        onVerOfertas = { mostrarOfertas = true }
     )
 }
 
@@ -72,7 +73,8 @@ fun AdminPlatoListContent(
     onEvent: (AdminPlatoListUiEvent) -> Unit,
     onNavigateToCreate: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
-    onNavigate: (Screen) -> Unit = {}
+    onNavigate: (Screen) -> Unit = {},
+    onVerOfertas: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -134,7 +136,7 @@ fun AdminPlatoListContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextButton(
-                    onClick = { mostrarOfertas = true },
+                    onClick = onVerOfertas,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
                     )
@@ -220,7 +222,8 @@ fun AdminPlatoListPreview() {
         ),
         onEvent = {},
         onNavigateToCreate = {},
-        onNavigateToEdit = {}
+        onNavigateToEdit = {},
+        onVerOfertas = {}
     )
 }
 

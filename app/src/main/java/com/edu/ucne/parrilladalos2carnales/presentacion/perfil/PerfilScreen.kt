@@ -57,8 +57,10 @@ fun PerfilScreen(
     PerfilContent(
         uiState = uiState,
         rolUsuario = rolUsuario,
+        fotoModel = fotoModel,
         onNavigate = onNavigate,
-        onLogout = { viewModel.cerrarSesion() }
+        onLogout = { viewModel.cerrarSesion() },
+        onToggleNotificaciones = { viewModel.setNotificaciones(it) }
     )
 }
 
@@ -66,8 +68,10 @@ fun PerfilScreen(
 fun PerfilContent(
     uiState: PerfilUiState,
     rolUsuario: Rol,
+    fotoModel: Any?,
     onNavigate: (Screen) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onToggleNotificaciones: (Boolean) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -313,9 +317,7 @@ fun PerfilContent(
 
                     Switch(
                         checked = uiState.notificacionesActivas,
-                        onCheckedChange = {
-                            viewModel.setNotificaciones(it)
-                        }
+                        onCheckedChange = onToggleNotificaciones
                     )
                 }
             }
@@ -346,8 +348,10 @@ fun PerfilPreview() {
             correo = "cliente@ejemplo.com"
         ),
         rolUsuario = Rol.CLIENTE,
+        fotoModel = null,
         onNavigate = {},
-        onLogout = {}
+        onLogout = {},
+        onToggleNotificaciones = {}
     )
 }
 

@@ -61,6 +61,7 @@ fun AdminDashboardScreen(
 
     AdminDashboardContent(
         uiState = uiState,
+        cantidadNotificaciones = notiUiState.noLeidas,
         onNavigate = onNavigate
     )
 }
@@ -68,6 +69,7 @@ fun AdminDashboardScreen(
 @Composable
 fun AdminDashboardContent(
     uiState: AdminDashboardUiState,
+    cantidadNotificaciones: Int,
     onNavigate: (Screen) -> Unit
 ) {
     Scaffold(
@@ -75,7 +77,7 @@ fun AdminDashboardContent(
             AdminTopBar(
                 title = "Dashboard",
                 showLogo = true,
-                cantidadNotificaciones = notiUiState.noLeidas,
+                cantidadNotificaciones = cantidadNotificaciones,
                 onNotificacionesClick = {
                     onNavigate(Screen.Notificaciones)
                 }
@@ -111,6 +113,7 @@ fun AdminDashboardPreview() {
             pedidosTotalHoy = 2,
             pedidosActivosCount = 2
         ),
+        cantidadNotificaciones = 5,
         onNavigate = {}
     )
 }
