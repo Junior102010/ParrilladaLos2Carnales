@@ -43,7 +43,7 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.login.LoginViewModel
-import com.edu.ucne.parrilladalos2carnales.presentacion.menu.MenuScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.menu.list.MenuScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleScreen
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.detalle.PlatoDetalleViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.PagoScreen
@@ -262,6 +262,7 @@ fun ParrilladaNavDisplay(
                 val platoListViewModel: PlatoListViewModel = hiltViewModel()
                 MenuScreen(
                     viewModel = platoListViewModel,
+                    titulo = "Menú",
                     onNavigate = handleNavigation,
                     onPlatoClick = { idPlato ->
                         backStack.add(Screen.PlatoDetail(idPlato = idPlato))
@@ -341,6 +342,7 @@ fun ParrilladaNavDisplay(
                 }
                 MenuScreen(
                     viewModel = viewModel,
+                    titulo = menuCategoria.nombreCategoria,
                     onNavigate = handleNavigation,
                     onPlatoClick = { idPlato ->
                         backStack.add(Screen.PlatoDetail(idPlato = idPlato))
