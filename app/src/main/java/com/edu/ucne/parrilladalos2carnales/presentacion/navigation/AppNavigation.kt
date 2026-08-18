@@ -510,6 +510,10 @@ fun ParrilladaNavDisplay(
 
                 val viewModel: NotificacionViewModel = hiltViewModel()
 
+                LaunchedEffect(pantalla.esAdministrador) {
+                    viewModel.refrescarSesion()
+                }
+
                 NotificacionesScreen(
                     viewModel = viewModel,
                     onBack = {

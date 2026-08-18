@@ -79,4 +79,8 @@ class AndroidNotificationService @Inject constructor(
 
         notificationManager.notify(notificacion.id.hashCode(), notification)
     }
+
+    fun cancelarTodas() {
+        notificationManager.cancelAll()
+    }
 }
