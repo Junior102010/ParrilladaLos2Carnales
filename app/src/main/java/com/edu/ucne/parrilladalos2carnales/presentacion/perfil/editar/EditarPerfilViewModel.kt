@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,16 +27,48 @@ class EditarPerfilViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        cargarDatos()
+        refrescarUsuario()
     }
 
-    private fun cargarDatos() {
+    fun refrescarUsuario() {
+        val esAdministrador =
+            authRepository.esAdministrador()
+
+        val nombreFirebase =
+            authRepository
+                .getNombreUsuario()
+                .orEmpty()
+                .trim()
+
+        val nombreMostrado =
+            nombreFirebase.ifBlank {
+                if (esAdministrador) {
+                    "Administrador"
+                } else {
+                    "Cliente"
+                }
+            }
+
         _uiState.update {
             it.copy(
-                nombre = authRepository.getNombreUsuario().orEmpty(),
-                correo = authRepository.getCorreoUsuario().orEmpty(),
-                fotoUrl = authRepository.getFotoUsuario(),
-                rol = if (authRepository.esAdministrador()) "Administrador" else "Cliente"
+                nombre = nombreMostrado,
+                correo =
+                    authRepository
+                        .getCorreoUsuario()
+                        .orEmpty(),
+                fotoUrl =
+                    authRepository
+                        .getFotoUsuario(),
+                rol =
+                    if (esAdministrador) {
+                        "Administrador"
+                    } else {
+                        "Cliente"
+                    },
+                isLoading = false,
+                isProcessingImage = false,
+                error = null,
+                isSuccess = false
             )
         }
     }
@@ -49,26 +80,65 @@ class EditarPerfilViewModel @Inject constructor(
     fun onFotoSelected(uri: Uri) {
         viewModelScope.launch {
             _uiState.update { it.copy(isProcessingImage = true, error = null) }
+
             val rutaLocal = withContext(Dispatchers.IO) {
                 try {
-                    val uid = authRepository.getUsuarioUid() ?: "anon"
-                    val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-                    val archivoDestino = File(context.filesDir, "perfil_${uid}_${System.currentTimeMillis()}.jpg")
-                    val outputStream = FileOutputStream(archivoDestino)
+                    val uid =
+                        authRepository.getUsuarioUid() ?: "anon"
+
+                    val inputStream =
+                        context.contentResolver.openInputStream(uri)
+
+                    val archivoDestino =
+                        File(
+                            context.filesDir,
+                            "perfil_${uid}_${System.currentTimeMillis()}.jpg"
+                        )
+
                     inputStream?.use { input ->
-                        outputStream.use { output ->
+                        FileOutputStream(
+                            archivoDestino,
+                            false
+                        ).use { output ->
                             input.copyTo(output)
                         }
+
+                        /*
+                         * Eliminamos fotos anteriores
+                         * solamente de este usuario.
+                         */
+                        context.filesDir
+                            .listFiles()
+                            ?.filter { archivo ->
+                                archivo.name.startsWith("perfil_${uid}_") &&
+                                archivo.absolutePath != archivoDestino.absolutePath
+                            }
+                            ?.forEach { archivo ->
+                                archivo.delete()
+                            }
+
+                        archivoDestino.absolutePath
                     }
-                    archivoDestino.absolutePath
                 } catch (e: Exception) {
                     null
                 }
             }
+
             if (rutaLocal != null) {
-                _uiState.update { it.copy(isProcessingImage = false, fotoUrl = rutaLocal) }
+                _uiState.update {
+                    it.copy(
+                        fotoUrl = rutaLocal,
+                        isProcessingImage = false,
+                        error = null
+                    )
+                }
             } else {
-                _uiState.update { it.copy(isProcessingImage = false, error = "Error al procesar la imagen") }
+                _uiState.update {
+                    it.copy(
+                        isProcessingImage = false,
+                        error = "No se pudo guardar la foto"
+                    )
+                }
             }
         }
     }
