@@ -88,7 +88,7 @@ fun InicioScreen(
                     pageSpacing = 16.dp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(155.dp)
+                        .height(200.dp)
                 ) { pagina ->
                     OfertaInicioCard(
                         oferta = ofertas[pagina]

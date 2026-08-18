@@ -20,6 +20,7 @@ data class AdminOfertaUiState(
     val tituloOferta: String = "",
     val descripcionOferta: String = "",
     val descuento: String = "",
+    val imagenUrl: String = "",
     val idPlatoSeleccionado: Int? = null,
     val activa: Boolean = true
 )

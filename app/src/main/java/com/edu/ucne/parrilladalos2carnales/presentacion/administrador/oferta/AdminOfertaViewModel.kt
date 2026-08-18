@@ -1,5 +1,7 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
@@ -8,16 +10,23 @@ import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.UpsertOfertaUse
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.DeleteOfertaUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
 class AdminOfertaViewModel @Inject constructor(
     private val getOfertasUseCase: GetOfertasUseCase,
+    private val getPlatosUseCase: GetPlatosUseCase,
     private val upsertOfertaUseCase: UpsertOfertaUseCase,
     private val deleteOfertaUseCase: DeleteOfertaUseCase,
-    private val getPlatosUseCase: GetPlatosUseCase
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminOfertaUiState())
@@ -64,6 +73,7 @@ class AdminOfertaViewModel @Inject constructor(
                 tituloOferta = "",
                 descripcionOferta = "",
                 descuento = "",
+                imagenUrl = "",
                 idPlatoSeleccionado = null,
                 activa = true,
                 errorMessage = null
@@ -79,6 +89,7 @@ class AdminOfertaViewModel @Inject constructor(
                 tituloOferta = oferta.tituloOferta,
                 descripcionOferta = oferta.descripcionOferta,
                 descuento = oferta.descuento.toString(),
+                imagenUrl = oferta.imagenUrl,
                 idPlatoSeleccionado = oferta.idPlato,
                 activa = oferta.activa,
                 errorMessage = null
@@ -98,6 +109,63 @@ class AdminOfertaViewModel @Inject constructor(
         _uiState.update { it.copy(descuento = descuento) }
     }
 
+    fun onImagenSelected(uriString: String) {
+        copiarYGuardarImagen(uriString)
+    }
+
+    private fun copiarYGuardarImagen(uriString: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true) }
+            val rutaLocal = withContext(Dispatchers.IO) {
+                try {
+                    val uri = Uri.parse(uriString)
+                    val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+                    val archivoDestino = File(context.filesDir, "oferta_${System.currentTimeMillis()}.jpg")
+                    
+                    inputStream?.use { input ->
+                        FileOutputStream(archivoDestino).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    archivoDestino.absolutePath
+                } catch (e: Exception) {
+                    null
+                }
+            }
+
+            if (rutaLocal != null) {
+                // Borramos una imagen anterior de OFERTA solamente si también fue creada por nosotros.
+                val imagenAnterior = _uiState.value.imagenUrl
+                if (imagenAnterior.isNotBlank() && imagenAnterior != rutaLocal) {
+                    runCatching {
+                        val archivoAnterior = File(imagenAnterior)
+                        if (archivoAnterior.exists() &&
+                            archivoAnterior.parent == context.filesDir.absolutePath &&
+                            archivoAnterior.name.startsWith("oferta_")
+                        ) {
+                            archivoAnterior.delete()
+                        }
+                    }
+                }
+
+                _uiState.update {
+                    it.copy(
+                        imagenUrl = rutaLocal,
+                        isSaving = false,
+                        errorMessage = null
+                    )
+                }
+            } else {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false,
+                        errorMessage = "No se pudo procesar la imagen"
+                    )
+                }
+            }
+        }
+    }
+
     fun onPlatoSelected(idPlato: Int?) {
         _uiState.update { it.copy(idPlatoSeleccionado = idPlato) }
     }
@@ -109,6 +177,7 @@ class AdminOfertaViewModel @Inject constructor(
     fun guardarOferta() {
         val state = _uiState.value
         val descuentoDouble = state.descuento.toDoubleOrNull() ?: 0.0
+        val plato = state.platos.find { it.idPlato == state.idPlatoSeleccionado }
 
         if (state.tituloOferta.isBlank()) {
             _uiState.update { it.copy(errorMessage = "El título es obligatorio") }
@@ -119,9 +188,10 @@ class AdminOfertaViewModel @Inject constructor(
             _uiState.update { it.copy(isSaving = true) }
             val oferta = Oferta(
                 idOferta = state.idOfertaEditando,
-                tituloOferta = state.tituloOferta,
-                descripcionOferta = state.descripcionOferta,
+                tituloOferta = state.tituloOferta.trim(),
+                descripcionOferta = state.descripcionOferta.trim(),
                 descuento = descuentoDouble,
+                imagenUrl = state.imagenUrl.trim().ifBlank { plato?.imagenUrl ?: "" },
                 idPlato = state.idPlatoSeleccionado,
                 activa = state.activa
             )

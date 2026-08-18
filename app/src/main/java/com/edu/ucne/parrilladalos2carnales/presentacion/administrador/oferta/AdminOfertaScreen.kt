@@ -1,14 +1,10 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Delete
@@ -19,11 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
@@ -42,10 +35,25 @@ fun AdminOfertaScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    if (uiState.editorVisible) {
+        AdminOfertaEntryScreen(
+            uiState = uiState,
+            onBack = { viewModel.onEditorVisibleChanged(false) },
+            onTituloChanged = viewModel::onTituloChanged,
+            onDescripcionChanged = viewModel::onDescripcionChanged,
+            onDescuentoChanged = viewModel::onDescuentoChanged,
+            onImagenSelected = viewModel::onImagenSelected,
+            onPlatoSelected = viewModel::onPlatoSelected,
+            onActivaChanged = viewModel::onActivaChanged,
+            onSave = viewModel::guardarOferta
+        )
+        return
+    }
+
     Scaffold(
         topBar = {
             AdminTopBar(
-                title = "Ofertas Especiales",
+                title = "Gestión de Ofertas",
                 onBack = onBack,
                 compactTitle = true
             )
@@ -101,7 +109,6 @@ fun AdminOfertaScreen(
                             onEdit = { viewModel.iniciarEdicionOferta(oferta) },
                             onDelete = { viewModel.eliminarOferta(oferta) },
                             onToggle = { activa ->
-                                viewModel.onActivaChanged(activa)
                                 viewModel.iniciarEdicionOferta(oferta.copy(activa = activa))
                                 viewModel.guardarOferta()
                             }
@@ -110,19 +117,6 @@ fun AdminOfertaScreen(
                 }
             }
         }
-    }
-
-    if (uiState.editorVisible) {
-        OfertaEditorDialog(
-            uiState = uiState,
-            onDismiss = { viewModel.onEditorVisibleChanged(false) },
-            onSave = { viewModel.guardarOferta() },
-            onTituloChanged = { viewModel.onTituloChanged(it) },
-            onDescripcionChanged = { viewModel.onDescripcionChanged(it) },
-            onDescuentoChanged = { viewModel.onDescuentoChanged(it) },
-            onPlatoSelected = { viewModel.onPlatoSelected(it) },
-            onActivaChanged = { viewModel.onActivaChanged(it) }
-        )
     }
 }
 
@@ -244,141 +238,6 @@ fun AdminOfertaCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun OfertaEditorDialog(
-    uiState: AdminOfertaUiState,
-    onDismiss: () -> Unit,
-    onSave: () -> Unit,
-    onTituloChanged: (String) -> Unit,
-    onDescripcionChanged: (String) -> Unit,
-    onDescuentoChanged: (String) -> Unit,
-    onPlatoSelected: (Int?) -> Unit,
-    onActivaChanged: (Boolean) -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            shape = RoundedCornerShape(28.dp),
-            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = if (uiState.idOfertaEditando == 0) "Nueva Oferta" else "Editar Oferta",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-
-                OutlinedTextField(
-                    value = uiState.tituloOferta,
-                    onValueChange = onTituloChanged,
-                    label = { Text("Título de la oferta") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                )
-
-                OutlinedTextField(
-                    value = uiState.descripcionOferta,
-                    onValueChange = onDescripcionChanged,
-                    label = { Text("Descripción") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    minLines = 2
-                )
-
-                OutlinedTextField(
-                    value = uiState.descuento,
-                    onValueChange = onDescuentoChanged,
-                    label = { Text("Porcentaje de descuento (%)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
-                )
-
-                Text("Plato al que aplica", style = MaterialTheme.typography.labelMedium)
-                PlatoSelector(
-                    platos = uiState.platos,
-                    idPlatoSeleccionado = uiState.idPlatoSeleccionado,
-                    onPlatoSelected = onPlatoSelected
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Oferta activa")
-                    Switch(checked = uiState.activa, onCheckedChange = onActivaChanged)
-                }
-
-                if (uiState.errorMessage != null) {
-                    Text(uiState.errorMessage, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(onClick = onDismiss) { Text("Cancelar") }
-                    Spacer(Modifier.width(8.dp))
-                    Button(
-                        onClick = onSave,
-                        enabled = !uiState.isSaving,
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        if (uiState.isSaving) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White)
-                        else Text("Guardar")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PlatoSelector(
-    platos: List<Plato>,
-    idPlatoSeleccionado: Int?,
-    onPlatoSelected: (Int?) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val seleccionado = platos.find { it.idPlato == idPlatoSeleccionado }
-
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedButton(
-            onClick = { expanded = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = seleccionado?.nombre ?: "Seleccionar plato",
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Ninguno (Aplica a todo - informativo)") },
-                onClick = { onPlatoSelected(null); expanded = false }
-            )
-            platos.forEach { plato ->
-                DropdownMenuItem(
-                    text = { Text(plato.nombre) },
-                    onClick = { onPlatoSelected(plato.idPlato); expanded = false }
                 )
             }
         }
