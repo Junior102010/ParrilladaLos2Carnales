@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGuarnicionScreen(
@@ -35,6 +37,20 @@ fun AdminGuarnicionScreen(
         }
     }
 
+    AdminGuarnicionContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminGuarnicionContent(
+    uiState: AdminGuarnicionUiState,
+    onEvent: (AdminGuarnicionUiEvent) -> Unit,
+    onNavigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             AdminTopBar(
@@ -80,7 +96,7 @@ fun AdminGuarnicionScreen(
 
                     OutlinedTextField(
                         value = uiState.nombreGuarnicion,
-                        onValueChange = { viewModel.onEvent(AdminGuarnicionUiEvent.OnNombreChange(it)) },
+                        onValueChange = { onEvent(AdminGuarnicionUiEvent.OnNombreChange(it)) },
                         label = { Text("Nombre (Ej. Papas Fritas, Puré de Yuca)") },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -93,7 +109,7 @@ fun AdminGuarnicionScreen(
 
                     OutlinedTextField(
                         value = uiState.precioGuarnicion,
-                        onValueChange = { viewModel.onEvent(AdminGuarnicionUiEvent.OnPrecioChange(it)) },
+                        onValueChange = { onEvent(AdminGuarnicionUiEvent.OnPrecioChange(it)) },
                         label = { Text("Precio Adicional (RD$)") },
                         placeholder = { Text("0.00 si está incluida") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -108,7 +124,7 @@ fun AdminGuarnicionScreen(
 
                     OutlinedTextField(
                         value = uiState.descripcionGuarnicion,
-                        onValueChange = { viewModel.onEvent(AdminGuarnicionUiEvent.OnDescripcionChange(it)) },
+                        onValueChange = { onEvent(AdminGuarnicionUiEvent.OnDescripcionChange(it)) },
                         label = { Text("Descripción (Opcional)") },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -132,14 +148,14 @@ fun AdminGuarnicionScreen(
                         )
                         Switch(
                             checked = uiState.disponible,
-                            onCheckedChange = { viewModel.onEvent(AdminGuarnicionUiEvent.OnDisponibleChange(it)) }
+                            onCheckedChange = { onEvent(AdminGuarnicionUiEvent.OnDisponibleChange(it)) }
                         )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
-                        onClick = { viewModel.onEvent(AdminGuarnicionUiEvent.OnGuardarClick) },
+                        onClick = { onEvent(AdminGuarnicionUiEvent.OnGuardarClick) },
                         enabled = !uiState.isLoading,
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
@@ -173,4 +189,17 @@ fun AdminGuarnicionScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminGuarnicionPreview() {
+    AdminGuarnicionContent(
+        uiState = AdminGuarnicionUiState(
+            nombreGuarnicion = "Papas Fritas",
+            precioGuarnicion = "100.00"
+        ),
+        onEvent = {},
+        onNavigateBack = {}
+    )
 }

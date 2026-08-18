@@ -33,6 +33,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBot
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.io.File
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPlatoListScreen(
@@ -54,6 +56,24 @@ fun AdminPlatoListScreen(
         return
     }
 
+    AdminPlatoListContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigateToCreate = onNavigateToCreate,
+        onNavigateToEdit = onNavigateToEdit,
+        onNavigate = onNavigate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminPlatoListContent(
+    uiState: AdminPlatoListUiState,
+    onEvent: (AdminPlatoListUiEvent) -> Unit,
+    onNavigateToCreate: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigate: (Screen) -> Unit = {}
+) {
     Scaffold(
         topBar = {
             AdminTopBar(
@@ -89,7 +109,9 @@ fun AdminPlatoListScreen(
             AdminSearchField(
                 value = uiState.searchQuery,
                 onValueChange = {
-                    viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged(it))
+                    onEvent(
+                        AdminPlatoListUiEvent.OnSearchQueryChanged(it)
+                    )
                 },
                 placeholder = "Buscar plato...",
                 modifier = Modifier.padding(horizontal = 16.dp)
@@ -156,7 +178,7 @@ fun AdminPlatoListScreen(
                             plato = plato,
                             onEdit = { onNavigateToEdit(plato.idPlato) },
                             onToggleDisponible = { disponible ->
-                                viewModel.onEvent(
+                                onEvent(
                                     AdminPlatoListUiEvent.OnToggleDisponible(
                                         plato,
                                         disponible
@@ -164,7 +186,7 @@ fun AdminPlatoListScreen(
                                 )
                             },
                             onDelete = {
-                                viewModel.onEvent(
+                                onEvent(
                                     AdminPlatoListUiEvent.OnDeletePlato(plato)
                                 )
                             }
@@ -174,6 +196,32 @@ fun AdminPlatoListScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminPlatoListPreview() {
+    AdminPlatoListContent(
+        uiState = AdminPlatoListUiState(
+            platosFiltrados = listOf(
+                Plato(
+                    idPlato = 1,
+                    nombre = "Parrillada Mixta",
+                    precio = 1200.0,
+                    disponible = true
+                ),
+                Plato(
+                    idPlato = 2,
+                    nombre = "Churrasco",
+                    precio = 950.0,
+                    disponible = false
+                )
+            )
+        ),
+        onEvent = {},
+        onNavigateToCreate = {},
+        onNavigateToEdit = {}
+    )
 }
 
 @Composable

@@ -24,6 +24,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeManager
 import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun AdminPerfilScreen(
     viewModel: AdminPerfilViewModel,
@@ -39,6 +41,19 @@ fun AdminPerfilScreen(
         }
     }
 
+    AdminPerfilContent(
+        uiState = uiState,
+        onNavigate = onNavigate,
+        onLogout = { viewModel.cerrarSesion() }
+    )
+}
+
+@Composable
+fun AdminPerfilContent(
+    uiState: AdminPerfilUiState,
+    onNavigate: (Screen) -> Unit,
+    onLogout: () -> Unit
+) {
     Scaffold(
         topBar = {
             Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
@@ -146,7 +161,7 @@ fun AdminPerfilScreen(
             Spacer(Modifier.weight(1f))
 
             OutlinedButton(
-                onClick = { viewModel.cerrarSesion() },
+                onClick = onLogout,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(26.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
@@ -158,6 +173,19 @@ fun AdminPerfilScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminPerfilPreview() {
+    AdminPerfilContent(
+        uiState = AdminPerfilUiState(
+            nombre = "Administrador",
+            correo = "admin@parrillada.com"
+        ),
+        onNavigate = {},
+        onLogout = {}
+    )
 }
 
 @Composable

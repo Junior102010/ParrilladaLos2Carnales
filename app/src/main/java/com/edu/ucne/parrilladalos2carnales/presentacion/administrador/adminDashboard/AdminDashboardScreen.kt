@@ -37,6 +37,8 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionViewModel
 
@@ -57,6 +59,17 @@ fun AdminDashboardScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val notiUiState by notificacionViewModel.uiState.collectAsStateWithLifecycle()
 
+    AdminDashboardContent(
+        uiState = uiState,
+        onNavigate = onNavigate
+    )
+}
+
+@Composable
+fun AdminDashboardContent(
+    uiState: AdminDashboardUiState,
+    onNavigate: (Screen) -> Unit
+) {
     Scaffold(
         topBar = {
             AdminTopBar(
@@ -83,6 +96,23 @@ fun AdminDashboardScreen(
             onNavigate = onNavigate
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminDashboardPreview() {
+    AdminDashboardContent(
+        uiState = AdminDashboardUiState(
+            pedidos = listOf(
+                Pedido(idPedido = 1, total = 500.0, estado = EstadoPedido.RECIBIDO),
+                Pedido(idPedido = 2, total = 1200.0, estado = EstadoPedido.PREPARANDO)
+            ),
+            ventasHoy = 1700.0,
+            pedidosTotalHoy = 2,
+            pedidosActivosCount = 2
+        ),
+        onNavigate = {}
+    )
 }
 
 @Composable

@@ -27,6 +27,8 @@ import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
 import java.io.File
 import androidx.compose.runtime.remember
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun PerfilScreen(
     viewModel: PerfilViewModel,
@@ -52,6 +54,21 @@ fun PerfilScreen(
         }
     }
 
+    PerfilContent(
+        uiState = uiState,
+        rolUsuario = rolUsuario,
+        onNavigate = onNavigate,
+        onLogout = { viewModel.cerrarSesion() }
+    )
+}
+
+@Composable
+fun PerfilContent(
+    uiState: PerfilUiState,
+    rolUsuario: Rol,
+    onNavigate: (Screen) -> Unit,
+    onLogout: () -> Unit
+) {
     Scaffold(
         topBar = {
             Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
@@ -306,7 +323,7 @@ fun PerfilScreen(
             Spacer(Modifier.weight(1f))
 
             OutlinedButton(
-                onClick = { viewModel.cerrarSesion() },
+                onClick = onLogout,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(26.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
@@ -318,6 +335,20 @@ fun PerfilScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PerfilPreview() {
+    PerfilContent(
+        uiState = PerfilUiState(
+            nombre = "Cliente de Prueba",
+            correo = "cliente@ejemplo.com"
+        ),
+        rolUsuario = Rol.CLIENTE,
+        onNavigate = {},
+        onLogout = {}
+    )
 }
 
 @Composable

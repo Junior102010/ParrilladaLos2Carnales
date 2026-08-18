@@ -25,6 +25,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.presentacion.notificacion.NotificacionViewModel
 import kotlinx.coroutines.delay
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel = hiltViewModel(),
@@ -38,7 +40,45 @@ fun InicioScreen(
         viewModel.refrescarUsuario()
     }
 
-    val ofertas = uiState.ofertas
+    InicioContent(
+        uiState = uiState,
+        onNavigate = onNavigate
+    )
+}
+
+@Composable
+fun InicioContent(
+    uiState: InicioUiState,
+    onNavigate: (Screen) -> Unit
+) {
+    val ofertas = remember(uiState.ofertas) {
+        if (uiState.ofertas.isNotEmpty()) {
+            uiState.ofertas
+        } else {
+            listOf(
+                Oferta(
+                    idOferta = 1,
+                    tituloOferta = "Parrillada Especial",
+                    descuento = 20.0
+                ),
+                Oferta(
+                    idOferta = 2,
+                    tituloOferta = "Combo Carnales",
+                    descuento = 15.0
+                ),
+                Oferta(
+                    idOferta = 3,
+                    tituloOferta = "Especial de Cortes",
+                    descuento = 25.0
+                ),
+                Oferta(
+                    idOferta = 4,
+                    tituloOferta = "Especial de la Casa",
+                    descuento = 10.0
+                )
+            )
+        }
+    }
 
     val pagerState = rememberPagerState(
         pageCount = { ofertas.size.coerceAtLeast(1) }
@@ -173,4 +213,18 @@ fun InicioScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InicioPreview() {
+    InicioContent(
+        uiState = InicioUiState(
+            nombreUsuario = "Cliente",
+            ofertas = emptyList(),
+            categorias = emptyList(),
+            platos = emptyList()
+        ),
+        onNavigate = {}
+    )
 }

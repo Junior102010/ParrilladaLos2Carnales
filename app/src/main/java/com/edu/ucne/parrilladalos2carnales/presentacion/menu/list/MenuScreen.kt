@@ -27,6 +27,9 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListUiEvent
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListUiState
+
 @Composable
 fun MenuScreen(
     viewModel: PlatoListViewModel = hiltViewModel(),
@@ -34,9 +37,23 @@ fun MenuScreen(
     onNavigate: (Screen) -> Unit,
     onPlatoClick: (Int) -> Unit
 ) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    MenuContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigate = onNavigate,
+        onPlatoClick = onPlatoClick
+    )
+}
+
+@Composable
+fun MenuContent(
+    uiState: PlatoListUiState,
+    onEvent: (PlatoListUiEvent) -> Unit,
+    onNavigate: (Screen) -> Unit,
+    onPlatoClick: (Int) -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -59,7 +76,7 @@ fun MenuScreen(
             OutlinedTextField(
                 value = uiState.searchQuery,
                 onValueChange = {
-                    viewModel.onEvent(PlatoListUiEvent.OnSearchChange(it))
+                    onEvent(PlatoListUiEvent.OnSearchChange(it))
                 },
                 placeholder = {
                     Text(
@@ -78,7 +95,7 @@ fun MenuScreen(
                     if (uiState.searchQuery.isNotBlank()) {
                         IconButton(
                             onClick = {
-                                viewModel.onEvent(PlatoListUiEvent.OnSearchChange(""))
+                                onEvent(PlatoListUiEvent.OnSearchChange(""))
                             }
                         ) {
                             Icon(
@@ -153,7 +170,7 @@ fun MenuScreen(
                         
                         if (uiState.searchQuery.isNotBlank()) {
                             Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { viewModel.onEvent(PlatoListUiEvent.OnSearchChange("")) }) {
+                            Button(onClick = { onEvent(PlatoListUiEvent.OnSearchChange("")) }) {
                                 Text("Ver todo el menú")
                             }
                         }
@@ -188,4 +205,17 @@ fun MenuScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MenuPreview() {
+    MenuContent(
+        uiState = PlatoListUiState(
+            platosFiltrados = emptyList()
+        ),
+        onEvent = {},
+        onNavigate = {},
+        onPlatoClick = {}
+    )
 }

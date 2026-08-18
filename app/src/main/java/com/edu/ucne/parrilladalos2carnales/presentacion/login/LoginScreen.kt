@@ -61,6 +61,36 @@ fun LoginScreen(
     onLoginSuccess: (Rol) -> Unit,
 ) {
     val context = LocalContext.current
+
+    LoginContent(
+        username = viewModel.username,
+        password = viewModel.password,
+        isPasswordVisible = viewModel.isPasswordVisible,
+        isLoading = viewModel.isLoading,
+        errorMessage = viewModel.errorMessage,
+        onUsernameChange = { viewModel.username = it },
+        onPasswordChange = { viewModel.password = it },
+        onTogglePasswordVisibility = { viewModel.onTogglePasswordVisibility() },
+        onLoginClick = { viewModel.onLoginClick(onLoginSuccess) },
+        onGoogleLoginClick = { viewModel.loginConGoogle(context, onLoginSuccess) },
+        onNavigateToRegister = onNavigateToRegister
+    )
+}
+
+@Composable
+fun LoginContent(
+    username: String,
+    password: String,
+    isPasswordVisible: Boolean,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onUsernameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onLoginClick: () -> Unit,
+    onGoogleLoginClick: () -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
     val focusManager = LocalFocusManager.current
     var isContentVisible by remember { mutableStateOf(false) }
 
@@ -116,8 +146,8 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     LoginTextField(
-                        value = viewModel.username,
-                        onValueChange = { viewModel.username = it },
+                        value = username,
+                        onValueChange = onUsernameChange,
                         placeholder = "Usuario",
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                     )
@@ -125,15 +155,15 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     LoginTextField(
-                        value = viewModel.password,
-                        onValueChange = { viewModel.password = it },
+                        value = password,
+                        onValueChange = onPasswordChange,
                         placeholder = "Contraseña",
-                        visualTransformation = if (viewModel.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                        keyboardActions = KeyboardActions(onDone = { viewModel.onLoginClick(onLoginSuccess) }),
+                        keyboardActions = KeyboardActions(onDone = { onLoginClick() }),
                         trailingIcon = {
-                            val icon = if (viewModel.isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                            IconButton(onClick = { viewModel.onTogglePasswordVisibility() }) {
+                            val icon = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                            IconButton(onClick = onTogglePasswordVisibility) {
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = "Toggle Password Visibility",
@@ -143,7 +173,7 @@ fun LoginScreen(
                         }
                     )
 
-                    viewModel.errorMessage?.let { error ->
+                    errorMessage?.let { error ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     }
@@ -151,18 +181,18 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
-                        onClick = { viewModel.onLoginClick(onLoginSuccess) },
+                        onClick = onLoginClick,
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .height(50.dp),
-                        enabled = !viewModel.isLoading,
+                        enabled = !isLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         shape = RoundedCornerShape(25.dp)
                     ) {
-                        if (viewModel.isLoading) {
+                        if (isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),
                                 color = MaterialTheme.colorScheme.onPrimary
@@ -178,17 +208,12 @@ fun LoginScreen(
                     OutlinedButton(
                         onClick = {
                             focusManager.clearFocus()
-
-
-                            viewModel.loginConGoogle(
-                                context = context,
-                                onSuccess = onLoginSuccess
-                            )
+                            onGoogleLoginClick()
                         },
                         modifier = Modifier
                             .widthIn(min = 200.dp)
                             .height(48.dp),
-                        enabled = !viewModel.isLoading,
+                        enabled = !isLoading,
                         shape = RoundedCornerShape(24.dp),
                         border = BorderStroke(
                             width = 1.dp,
@@ -222,7 +247,7 @@ fun LoginScreen(
 
                     TextButton(
                         onClick = onNavigateToRegister,
-                        enabled = !viewModel.isLoading
+                        enabled = !isLoading
                     ) {
                         Text(
                             text = "¿No tienes una cuenta? ¡Regístrate!",
@@ -237,6 +262,8 @@ fun LoginScreen(
         }
     }
 }
+
+
 
 @Composable
 private fun AnimatedFireLogo(

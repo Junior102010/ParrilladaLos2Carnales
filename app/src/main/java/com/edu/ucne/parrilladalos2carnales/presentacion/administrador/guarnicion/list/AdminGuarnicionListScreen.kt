@@ -23,6 +23,9 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBa
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 
+import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGuarnicionListScreen(
@@ -33,6 +36,24 @@ fun AdminGuarnicionListScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    AdminGuarnicionListContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onNavigateToAdd = onNavigateToAdd,
+        onNavigateToEdit = onNavigateToEdit,
+        onNavigate = onNavigate
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminGuarnicionListContent(
+    uiState: AdminGuarnicionListUiState,
+    onEvent: (AdminGuarnicionListUiEvent) -> Unit,
+    onNavigateToAdd: () -> Unit,
+    onNavigateToEdit: (Int) -> Unit,
+    onNavigate: (Screen) -> Unit = {}
+) {
     Scaffold(
         topBar = {
             AdminTopBar(
@@ -73,7 +94,7 @@ fun AdminGuarnicionListScreen(
             AdminSearchField(
                 value = uiState.searchQuery,
                 onValueChange = {
-                    viewModel.onEvent(
+                    onEvent(
                         AdminGuarnicionListUiEvent.OnSearchQueryChanged(it)
                     )
                 },
@@ -147,7 +168,7 @@ fun AdminGuarnicionListScreen(
                                         )
                                     }
                                     IconButton(
-                                        onClick = { viewModel.onEvent(AdminGuarnicionListUiEvent.OnDeleteGuarnicionClick(guarnicion)) }
+                                        onClick = { onEvent(AdminGuarnicionListUiEvent.OnDeleteGuarnicionClick(guarnicion)) }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
@@ -163,4 +184,36 @@ fun AdminGuarnicionListScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminGuarnicionListPreview() {
+    AdminGuarnicionListContent(
+        uiState = AdminGuarnicionListUiState(
+            guarnicionesFiltradas = listOf(
+                Guarnicion(
+                    idGuarnicion = 1,
+                    nombreGuarnicion = "Papas Fritas",
+                    descripcionGuarnicion = "Papas fritas crocantes",
+                    cantidadGuarnicion = 1.0,
+                    precioGuarnicion = 100.0,
+                    disponible = true,
+                    categoria = "Frituras"
+                ),
+                Guarnicion(
+                    idGuarnicion = 2,
+                    nombreGuarnicion = "Yuca con Cebolla",
+                    descripcionGuarnicion = "Yuca hervida con cebolla",
+                    cantidadGuarnicion = 1.0,
+                    precioGuarnicion = 80.0,
+                    disponible = false,
+                    categoria = "Hervidos"
+                )
+            )
+        ),
+        onEvent = {},
+        onNavigateToAdd = {},
+        onNavigateToEdit = {}
+    )
 }

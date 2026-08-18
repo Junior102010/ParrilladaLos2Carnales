@@ -21,6 +21,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.TarjetaFo
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.TipoEntregaSelector
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.TransferenciaFormulario
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun PagoScreen(
     viewModel: PagoViewModel = hiltViewModel(),
@@ -28,7 +30,6 @@ fun PagoScreen(
     onPedidoCreado: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var mostrarNuevaDireccion by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.pedidoCreadoId) {
         uiState.pedidoCreadoId?.let { id ->
@@ -36,6 +37,21 @@ fun PagoScreen(
             onPedidoCreado(id)
         }
     }
+
+    PagoContent(
+        uiState = uiState,
+        onEvent = viewModel::onEvent,
+        onBack = onBack
+    )
+}
+
+@Composable
+fun PagoContent(
+    uiState: PagoUiState,
+    onEvent: (PagoUiEvent) -> Unit,
+    onBack: () -> Unit
+) {
+    var mostrarNuevaDireccion by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -45,7 +61,7 @@ fun PagoScreen(
                 subtotal = uiState.subtotal,
                 delivery = uiState.delivery,
                 total = uiState.total,
-                onConfirmar = { viewModel.onEvent(PagoUiEvent.OnConfirmarPago) },
+                onConfirmar = { onEvent(PagoUiEvent.OnConfirmarPago) },
                 enabled = !uiState.isLoading
             )
         }
@@ -64,7 +80,7 @@ fun PagoScreen(
             ) {
                 TipoEntregaSelector(
                     seleccionado = uiState.tipoEntrega,
-                    onSeleccionar = { viewModel.onEvent(PagoUiEvent.OnTipoEntregaChange(it)) }
+                    onSeleccionar = { onEvent(PagoUiEvent.OnTipoEntregaChange(it)) }
                 )
                 Spacer(Modifier.height(22.dp))
                 if (uiState.tipoEntrega == TipoEntrega.DELIVERY) {
@@ -83,14 +99,14 @@ fun PagoScreen(
 
                 MetodoPagoSelector(
                     seleccionado = uiState.metodoPago,
-                    onSeleccionar = { viewModel.onEvent(PagoUiEvent.OnMetodoPagoChange(it)) }
+                    onSeleccionar = { onEvent(PagoUiEvent.OnMetodoPagoChange(it)) }
                 )
                 Spacer(Modifier.height(18.dp))
 
                 when (uiState.metodoPago) {
-                    MetodoPago.TARJETA -> TarjetaFormulario(uiState, { viewModel.onEvent(PagoUiEvent.OnNumeroTarjetaChange(it)) }, { viewModel.onEvent(PagoUiEvent.OnFechaTarjetaChange(it)) }, { viewModel.onEvent(PagoUiEvent.OnCvvChange(it)) })
-                    MetodoPago.EFECTIVO -> EfectivoFormulario(uiState.montoRecibido, uiState.total, { viewModel.onEvent(PagoUiEvent.OnMontoRecibidoChange(it)) })
-                    MetodoPago.TRANSFERENCIA -> TransferenciaFormulario(uiState, { viewModel.onEvent(PagoUiEvent.OnTitularTransferenciaChange(it)) }, { viewModel.onEvent(PagoUiEvent.OnCuentaOrigenChange(it)) }, { viewModel.onEvent(PagoUiEvent.OnBancoChange(it)) })
+                    MetodoPago.TARJETA -> TarjetaFormulario(uiState, { onEvent(PagoUiEvent.OnNumeroTarjetaChange(it)) }, { onEvent(PagoUiEvent.OnFechaTarjetaChange(it)) }, { onEvent(PagoUiEvent.OnCvvChange(it)) })
+                    MetodoPago.EFECTIVO -> EfectivoFormulario(uiState.montoRecibido, uiState.total, { onEvent(PagoUiEvent.OnMontoRecibidoChange(it)) })
+                    MetodoPago.TRANSFERENCIA -> TransferenciaFormulario(uiState, { onEvent(PagoUiEvent.OnTitularTransferenciaChange(it)) }, { onEvent(PagoUiEvent.OnCuentaOrigenChange(it)) }, { onEvent(PagoUiEvent.OnBancoChange(it)) })
                 }
 
                 if (uiState.errorMessage != null) {
@@ -107,10 +123,26 @@ fun PagoScreen(
             direccionActual = uiState.direccion,
             onDismiss = { mostrarNuevaDireccion = false },
             onGuardar = {
-                viewModel.onEvent(PagoUiEvent.OnDireccionChange(it))
+                onEvent(PagoUiEvent.OnDireccionChange(it))
                 mostrarNuevaDireccion = false
             }
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PagoPreview() {
+    PagoContent(
+        uiState = PagoUiState(
+            subtotal = 3100.0,
+            delivery = 150.0,
+            total = 3250.0,
+            tipoEntrega = TipoEntrega.DELIVERY,
+            metodoPago = MetodoPago.EFECTIVO
+        ),
+        onEvent = {},
+        onBack = {}
+    )
 }
 

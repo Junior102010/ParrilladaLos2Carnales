@@ -23,11 +23,86 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
     onBack: () -> Unit,
     onRegisterSuccess: (Rol) -> Unit
+) {
+    RegisterContent(
+        pasoActual = viewModel.pasoActual,
+        estaCargando = viewModel.estaCargando,
+        mensajeError = viewModel.mensajeError,
+        nombreUsuario = viewModel.nombreUsuario,
+        correo = viewModel.correo,
+        contrasena = viewModel.contrasena,
+        confirmarContrasena = viewModel.confirmarContrasena,
+        contrasenaVisible = viewModel.contrasenaVisible,
+        nombre = viewModel.nombre,
+        apellido = viewModel.apellido,
+        telefono = viewModel.telefono,
+        calle = viewModel.calle,
+        numero = viewModel.numero,
+        ciudad = viewModel.ciudad,
+        codigoPostal = viewModel.codigoPostal,
+        referencia = viewModel.referencia,
+        onNombreUsuarioChange = { viewModel.nombreUsuario = it },
+        onCorreoChange = { viewModel.correo = it },
+        onContrasenaChange = { viewModel.contrasena = it },
+        onConfirmarContrasenaChange = { viewModel.confirmarContrasena = it },
+        onAlternarVisibilidadContrasena = { viewModel.alternarVisibilidadContrasena() },
+        onNombreChange = { viewModel.nombre = it },
+        onApellidoChange = { viewModel.apellido = it },
+        onTelefonoChange = { viewModel.telefono = it },
+        onCalleChange = { viewModel.calle = it },
+        onNumeroChange = { viewModel.numero = it },
+        onCiudadChange = { viewModel.ciudad = it },
+        onCodigoPostalChange = { viewModel.codigoPostal = it },
+        onReferenciaChange = { viewModel.referencia = it },
+        onSiguientePaso = { viewModel.siguientePaso() },
+        onPasoAnterior = { viewModel.pasoAnterior() },
+        onRegistrarse = { viewModel.registrarse(onRegisterSuccess) },
+        onBack = onBack
+    )
+}
+
+@Composable
+fun RegisterContent(
+    pasoActual: Int,
+    estaCargando: Boolean,
+    mensajeError: String?,
+    nombreUsuario: String,
+    correo: String,
+    contrasena: String,
+    confirmarContrasena: String,
+    contrasenaVisible: Boolean,
+    nombre: String,
+    apellido: String,
+    telefono: String,
+    calle: String,
+    numero: String,
+    ciudad: String,
+    codigoPostal: String,
+    referencia: String,
+    onNombreUsuarioChange: (String) -> Unit,
+    onCorreoChange: (String) -> Unit,
+    onContrasenaChange: (String) -> Unit,
+    onConfirmarContrasenaChange: (String) -> Unit,
+    onAlternarVisibilidadContrasena: () -> Unit,
+    onNombreChange: (String) -> Unit,
+    onApellidoChange: (String) -> Unit,
+    onTelefonoChange: (String) -> Unit,
+    onCalleChange: (String) -> Unit,
+    onNumeroChange: (String) -> Unit,
+    onCiudadChange: (String) -> Unit,
+    onCodigoPostalChange: (String) -> Unit,
+    onReferenciaChange: (String) -> Unit,
+    onSiguientePaso: () -> Unit,
+    onPasoAnterior: () -> Unit,
+    onRegistrarse: () -> Unit,
+    onBack: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -66,7 +141,7 @@ fun RegisterScreen(
                             .weight(1f)
                             .height(6.dp)
                             .background(
-                                if (viewModel.pasoActual > index) MaterialTheme.colorScheme.primary else Color.Gray.copy(alpha = 0.3f),
+                                if (pasoActual > index) MaterialTheme.colorScheme.primary else Color.Gray.copy(alpha = 0.3f),
                                 RoundedCornerShape(3.dp)
                             )
                     )
@@ -75,13 +150,13 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            when (viewModel.pasoActual) {
-                1 -> StepOne(viewModel)
-                2 -> StepTwo(viewModel)
-                3 -> StepThree(viewModel)
+            when (pasoActual) {
+                1 -> StepOneContent(nombreUsuario, correo, contrasena, confirmarContrasena, contrasenaVisible, onNombreUsuarioChange, onCorreoChange, onContrasenaChange, onConfirmarContrasenaChange, onAlternarVisibilidadContrasena)
+                2 -> StepTwoContent(nombre, apellido, telefono, onNombreChange, onApellidoChange, onTelefonoChange)
+                3 -> StepThreeContent(calle, numero, ciudad, codigoPostal, referencia, onCalleChange, onNumeroChange, onCiudadChange, onCodigoPostalChange, onReferenciaChange)
             }
 
-            viewModel.mensajeError?.let { error ->
+            mensajeError?.let { error ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
             }
@@ -93,11 +168,11 @@ fun RegisterScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = { if (viewModel.pasoActual > 1) viewModel.pasoAnterior() else onBack() },
+                    onClick = { if (pasoActual > 1) onPasoAnterior() else onBack() },
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),
-                    enabled = !viewModel.estaCargando,
+                    enabled = !estaCargando,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,
                         contentColor = MaterialTheme.colorScheme.onSurface
@@ -113,23 +188,23 @@ fun RegisterScreen(
 
                 Button(
                     onClick = {
-                        if (viewModel.pasoActual < 3) {
-                            viewModel.siguientePaso()
+                        if (pasoActual < 3) {
+                            onSiguientePaso()
                         } else {
-                            viewModel.registrarse(onRegisterSuccess)
+                            onRegistrarse()
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp),
-                    enabled = !viewModel.estaCargando,
+                    enabled = !estaCargando,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     shape = RoundedCornerShape(24.dp)
                 ) {
-                    if (viewModel.estaCargando) {
+                    if (estaCargando) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(22.dp),
                             color = MaterialTheme.colorScheme.onPrimary,
@@ -137,7 +212,7 @@ fun RegisterScreen(
                         )
                     } else {
                         Text(
-                            text = if (viewModel.pasoActual < 3) "Siguiente" else "Crear Cuenta",
+                            text = if (pasoActual < 3) "Siguiente" else "Crear Cuenta",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1
@@ -150,44 +225,113 @@ fun RegisterScreen(
 }
 
 @Composable
-private fun StepOne(viewModel: RegisterViewModel) {
+private fun StepOneContent(
+    nombreUsuario: String,
+    correo: String,
+    contrasena: String,
+    confirmarContrasena: String,
+    contrasenaVisible: Boolean,
+    onNombreUsuarioChange: (String) -> Unit,
+    onCorreoChange: (String) -> Unit,
+    onContrasenaChange: (String) -> Unit,
+    onConfirmarContrasenaChange: (String) -> Unit,
+    onAlternarVisibilidadContrasena: () -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        RegisterTextField(value = viewModel.nombreUsuario, onValueChange = { viewModel.nombreUsuario = it }, placeholder = "Nombre de Usuario")
-        RegisterTextField(value = viewModel.correo, onValueChange = { viewModel.correo = it }, placeholder = "Correo Electrónico", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+        RegisterTextField(value = nombreUsuario, onValueChange = onNombreUsuarioChange, placeholder = "Nombre de Usuario")
+        RegisterTextField(value = correo, onValueChange = onCorreoChange, placeholder = "Correo Electrónico", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
         RegisterTextField(
-            value = viewModel.contrasena,
-            onValueChange = { viewModel.contrasena = it },
+            value = contrasena,
+            onValueChange = onContrasenaChange,
             placeholder = "Contraseña",
-            visualTransformation = if (viewModel.contrasenaVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (contrasenaVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val icon = if (viewModel.contrasenaVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                IconButton(onClick = { viewModel.alternarVisibilidadContrasena() }) {
+                val icon = if (contrasenaVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                IconButton(onClick = onAlternarVisibilidadContrasena) {
                     Icon(icon, contentDescription = null)
                 }
             }
         )
-        RegisterTextField(value = viewModel.confirmarContrasena, onValueChange = { viewModel.confirmarContrasena = it }, placeholder = "Confirmar Contraseña", visualTransformation = PasswordVisualTransformation())
+        RegisterTextField(value = confirmarContrasena, onValueChange = onConfirmarContrasenaChange, placeholder = "Confirmar Contraseña", visualTransformation = PasswordVisualTransformation())
     }
 }
 
 @Composable
-private fun StepTwo(viewModel: RegisterViewModel) {
+private fun StepTwoContent(
+    nombre: String,
+    apellido: String,
+    telefono: String,
+    onNombreChange: (String) -> Unit,
+    onApellidoChange: (String) -> Unit,
+    onTelefonoChange: (String) -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        RegisterTextField(value = viewModel.nombre, onValueChange = { viewModel.nombre = it }, placeholder = "Nombre")
-        RegisterTextField(value = viewModel.apellido, onValueChange = { viewModel.apellido = it }, placeholder = "Apellido")
-        RegisterTextField(value = viewModel.telefono, onValueChange = { viewModel.telefono = it }, placeholder = "Teléfono", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
+        RegisterTextField(value = nombre, onValueChange = onNombreChange, placeholder = "Nombre")
+        RegisterTextField(value = apellido, onValueChange = onApellidoChange, placeholder = "Apellido")
+        RegisterTextField(value = telefono, onValueChange = onTelefonoChange, placeholder = "Teléfono", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
     }
 }
 
 @Composable
-private fun StepThree(viewModel: RegisterViewModel) {
+private fun StepThreeContent(
+    calle: String,
+    numero: String,
+    ciudad: String,
+    codigoPostal: String,
+    referencia: String,
+    onCalleChange: (String) -> Unit,
+    onNumeroChange: (String) -> Unit,
+    onCiudadChange: (String) -> Unit,
+    onCodigoPostalChange: (String) -> Unit,
+    onReferenciaChange: (String) -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        RegisterTextField(value = viewModel.calle, onValueChange = { viewModel.calle = it }, placeholder = "Calle")
-        RegisterTextField(value = viewModel.numero, onValueChange = { viewModel.numero = it }, placeholder = "Número")
-        RegisterTextField(value = viewModel.ciudad, onValueChange = { viewModel.ciudad = it }, placeholder = "Ciudad")
-        RegisterTextField(value = viewModel.codigoPostal, onValueChange = { viewModel.codigoPostal = it }, placeholder = "Código Postal", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-        RegisterTextField(value = viewModel.referencia, onValueChange = { viewModel.referencia = it }, placeholder = "Referencia")
+        RegisterTextField(value = calle, onValueChange = onCalleChange, placeholder = "Calle")
+        RegisterTextField(value = numero, onValueChange = onNumeroChange, placeholder = "Número")
+        RegisterTextField(value = ciudad, onValueChange = onCiudadChange, placeholder = "Ciudad")
+        RegisterTextField(value = codigoPostal, onValueChange = onCodigoPostalChange, placeholder = "Código Postal", keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+        RegisterTextField(value = referencia, onValueChange = onReferenciaChange, placeholder = "Referencia")
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RegisterPreview() {
+    RegisterContent(
+        pasoActual = 1,
+        estaCargando = false,
+        mensajeError = null,
+        nombreUsuario = "",
+        correo = "",
+        contrasena = "",
+        confirmarContrasena = "",
+        contrasenaVisible = false,
+        nombre = "",
+        apellido = "",
+        telefono = "",
+        calle = "",
+        numero = "",
+        ciudad = "",
+        codigoPostal = "",
+        referencia = "",
+        onNombreUsuarioChange = {},
+        onCorreoChange = {},
+        onContrasenaChange = {},
+        onConfirmarContrasenaChange = {},
+        onAlternarVisibilidadContrasena = {},
+        onNombreChange = {},
+        onApellidoChange = {},
+        onTelefonoChange = {},
+        onCalleChange = {},
+        onNumeroChange = {},
+        onCiudadChange = {},
+        onCodigoPostalChange = {},
+        onReferenciaChange = {},
+        onSiguientePaso = {},
+        onPasoAnterior = {},
+        onRegistrarse = {},
+        onBack = {}
+    )
 }
 
 @Composable

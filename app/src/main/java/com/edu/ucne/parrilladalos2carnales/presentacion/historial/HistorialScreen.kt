@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.compose.ui.tooling.preview.Preview
+
 @Composable
 fun HistorialScreen(
     viewModel: HistorialViewModel = hiltViewModel(),
@@ -52,6 +54,23 @@ fun HistorialScreen(
         }
     }
 
+    HistorialContent(
+        uiState = uiState,
+        onBack = onBack,
+        onSeguimiento = onSeguimiento,
+        onRepetir = viewModel::repetirPedido,
+        onNavigate = onNavigate
+    )
+}
+
+@Composable
+fun HistorialContent(
+    uiState: HistorialUiState,
+    onBack: () -> Unit,
+    onSeguimiento: (Int) -> Unit,
+    onRepetir: (Pedido) -> Unit,
+    onNavigate: (Screen) -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = { HistorialTopBar(onBack = onBack, onPerfilClick = { onNavigate(Screen.Perfil) }) }
@@ -80,13 +99,40 @@ fun HistorialScreen(
                         HistorialPedidoCard(
                             pedido = pedido,
                             onSeguimiento = { onSeguimiento(pedido.idPedido) },
-                            onRepetir = { viewModel.repetirPedido(pedido) }
+                            onRepetir = { onRepetir(pedido) }
                         )
                     }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HistorialPreview() {
+    HistorialContent(
+        uiState = HistorialUiState(
+            pedidos = listOf(
+                Pedido(
+                    idPedido = 1,
+                    total = 1500.0,
+                    estado = EstadoPedido.RECIBIDO,
+                    fecha = "20/05/2024"
+                ),
+                Pedido(
+                    idPedido = 2,
+                    total = 850.0,
+                    estado = EstadoPedido.ENTREGADO,
+                    fecha = "19/05/2024"
+                )
+            )
+        ),
+        onBack = {},
+        onSeguimiento = {},
+        onRepetir = {},
+        onNavigate = {}
+    )
 }
 
 @Composable
