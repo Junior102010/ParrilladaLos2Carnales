@@ -30,12 +30,48 @@ class PerfilViewModel @Inject constructor(
     }
 
     fun refrescarUsuario() {
+
+        val esAdministrador =
+            authRepository
+                .esAdministrador()
+
+        val nombre =
+            authRepository
+                .getNombreUsuario()
+                .orEmpty()
+                .trim()
+                .ifBlank {
+
+                    if (
+                        esAdministrador
+                    ) {
+                        "Administrador"
+                    } else {
+                        "Cliente"
+                    }
+                }
+
         _uiState.update {
+
             it.copy(
-                nombre = authRepository.getNombreUsuario() ?: "Cliente",
-                correo = authRepository.getCorreoUsuario().orEmpty(),
-                fotoUrl = authRepository.getFotoUsuario()
+                nombre =
+                    nombre,
+
+                correo =
+                    authRepository
+                        .getCorreoUsuario()
+                        .orEmpty(),
+
+                fotoUrl =
+                    authRepository
+                        .getFotoUsuario()
             )
+        }
+    }
+
+    fun setNotificaciones(activa: Boolean) {
+        _uiState.update {
+            it.copy(notificacionesActivas = activa)
         }
     }
 
