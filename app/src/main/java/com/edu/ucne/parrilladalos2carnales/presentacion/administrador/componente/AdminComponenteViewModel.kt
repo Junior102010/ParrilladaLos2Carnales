@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
 import com.edu.ucne.parrilladalos2carnales.domain.repository.ingrediente.ComponenteRepository
-import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.componente.UpsertComponenteUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.componente.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -86,38 +86,38 @@ class AdminComponenteViewModel @Inject constructor(
 
     private fun guardarComponente() {
         val state = _uiState.value
-        val nombre = state.nombreComponente.trim()
-        val precio = state.precioComponente.toDoubleOrNull()
 
-        if (nombre.length < 2) {
-            _uiState.update { it.copy(error = "Introduce un nombre válido") }
+        val nombreValidation = validateNombreComponente(state.nombreComponente)
+        if (!nombreValidation.isValid) {
+            mostrarError(nombreValidation.errorMessage)
             return
         }
 
-        if (state.categoriaComponente.isBlank()) {
-            _uiState.update { it.copy(error = "Selecciona una categoría") }
+        val categoriaValidation = validateCategoriaComponente(state.categoriaComponente)
+        if (!categoriaValidation.isValid) {
+            mostrarError(categoriaValidation.errorMessage)
             return
         }
 
-        if (state.cantidadComponente < 0) {
-            _uiState.update { it.copy(error = "La cantidad no puede ser negativa") }
+        val cantidadValidation = validateCantidadComponente(state.cantidadComponente)
+        if (!cantidadValidation.isValid) {
+            mostrarError(cantidadValidation.errorMessage)
             return
         }
 
-        if (precio == null) {
-            _uiState.update { it.copy(error = "Introduce un precio válido") }
+        val precioValidation = validatePrecioComponente(state.precioComponente, state.categoriaComponente)
+        if (!precioValidation.isValid) {
+            mostrarError(precioValidation.errorMessage)
             return
         }
 
-        if (precio < 0) {
-            _uiState.update { it.copy(error = "El precio no puede ser negativo") }
+        val coccionValidation = validateCoccion(state.categoriaComponente, state.coccion)
+        if (!coccionValidation.isValid) {
+            mostrarError(coccionValidation.errorMessage)
             return
         }
 
-        if (state.categoriaComponente.equals("Coccion", ignoreCase = true) && precio != 0.0) {
-            _uiState.update { it.copy(error = "El término de cocción no debe tener precio") }
-            return
-        }
+        val precio = state.precioComponente.toDoubleOrNull() ?: 0.0
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -143,5 +143,9 @@ class AdminComponenteViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false, error = e.localizedMessage) }
             }
         }
+    }
+
+    private fun mostrarError(mensaje: String?) {
+        _uiState.update { it.copy(error = mensaje ?: "Datos no válidos", isLoading = false) }
     }
 }

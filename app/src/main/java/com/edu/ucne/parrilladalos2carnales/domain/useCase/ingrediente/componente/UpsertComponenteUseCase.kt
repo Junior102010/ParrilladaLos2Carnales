@@ -12,19 +12,27 @@ class UpsertComponenteUseCase @Inject constructor(
         val nombreResult = validateNombreComponente(componente.nombreComponente)
         val descripcionResult = validateDescripcionComponente(componente.descripcionComponente)
         val cantidadResult = validateCantidadComponente(componente.cantidadComponente)
-        val precioResult = validatePrecioComponente(componente.precioComponente)
+        val precioResult = validatePrecioComponente(componente.precioComponente, componente.categoriaComponente)
+        val categoriaResult = validateCategoriaComponente(componente.categoriaComponente)
+        val coccionResult = validateCoccion(componente.categoriaComponente, componente.coccion ?: "")
 
         if (!nombreResult.isValid){
-            return Result.failure(IllegalArgumentException(nombreResult.error))
+            return Result.failure(IllegalArgumentException(nombreResult.errorMessage))
         }
         if (!descripcionResult.isValid){
-            return Result.failure(IllegalArgumentException(descripcionResult.error))
+            return Result.failure(IllegalArgumentException(descripcionResult.errorMessage))
         }
         if (!cantidadResult.isValid){
-            return Result.failure(IllegalArgumentException(cantidadResult.error))
+            return Result.failure(IllegalArgumentException(cantidadResult.errorMessage))
         }
         if (!precioResult.isValid){
-            return Result.failure(IllegalArgumentException(precioResult.error))
+            return Result.failure(IllegalArgumentException(precioResult.errorMessage))
+        }
+        if (!categoriaResult.isValid){
+            return Result.failure(IllegalArgumentException(categoriaResult.errorMessage))
+        }
+        if (!coccionResult.isValid){
+            return Result.failure(IllegalArgumentException(coccionResult.errorMessage))
         }
 
         return runCatching { repository.upsertComponente(componente) }

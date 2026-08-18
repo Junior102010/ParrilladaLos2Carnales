@@ -11,6 +11,7 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.pedido.PedidoRepository
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.pago.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -68,83 +69,42 @@ class PagoViewModel @Inject constructor(
         if (state.subtotal <= 0.0) return mostrarError("El carrito está vacío")
 
         if (state.tipoEntrega == TipoEntrega.DELIVERY) {
-            val direccion = state.direccion.trim()
-            if (direccion.isBlank()) return mostrarError("Debes indicar la dirección de entrega")
-            if (direccion.length < 8) return mostrarError("Escribe una dirección más completa")
-            if (direccion.length > 150) return mostrarError("La dirección es demasiado larga")
+            val validation = validateDireccionPago(state.direccion)
+            if (!validation.isValid) {
+                mostrarError(validation.errorMessage.orEmpty())
+                return
+            }
         }
 
         when (state.metodoPago) {
-            MetodoPago.EFECTIVO -> if (!validarPagoEfectivo(state)) return
-            MetodoPago.TRANSFERENCIA -> if (!validarTransferencia(state)) return
+            MetodoPago.EFECTIVO -> {
+                val validation = validateMontoEfectivo(state.montoRecibido, state.total)
+                if (!validation.isValid) {
+                    mostrarError(validation.errorMessage.orEmpty())
+                    return
+                }
+            }
+            MetodoPago.TRANSFERENCIA -> {
+                val titularValidation = validateTitularTransferencia(state.titularTransferencia)
+                if (!titularValidation.isValid) {
+                    mostrarError(titularValidation.errorMessage.orEmpty())
+                    return
+                }
+
+                val bancoValidation = validateBancoTransferencia(state.banco)
+                if (!bancoValidation.isValid) {
+                    mostrarError(bancoValidation.errorMessage.orEmpty())
+                    return
+                }
+
+                val referenciaValidation = validateReferenciaTransferencia(state.referenciaTransferencia)
+                if (!referenciaValidation.isValid) {
+                    mostrarError(referenciaValidation.errorMessage.orEmpty())
+                    return
+                }
+            }
         }
         crearPedido()
-    }
-
-    private fun validarPagoEfectivo(state: PagoUiState): Boolean {
-        if (state.montoRecibido.isBlank()) {
-            mostrarError("Indica con cuánto efectivo pagarás")
-            return false
-        }
-        val monto = state.montoRecibido.toDoubleOrNull()
-        if (monto == null) {
-            mostrarError("Introduce un monto válido")
-            return false
-        }
-        if (monto <= 0.0) {
-            mostrarError("El monto debe ser mayor que cero")
-            return false
-        }
-        if (monto < state.total) {
-            val faltante = state.total - monto
-            mostrarError("El monto es insuficiente. Faltan RD$ ${"%.2f".format(faltante)}")
-            return false
-        }
-        if (monto > 1_000_000.0) {
-            mostrarError("Verifica el monto ingresado")
-            return false
-        }
-        return true
-    }
-
-    private fun validarTransferencia(state: PagoUiState): Boolean {
-        val titular = state.titularTransferencia.trim()
-        val banco = state.banco.trim()
-        val referencia = state.referenciaTransferencia.trim()
-
-        if (titular.isBlank()) {
-            mostrarError("Ingresa el nombre del remitente")
-            return false
-        }
-        if (titular.length < 3) {
-            mostrarError("El nombre del remitente es demasiado corto")
-            return false
-        }
-        if (titular.length > 80) {
-            mostrarError("El nombre del remitente es demasiado largo")
-            return false
-        }
-        if (titular.any { it.isDigit() }) {
-            mostrarError("El nombre del remitente no debe contener números")
-            return false
-        }
-        if (banco.isBlank()) {
-            mostrarError("Indica el banco desde donde transferiste")
-            return false
-        }
-        if (banco.length < 3) {
-            mostrarError("Introduce un banco válido")
-            return false
-        }
-        if (referencia.isBlank()) {
-            mostrarError("Ingresa la referencia de la transferencia")
-            return false
-        }
-        if (referencia.length < 4) {
-            mostrarError("La referencia es demasiado corta")
-            return false
-        }
-        return true
     }
 
     private fun crearPedido() {
