@@ -59,7 +59,9 @@ sealed class Screen : NavKey {
     data object AdminPerfil : Screen()
 
     @Serializable
-    data object EditarPerfil : Screen()
+    data class EditarPerfil(
+        val esAdministrador: Boolean = false
+    ) : Screen()
 
     @Serializable
     data object Notificaciones : Screen()

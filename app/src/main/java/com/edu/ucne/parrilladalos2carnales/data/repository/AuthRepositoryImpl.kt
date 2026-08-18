@@ -7,7 +7,7 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.edu.ucne.parrilladalos2carnales.domain.model.Registro.RegistroUsuario
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -22,18 +22,6 @@ class AuthRepositoryImpl @Inject constructor(
     private val credentialManager: CredentialManager,
     @ApplicationContext private val context: Context
 ) : AuthRepository {
-
-    private val perfilPreferences by lazy {
-        context.getSharedPreferences(
-            "perfil_preferences",
-            Context.MODE_PRIVATE
-        )
-    }
-
-    private fun fotoKey(): String {
-        val uid = firebaseAuth.currentUser?.uid ?: "sin_usuario"
-        return "foto_perfil_$uid"
-    }
 
     override suspend fun login(
         username: String,
@@ -75,44 +63,102 @@ class AuthRepositoryImpl @Inject constructor(
 
         return try {
 
-            val googleIdOption =
-                GetGoogleIdOption
-                    .Builder()
-                    .setFilterByAuthorizedAccounts(false)
-                    .setServerClientId("37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com")
-                    .setAutoSelectEnabled(false)
+            val googleOption =
+                GetSignInWithGoogleOption
+                    .Builder(
+                        serverClientId =
+                            "37553611244-bsofaeuqil5tq7jiil5tc4st8c5futte.apps.googleusercontent.com"
+                    )
                     .build()
+
+
             val request =
-                GetCredentialRequest.Builder().addCredentialOption(googleIdOption).build()
+                GetCredentialRequest
+                    .Builder()
+                    .addCredentialOption(
+                        googleOption
+                    )
+                    .build()
+
+
             val result =
-                credentialManager.getCredential(context, request)
+                credentialManager
+                    .getCredential(
+                        context = context,
+                        request = request
+                    )
+
+
             val credential =
                 result.credential
+
+
             if (
                 credential is CustomCredential &&
                 credential.type ==
-                GoogleIdTokenCredential
-                    .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                    GoogleIdTokenCredential
+                        .TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
             ) {
+
+
                 val googleCredential =
-                    GoogleIdTokenCredential.createFrom(credential.data)
+                    GoogleIdTokenCredential
+                        .createFrom(
+                            credential.data
+                        )
+
+
                 val firebaseCredential =
                     GoogleAuthProvider
                         .getCredential(
                             googleCredential.idToken,
                             null
                         )
-                firebaseAuth
-                    .signInWithCredential(firebaseCredential).await()
-                firebaseAuth.currentUser?.reload()?.await()
-                Result.success(true)
+
+
+                val authResult =
+                    firebaseAuth
+                        .signInWithCredential(
+                            firebaseCredential
+                        )
+                        .await()
+
+
+                if (
+                    authResult.user != null
+                ) {
+
+
+                    Result.success(true)
+
+
+                } else {
+
+
+                    Result.failure(
+                        Exception(
+                            "Firebase no devolvió un usuario"
+                        )
+                    )
+                }
+
+
             } else {
+
+
                 Result.failure(
-                    Exception("Credencial de Google no válida")
+                    Exception(
+                        "Credencial de Google no válida"
+                    )
                 )
             }
 
-        } catch (e: Exception) {
+
+        } catch (
+            e: Exception
+        ) {
+
+
             Result.failure(e)
         }
     }
@@ -134,21 +180,38 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun getFotoUsuario(): String? {
-        val fotoGuardada = perfilPreferences.getString(fotoKey(), null)
+        val usuario =
+            firebaseAuth
+                .currentUser
+                ?: return null
 
-        if (!fotoGuardada.isNullOrBlank()) {
-            if (fotoGuardada.startsWith("/")) {
-                val archivo = File(fotoGuardada)
-                if (archivo.exists()) {
-                    return fotoGuardada
-                } else {
-                    perfilPreferences.edit().remove(fotoKey()).apply()
+        val prefijo =
+            "perfil_${usuario.uid}_"
+
+        val fotoLocal =
+            context
+                .filesDir
+                .listFiles()
+                ?.filter { archivo ->
+                    archivo.isFile &&
+                    archivo.name.startsWith(prefijo) &&
+                    archivo.length() > 0
                 }
-            } else {
-                return fotoGuardada
-            }
+                ?.maxByOrNull { archivo ->
+                    archivo.lastModified()
+                }
+
+        if (fotoLocal != null) {
+            return fotoLocal.absolutePath
         }
-        return firebaseAuth.currentUser?.photoUrl?.toString()
+
+        /*
+         * Si no tiene foto personalizada,
+         * usamos la foto de Google.
+         */
+        return usuario
+            .photoUrl
+            ?.toString()
     }
 
     override fun esAdministrador(): Boolean {
@@ -159,32 +222,34 @@ class AuthRepositoryImpl @Inject constructor(
         nombre: String,
         fotoUrl: String?
     ): Result<Boolean> {
+
         return try {
-            val usuario = firebaseAuth.currentUser 
-                ?: return Result.failure(Exception("No hay una sesión activa"))
 
-            /*
-             * Firebase solamente recibe el nombre.
-             *
-             * NO mandamos la ruta local de Android
-             * como photoUrl a Firebase.
-             */
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(nombre.trim())
-                .build()
+            val usuario =
+                firebaseAuth
+                    .currentUser
+                    ?: return Result.failure(
+                        Exception(
+                            "No hay una sesión activa"
+                        )
+                    )
 
-            usuario.updateProfile(profileUpdates).await()
+            val profileUpdates =
+                UserProfileChangeRequest
+                    .Builder()
+                    .setDisplayName(
+                        nombre.trim()
+                    )
+                    .build()
 
-            /*
-             * Foto personalizada guardada
-             * solamente en este dispositivo.
-             */
-            if (!fotoUrl.isNullOrBlank()) {
-                perfilPreferences.edit().putString(fotoKey(), fotoUrl).apply()
-            }
+            usuario
+                .updateProfile(
+                    profileUpdates
+                )
+                .await()
 
-            usuario.reload().await()
             Result.success(true)
+
         } catch (e: Exception) {
             Result.failure(e)
         }

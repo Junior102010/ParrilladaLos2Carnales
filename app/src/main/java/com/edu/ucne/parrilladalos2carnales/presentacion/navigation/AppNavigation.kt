@@ -246,18 +246,55 @@ fun ParrilladaNavDisplay(
                 )
             }
 
-            entry<Screen.EditarPerfil> {
-                val viewModel: EditarPerfilViewModel = hiltViewModel()
+            entry<Screen.EditarPerfil> { editarPerfil ->
+
+
+                val viewModel:
+                    EditarPerfilViewModel =
+                    hiltViewModel()
+
+
+                LaunchedEffect(
+                    editarPerfil.esAdministrador
+                ) {
+
+
+                    viewModel
+                        .refrescarUsuario()
+                }
+
+
                 EditarPerfilScreen(
-                    viewModel = viewModel,
+                    viewModel =
+                        viewModel,
+
+
                     onBack = {
-                        if (backStack.isNotEmpty()) {
-                            backStack.removeAt(backStack.lastIndex)
+
+
+                        if (
+                            backStack.isNotEmpty()
+                        ) {
+
+
+                            backStack.removeAt(
+                                backStack.lastIndex
+                            )
                         }
                     },
+
+
                     onGuardado = {
-                        if (backStack.isNotEmpty()) {
-                            backStack.removeAt(backStack.lastIndex)
+
+
+                        if (
+                            backStack.isNotEmpty()
+                        ) {
+
+
+                            backStack.removeAt(
+                                backStack.lastIndex
+                            )
                         }
                     }
                 )

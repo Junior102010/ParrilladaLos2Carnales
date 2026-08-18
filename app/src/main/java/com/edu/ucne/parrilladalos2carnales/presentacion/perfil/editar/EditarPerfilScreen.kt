@@ -35,6 +35,12 @@ fun EditarPerfilScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+
+    LaunchedEffect(Unit) {
+        viewModel.refrescarUsuario()
+    }
+
+
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onGuardado()

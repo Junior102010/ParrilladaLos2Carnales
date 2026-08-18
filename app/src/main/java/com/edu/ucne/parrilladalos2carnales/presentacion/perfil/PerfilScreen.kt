@@ -191,7 +191,10 @@ fun PerfilScreen(
                     IconButton(
                         onClick = {
                             onNavigate(
-                                Screen.EditarPerfil
+                                Screen.EditarPerfil(
+                                    esAdministrador =
+                                        rolUsuario == Rol.ADMINISTRADOR
+                                )
                             )
                         }
                     ) {
