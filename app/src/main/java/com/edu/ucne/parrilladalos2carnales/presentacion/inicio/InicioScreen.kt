@@ -122,14 +122,10 @@ fun InicioScreen(
             CategoriasInicio(
                 categorias = uiState.categorias,
                 onCategoriaClick = { categoria ->
-                    if (categoria.idCategoria > 0) {
-                        onNavigate(Screen.MenuCategoria(
-                            idCategoria = categoria.idCategoria,
-                            nombreCategoria = categoria.nombreCategoria
-                        ))
-                    } else {
-                        onNavigate(Screen.Menu)
-                    }
+                    onNavigate(Screen.MenuCategoria(
+                        idCategoria = categoria.idCategoria,
+                        nombreCategoria = categoria.nombreCategoria
+                    ))
                 }
             )
 

@@ -1,6 +1,7 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,13 +12,8 @@ import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.DeleteOfertaUse
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatosUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -110,58 +106,23 @@ class AdminOfertaViewModel @Inject constructor(
     }
 
     fun onImagenSelected(uriString: String) {
-        copiarYGuardarImagen(uriString)
-    }
-
-    private fun copiarYGuardarImagen(uriString: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true) }
-            val rutaLocal = withContext(Dispatchers.IO) {
-                try {
-                    val uri = Uri.parse(uriString)
-                    val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
-                    val archivoDestino = File(context.filesDir, "oferta_${System.currentTimeMillis()}.jpg")
-                    
-                    inputStream?.use { input ->
-                        FileOutputStream(archivoDestino).use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                    archivoDestino.absolutePath
-                } catch (e: Exception) {
-                    null
-                }
+        try {
+            val uri = Uri.parse(uriString)
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            _uiState.update {
+                it.copy(
+                    imagenUrl = uriString,
+                    errorMessage = null
+                )
             }
-
-            if (rutaLocal != null) {
-                // Borramos una imagen anterior de OFERTA solamente si también fue creada por nosotros.
-                val imagenAnterior = _uiState.value.imagenUrl
-                if (imagenAnterior.isNotBlank() && imagenAnterior != rutaLocal) {
-                    runCatching {
-                        val archivoAnterior = File(imagenAnterior)
-                        if (archivoAnterior.exists() &&
-                            archivoAnterior.parent == context.filesDir.absolutePath &&
-                            archivoAnterior.name.startsWith("oferta_")
-                        ) {
-                            archivoAnterior.delete()
-                        }
-                    }
-                }
-
-                _uiState.update {
-                    it.copy(
-                        imagenUrl = rutaLocal,
-                        isSaving = false,
-                        errorMessage = null
-                    )
-                }
-            } else {
-                _uiState.update {
-                    it.copy(
-                        isSaving = false,
-                        errorMessage = "No se pudo procesar la imagen"
-                    )
-                }
+        } catch (e: Exception) {
+            _uiState.update {
+                it.copy(
+                    errorMessage = "No se pudo conservar el acceso a la imagen"
+                )
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.inicio
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -26,7 +26,12 @@ fun OfertaInicioCard(
     oferta: Oferta
 ) {
     val imageModel = remember(oferta.imagenUrl) {
-        if (oferta.imagenUrl.startsWith("/")) File(oferta.imagenUrl) else oferta.imagenUrl
+        when {
+            oferta.imagenUrl.isBlank() -> null
+            oferta.imagenUrl.startsWith("content://") -> Uri.parse(oferta.imagenUrl)
+            oferta.imagenUrl.startsWith("/") -> File(oferta.imagenUrl)
+            else -> oferta.imagenUrl
+        }
     }
 
     Card(
@@ -66,13 +71,13 @@ fun OfertaInicioCard(
                         horizontal = 22.dp,
                         vertical = 20.dp
                     ),
-                verticalArrangement = Arrangement.Bottom // Changed to Bottom to fit the gradient better
+                verticalArrangement = Arrangement.Bottom
             ) {
                 Text(
                     text = oferta.tituloOferta,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White, // White text for the dark overlay
+                    color = Color.White,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
