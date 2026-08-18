@@ -1,13 +1,11 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.guarnicion
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,13 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
-
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import androidx.compose.ui.tooling.preview.Preview
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGuarnicionScreen(
     viewModel: AdminGuarnicionViewModel,
@@ -44,7 +39,6 @@ fun AdminGuarnicionScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminGuarnicionContent(
     uiState: AdminGuarnicionUiState,
@@ -53,10 +47,9 @@ fun AdminGuarnicionContent(
 ) {
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = if (uiState.idGuarnicion == 0) "Nueva Guarnición" else "Editar Guarnición",
-                onBack = onNavigateBack,
-                compactTitle = true
+                onBack = onNavigateBack
             )
         },
         containerColor = MaterialTheme.colorScheme.background

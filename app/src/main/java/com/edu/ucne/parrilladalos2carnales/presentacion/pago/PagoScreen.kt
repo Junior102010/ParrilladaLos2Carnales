@@ -16,12 +16,10 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.EfectivoF
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.MetodoPagoSelector
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.NuevaDireccionDialog
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.PagoBottomBar
-import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.PagoTopBar
-import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.TarjetaFormulario
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.TipoEntregaSelector
 import com.edu.ucne.parrilladalos2carnales.presentacion.pago.funciones.TransferenciaFormulario
-
 import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
 @Composable
 fun PagoScreen(
@@ -55,7 +53,12 @@ fun PagoContent(
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { PagoTopBar(onBack = onBack) },
+        topBar = {
+            AppTopBar(
+                title = "Pago",
+                onBack = onBack
+            )
+        },
         bottomBar = {
             PagoBottomBar(
                 subtotal = uiState.subtotal,
@@ -104,9 +107,29 @@ fun PagoContent(
                 Spacer(Modifier.height(18.dp))
 
                 when (uiState.metodoPago) {
-                    MetodoPago.TARJETA -> TarjetaFormulario(uiState, { onEvent(PagoUiEvent.OnNumeroTarjetaChange(it)) }, { onEvent(PagoUiEvent.OnFechaTarjetaChange(it)) }, { onEvent(PagoUiEvent.OnCvvChange(it)) })
-                    MetodoPago.EFECTIVO -> EfectivoFormulario(uiState.montoRecibido, uiState.total, { onEvent(PagoUiEvent.OnMontoRecibidoChange(it)) })
-                    MetodoPago.TRANSFERENCIA -> TransferenciaFormulario(uiState, { onEvent(PagoUiEvent.OnTitularTransferenciaChange(it)) }, { onEvent(PagoUiEvent.OnCuentaOrigenChange(it)) }, { onEvent(PagoUiEvent.OnBancoChange(it)) })
+                    MetodoPago.EFECTIVO -> {
+                        EfectivoFormulario(
+                            monto = uiState.montoRecibido,
+                            total = uiState.total,
+                            onMontoChange = {
+                                onEvent(PagoUiEvent.OnMontoRecibidoChange(it))
+                            }
+                        )
+                    }
+                    MetodoPago.TRANSFERENCIA -> {
+                        TransferenciaFormulario(
+                            uiState = uiState,
+                            onTitularChange = {
+                                onEvent(PagoUiEvent.OnTitularTransferenciaChange(it))
+                            },
+                            onBancoChange = {
+                                onEvent(PagoUiEvent.OnBancoChange(it))
+                            },
+                            onReferenciaChange = {
+                                onEvent(PagoUiEvent.OnReferenciaTransferenciaChange(it))
+                            }
+                        )
+                    }
                 }
 
                 if (uiState.errorMessage != null) {
@@ -145,4 +168,3 @@ fun PagoPreview() {
         onBack = {}
     )
 }
-

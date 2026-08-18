@@ -26,8 +26,8 @@ import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeManager
 import com.edu.ucne.parrilladalos2carnales.ui.theme.ThemeMode
 import java.io.File
 import androidx.compose.runtime.remember
-
 import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
 @Composable
 fun PerfilScreen(
@@ -75,23 +75,9 @@ fun PerfilContent(
 ) {
     Scaffold(
         topBar = {
-            Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.statusBars)
-                        .height(56.dp)
-                        .padding(horizontal = 16.dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(
-                        text = if (rolUsuario == Rol.ADMINISTRADOR) "Perfil Administrador" else "Perfil y ajustes",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
+            AppTopBar(
+                title = if (rolUsuario == Rol.ADMINISTRADOR) "Perfil Administrador" else "Perfil y ajustes"
+            )
         },
         bottomBar = {
             ParrilladaBottomBar(

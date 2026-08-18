@@ -1,10 +1,12 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.adminPedido
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.edu.ucne.parrilladalos2carnales.data.repository.notificacion.NotificacionRepository
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.DestinoNotificacion
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.Notificacion
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.TipoNotificacion
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
-import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
 import com.edu.ucne.parrilladalos2carnales.domain.repository.pedido.PedidoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdminPedidosViewModel @Inject constructor(
-    private val pedidoRepository: PedidoRepository
+    private val pedidoRepository: PedidoRepository,
+    private val notificacionRepository: NotificacionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AdminPedidosUiState())
@@ -46,29 +49,73 @@ class AdminPedidosViewModel @Inject constructor(
     private fun cargarPedidos() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            if (pedidoRepository != null) {
-                try {
-                    pedidoRepository.getPedidos().collect { lista ->
-                        _uiState.update { it.copy(pedidos = lista, isLoading = false) }
-                    }
-                } catch (e: Exception) {
-                    _uiState.update { it.copy(pedidos = emptyList(), isLoading = false) }
+            try {
+                pedidoRepository.getPedidos().collect { lista ->
+                    _uiState.update { it.copy(pedidos = lista, isLoading = false) }
                 }
-            } else {
+            } catch (e: Exception) {
                 _uiState.update { it.copy(pedidos = emptyList(), isLoading = false) }
             }
         }
     }
 
-    private fun cambiarEstadoPedido(idPedido: Int, nuevoEstado: EstadoPedido) {
+    private fun cambiarEstadoPedido(
+        idPedido: Int,
+        nuevoEstado: EstadoPedido
+    ) {
         viewModelScope.launch {
-            val actualizados = _uiState.value.pedidos.map { pedido ->
-                if (pedido.idPedido == idPedido) pedido.copy(estado = nuevoEstado) else pedido
+            val pedidoActual =
+                _uiState.value.pedidos
+                    .find {
+                        it.idPedido == idPedido
+                    }
+                    ?: return@launch
+
+            val pedidoActualizado =
+                pedidoActual.copy(
+                    estado = nuevoEstado
+                )
+
+            pedidoRepository
+                .upsertPedido(
+                    pedidoActualizado
+                )
+
+            _uiState.update { state ->
+                state.copy(
+                    pedidos =
+                        state.pedidos.map {
+                            if (it.idPedido == idPedido) {
+                                pedidoActualizado
+                            } else {
+                                it
+                            }
+                        }
+                )
             }
-            _uiState.update { it.copy(pedidos = actualizados) }
-            pedidoRepository?.let { repo ->
-                actualizados.find { it.idPedido == idPedido }?.let { repo.upsertPedido(it) }
+
+            val mensaje = when (nuevoEstado) {
+                EstadoPedido.RECIBIDO -> "Tu pedido #$idPedido fue recibido."
+                EstadoPedido.PREPARANDO -> "Tu pedido #$idPedido ya está siendo preparado."
+                EstadoPedido.EN_CAMINO -> "Tu pedido #$idPedido va en camino."
+                EstadoPedido.ENTREGADO -> "Tu pedido #$idPedido fue entregado. ¡Buen provecho!"
+                EstadoPedido.CANCELADO -> "Tu pedido #$idPedido fue cancelado."
             }
+
+            /*
+             * Aquí usamos el UID DEL CLIENTE
+             * que realizó este pedido.
+             */
+            notificacionRepository.agregar(
+                Notificacion(
+                    titulo = "Actualización del pedido",
+                    mensaje = mensaje,
+                    tipo = TipoNotificacion.PEDIDO,
+                    destino = DestinoNotificacion.CLIENTE,
+                    usuarioUid = pedidoActual.usuarioUid,
+                    idReferencia = pedidoActual.idPedido
+                )
+            )
         }
     }
 }

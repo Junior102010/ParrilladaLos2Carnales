@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -24,9 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditarPerfilScreen(
     viewModel: EditarPerfilViewModel,
@@ -35,11 +34,9 @@ fun EditarPerfilScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-
     LaunchedEffect(Unit) {
         viewModel.refrescarUsuario()
     }
-
 
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
@@ -66,13 +63,9 @@ fun EditarPerfilScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Editar perfil", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
-                    }
-                }
+            AppTopBar(
+                title = "Editar perfil",
+                onBack = onBack
             )
         },
         containerColor = MaterialTheme.colorScheme.background

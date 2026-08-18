@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Restaurant
@@ -16,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,9 +24,9 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
-
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
 @Composable
 fun SeguimientoScreen(
@@ -50,7 +48,7 @@ fun SeguimientoContent(
 ) {
     Scaffold(
         topBar = {
-            SeguimientoTopBar()
+            AppTopBar(title = "Seguimiento")
         },
         bottomBar = {
             ParrilladaBottomBar(
@@ -101,27 +99,6 @@ fun SeguimientoPreview() {
         ),
         onNavigate = {}
     )
-}
-
-@Composable
-private fun SeguimientoTopBar() {
-    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .height(56.dp)
-                .padding(horizontal = 12.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Text(
-                text = "Seguimiento",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
 }
 
 @Composable

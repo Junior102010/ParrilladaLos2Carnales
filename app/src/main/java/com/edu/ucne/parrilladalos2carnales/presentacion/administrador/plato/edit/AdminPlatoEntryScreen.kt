@@ -7,24 +7,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.*
 import androidx.compose.material.icons.*
-import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
-import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.input.*
-import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.categoria.Categoria
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import java.io.File
-
 import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,10 +66,9 @@ fun AdminPlatoEntryContent(
 
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = if (uiState.idPlato == 0) "Nuevo Plato" else "Editar Plato",
-                onBack = onBack,
-                compactTitle = true
+                onBack = onBack
             )
         },
         containerColor = MaterialTheme.colorScheme.background

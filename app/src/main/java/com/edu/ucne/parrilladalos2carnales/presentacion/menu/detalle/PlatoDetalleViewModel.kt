@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.model.carrito.CarritoItem
+import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
+import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepository
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.componente.GetComponenteUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.guarnicion.GetGuarnicionUseCase
@@ -47,26 +49,74 @@ class PlatoDetalleViewModel @Inject constructor(
     fun onEvent(event: PlatoDetalleUiEvent) {
         when (event) {
             is PlatoDetalleUiEvent.OnGuarnicionSelect -> {
-                _uiState.update { it.copy(guarnicionSeleccionada = event.guarnicion) }
+                _uiState.update {
+                    it.copy(
+                        guarnicionSeleccionada = event.guarnicion
+                    )
+                }
                 calcularTotal()
             }
+
             is PlatoDetalleUiEvent.OnSalsaSelect -> {
-                _uiState.update { it.copy(salsaSeleccionada = event.salsa) }
+                _uiState.update {
+                    it.copy(
+                        salsaSeleccionada = event.salsa
+                    )
+                }
                 calcularTotal()
             }
-            is PlatoDetalleUiEvent.OnCoccionSelect -> _uiState.update { it.copy(terminoSeleccionado = event.termino) }
+
+            is PlatoDetalleUiEvent.OnCoccionSelect -> {
+                _uiState.update {
+                    it.copy(
+                        terminoSeleccionado = event.termino
+                    )
+                }
+            }
+
+            is PlatoDetalleUiEvent.OnGuarnicionExtraToggle -> {
+                toggleGuarnicionExtra(
+                    event.guarnicion
+                )
+            }
+
+            is PlatoDetalleUiEvent.OnSalsaExtraToggle -> {
+                toggleSalsaExtra(
+                    event.salsa
+                )
+            }
+
             PlatoDetalleUiEvent.OnIncrementarCantidad -> {
-                _uiState.update { it.copy(cantidad = it.cantidad + 1) }
+                _uiState.update {
+                    it.copy(
+                        cantidad = it.cantidad + 1
+                    )
+                }
                 calcularTotal()
             }
+
             PlatoDetalleUiEvent.OnDecrementarCantidad -> {
                 if (_uiState.value.cantidad > 1) {
-                    _uiState.update { it.copy(cantidad = it.cantidad - 1) }
+                    _uiState.update {
+                        it.copy(
+                            cantidad = it.cantidad - 1
+                        )
+                    }
                     calcularTotal()
                 }
             }
-            PlatoDetalleUiEvent.OnAgregarAlCarrito -> agregarAlCarrito()
-            PlatoDetalleUiEvent.OnAgregarConsumido -> _uiState.update { it.copy(agregadoExitosamente = false) }
+
+            PlatoDetalleUiEvent.OnAgregarAlCarrito -> {
+                agregarAlCarrito()
+            }
+
+            PlatoDetalleUiEvent.OnAgregarConsumido -> {
+                _uiState.update {
+                    it.copy(
+                        agregadoExitosamente = false
+                    )
+                }
+            }
         }
     }
 
@@ -121,6 +171,81 @@ class PlatoDetalleViewModel @Inject constructor(
         }
     }
 
+    private fun toggleGuarnicionExtra(
+        guarnicion: Guarnicion
+    ) {
+        val state = _uiState.value
+
+        // La incluida no puede agregarse otra vez como extra
+        if (
+            state.guarnicionSeleccionada?.idGuarnicion ==
+            guarnicion.idGuarnicion
+        ) {
+            return
+        }
+
+        val existe =
+            state.guarnicionesExtraSeleccionadas.any {
+                it.idGuarnicion == guarnicion.idGuarnicion
+            }
+
+        val nuevaLista =
+            if (existe) {
+                state.guarnicionesExtraSeleccionadas.filterNot {
+                    it.idGuarnicion == guarnicion.idGuarnicion
+                }
+            } else {
+                state.guarnicionesExtraSeleccionadas +
+                        guarnicion
+            }
+
+        _uiState.update {
+            it.copy(
+                guarnicionesExtraSeleccionadas =
+                    nuevaLista
+            )
+        }
+
+        calcularTotal()
+    }
+
+    private fun toggleSalsaExtra(
+        salsa: Componente
+    ) {
+        val state = _uiState.value
+
+        if (
+            state.salsaSeleccionada?.idComponente ==
+            salsa.idComponente
+        ) {
+            return
+        }
+
+        val existe =
+            state.salsasExtraSeleccionadas.any {
+                it.idComponente == salsa.idComponente
+            }
+
+        val nuevaLista =
+            if (existe) {
+                state.salsasExtraSeleccionadas.filterNot {
+                    it.idComponente == salsa.idComponente
+                }
+            } else {
+                state.salsasExtraSeleccionadas +
+                        salsa
+            }
+
+        _uiState.update {
+            it.copy(
+                salsasExtraSeleccionadas =
+                    nuevaLista
+            )
+        }
+
+        calcularTotal()
+    }
+
     private fun precioBaseConOferta(state: PlatoDetalleUiState): Double {
         val precioBase = state.plato?.precio ?: 0.0
         val descuento = state.ofertaActiva?.descuento?.coerceIn(0.0, 100.0) ?: 0.0
@@ -129,22 +254,89 @@ class PlatoDetalleViewModel @Inject constructor(
 
     private fun calcularTotal() {
         val state = _uiState.value
-        val unitario = precioBaseConOferta(state) + 
-                (state.guarnicionSeleccionada?.precioGuarnicion ?: 0.0) + 
-                (state.salsaSeleccionada?.precioComponente ?: 0.0)
-        _uiState.update { it.copy(precioTotal = unitario * it.cantidad) }
+
+        val precioExtras =
+            state.guarnicionesExtraSeleccionadas
+                .sumOf {
+                    it.precioGuarnicion
+                } +
+            state.salsasExtraSeleccionadas
+                .sumOf {
+                    it.precioComponente
+                }
+
+        // IMPORTANTE:
+        // la primera guarnición y primera salsa NO se suman.
+        val precioUnitario =
+            precioBaseConOferta(state) +
+            precioExtras
+
+        _uiState.update {
+            it.copy(
+                precioExtrasUnitario = precioExtras,
+                precioTotal =
+                    precioUnitario *
+                    it.cantidad
+            )
+        }
     }
 
     private fun agregarAlCarrito() {
         val state = _uiState.value
-        val plato = state.plato ?: return
+        val plato =
+            state.plato
+                ?: return
+
         viewModelScope.launch {
-            val unitario = precioBaseConOferta(state) + 
-                    (state.guarnicionSeleccionada?.precioGuarnicion ?: 0.0) + 
-                    (state.salsaSeleccionada?.precioComponente ?: 0.0)
-            val item = CarritoItem(System.nanoTime(), plato, state.terminoSeleccionado, state.guarnicionSeleccionada, state.salsaSeleccionada, state.cantidad, unitario)
-            carritoRepository.agregar(item)
-            _uiState.update { it.copy(agregadoExitosamente = true) }
+            val extrasGuarnicion =
+                state.guarnicionesExtraSeleccionadas
+                    .sumOf {
+                        it.precioGuarnicion
+                    }
+
+            val extrasSalsa =
+                state.salsasExtraSeleccionadas
+                    .sumOf {
+                        it.precioComponente
+                    }
+
+            val precioUnitario =
+                precioBaseConOferta(state) +
+                extrasGuarnicion +
+                extrasSalsa
+
+            val item =
+                CarritoItem(
+                    idCarritoItem =
+                        System.nanoTime(),
+                    plato = plato,
+                    termino =
+                        state.terminoSeleccionado,
+                    // Incluidas
+                    guarnicion =
+                        state.guarnicionSeleccionada,
+                    salsa =
+                        state.salsaSeleccionada,
+                    // Extras cobrados
+                    guarnicionesExtra =
+                        state.guarnicionesExtraSeleccionadas,
+                    salsasExtra =
+                        state.salsasExtraSeleccionadas,
+                    cantidad =
+                        state.cantidad,
+                    precioUnitario =
+                        precioUnitario
+                )
+
+            carritoRepository.agregar(
+                item
+            )
+
+            _uiState.update {
+                it.copy(
+                    agregadoExitosamente = true
+                )
+            }
         }
     }
 

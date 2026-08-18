@@ -1,6 +1,5 @@
 package com.edu.ucne.parrilladalos2carnales.presentacion.administrador.componente.list
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,15 +17,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminInventoryTabs
-import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
-import com.edu.ucne.parrilladalos2carnales.presentacion.inicio.InicioTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
-
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminComponenteListScreen(
     viewModel: AdminComponenteListViewModel,
@@ -45,7 +41,6 @@ fun AdminComponenteListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminComponenteListContent(
     uiState: AdminComponenteListUiState,
@@ -56,7 +51,7 @@ fun AdminComponenteListContent(
 ) {
     Scaffold(
         topBar = {
-            AdminTopBar(
+            AppTopBar(
                 title = "Salsas y Términos"
             )
         },

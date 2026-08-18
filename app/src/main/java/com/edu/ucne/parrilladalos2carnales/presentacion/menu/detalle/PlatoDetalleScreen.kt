@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -20,12 +21,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Componente
 import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import java.io.File
 
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onAgregadoAlCarrito: () -> Unit) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -43,7 +44,7 @@ fun PlatoDetalleScreen(viewModel: PlatoDetalleViewModel, onBack: () -> Unit, onA
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PlatoDetalleContent(
     uiState: PlatoDetalleUiState,
@@ -52,14 +53,10 @@ fun PlatoDetalleContent(
 ) {
     Scaffold(
         topBar = {
-            Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).height(52.dp)) {
-                    IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = MaterialTheme.colorScheme.onSurface)
-                    }
-                    Text("Detalle", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
-                }
-            }
+            AppTopBar(
+                title = "Detalle",
+                onBack = onBack
+            )
         },
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
@@ -71,10 +68,22 @@ fun PlatoDetalleContent(
                             IconButton({ onEvent(PlatoDetalleUiEvent.OnIncrementarCantidad) }, Modifier.size(40.dp)) { Icon(Icons.Default.Add, "Aumentar") }
                         }
                     }
-                    Button({ onEvent(PlatoDetalleUiEvent.OnAgregarAlCarrito) }, shape = RoundedCornerShape(28.dp), contentPadding = PaddingValues(16.dp, 0.dp), modifier = Modifier.height(44.dp)) {
-                        Icon(Icons.Default.Add, null)
-                        Spacer(Modifier.width(5.dp))
-                        Text("Añadir", fontWeight = FontWeight.Bold)
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        if (uiState.precioExtrasUnitario > 0) {
+                            Text(
+                                text = "Extras: +RD$ ${"%.2f".format(uiState.precioExtrasUnitario * uiState.cantidad)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.height(4.dp))
+                        }
+                        Button({ onEvent(PlatoDetalleUiEvent.OnAgregarAlCarrito) }, shape = RoundedCornerShape(28.dp), contentPadding = PaddingValues(16.dp, 0.dp), modifier = Modifier.height(44.dp)) {
+                            Icon(Icons.Default.Add, null)
+                            Spacer(Modifier.width(5.dp))
+                            Text("Añadir", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -137,16 +146,71 @@ fun PlatoDetalleContent(
                     Spacer(Modifier.height(24.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(0.5f))
                     Spacer(Modifier.height(24.dp))
+
                     if (uiState.terminosCoccionDisponibles.isNotEmpty()) {
-                        OptionSectionButtons("Término de la carne", uiState.terminosCoccionDisponibles, uiState.terminoSeleccionado?.idComponente, { onEvent(PlatoDetalleUiEvent.OnCoccionSelect(it as Componente)) }, { (it as Componente).nombreComponente.ifBlank { it.coccion ?: "" } })
+                        OptionSectionButtons(
+                            title = "Término de la carne",
+                            items = uiState.terminosCoccionDisponibles,
+                            selectedId = uiState.terminoSeleccionado?.idComponente,
+                            onSelect = { onEvent(PlatoDetalleUiEvent.OnCoccionSelect(it as Componente)) },
+                            labelProvider = { (it as Componente).nombreComponente.ifBlank { it.coccion ?: "" } }
+                        )
                         Spacer(Modifier.height(24.dp))
                     }
+
                     if (uiState.guarnicionesDisponibles.isNotEmpty()) {
-                        OptionSectionButtons("Elige tu Guarnición", uiState.guarnicionesDisponibles, uiState.guarnicionSeleccionada?.idGuarnicion, { onEvent(PlatoDetalleUiEvent.OnGuarnicionSelect(it as Guarnicion)) }, { (it as Guarnicion).nombreGuarnicion })
+                        OptionSectionButtons(
+                            title = "Guarnición incluida",
+                            items = uiState.guarnicionesDisponibles,
+                            selectedId = uiState.guarnicionSeleccionada?.idGuarnicion,
+                            onSelect = { onEvent(PlatoDetalleUiEvent.OnGuarnicionSelect(it as Guarnicion)) },
+                            labelProvider = { (it as Guarnicion).nombreGuarnicion }
+                        )
+
+                        Spacer(Modifier.height(6.dp))
+
+                        Text(
+                            text = "1 incluida con tu plato",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+
+                        GuarnicionesExtraSection(
+                            guarniciones = uiState.guarnicionesDisponibles,
+                            incluida = uiState.guarnicionSeleccionada,
+                            seleccionadas = uiState.guarnicionesExtraSeleccionadas,
+                            onToggle = { onEvent(PlatoDetalleUiEvent.OnGuarnicionExtraToggle(it)) }
+                        )
                         Spacer(Modifier.height(24.dp))
                     }
+
                     if (uiState.salsasDisponibles.isNotEmpty()) {
-                        OptionSectionButtons("Salsa Extra", uiState.salsasDisponibles, uiState.salsaSeleccionada?.idComponente, { onEvent(PlatoDetalleUiEvent.OnSalsaSelect(it as Componente)) }, { (it as Componente).nombreComponente })
+                        OptionSectionButtons(
+                            title = "Salsa incluida",
+                            items = uiState.salsasDisponibles,
+                            selectedId = uiState.salsaSeleccionada?.idComponente,
+                            onSelect = { onEvent(PlatoDetalleUiEvent.OnSalsaSelect(it as Componente)) },
+                            labelProvider = { (it as Componente).nombreComponente }
+                        )
+
+                        Spacer(Modifier.height(6.dp))
+
+                        Text(
+                            text = "1 incluida con tu plato",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+
+                        SalsasExtraSection(
+                            salsas = uiState.salsasDisponibles,
+                            incluida = uiState.salsaSeleccionada,
+                            seleccionadas = uiState.salsasExtraSeleccionadas,
+                            onToggle = { onEvent(PlatoDetalleUiEvent.OnSalsaExtraToggle(it)) }
+                        )
                         Spacer(Modifier.height(24.dp))
                     }
                 }
@@ -186,6 +250,107 @@ fun OptionSectionButtons(title: String, items: List<Any>, selectedId: Int?, onSe
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 20.dp)) {
                         Text(labelProvider(item), color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp)
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GuarnicionesExtraSection(
+    guarniciones: List<Guarnicion>,
+    incluida: Guarnicion?,
+    seleccionadas: List<Guarnicion>,
+    onToggle: (Guarnicion) -> Unit
+) {
+    val extras = guarniciones.filter { it.idGuarnicion != incluida?.idGuarnicion }
+    if (extras.isEmpty()) return
+
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            text = "Guarniciones extra",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        
+        extras.forEach { guarnicion ->
+            val seleccionada = seleccionadas.any { it.idGuarnicion == guarnicion.idGuarnicion }
+            
+            Surface(
+                onClick = { onToggle(guarnicion) },
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = seleccionada,
+                        onCheckedChange = { onToggle(guarnicion) }
+                    )
+                    Text(
+                        text = guarnicion.nombreGuarnicion,
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = "+ RD$ ${"%.2f".format(guarnicion.precioGuarnicion)}",
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SalsasExtraSection(
+    salsas: List<Componente>,
+    incluida: Componente?,
+    seleccionadas: List<Componente>,
+    onToggle: (Componente) -> Unit
+) {
+    val extras = salsas.filter { it.idComponente != incluida?.idComponente }
+    if (extras.isEmpty()) return
+
+    Column(Modifier.fillMaxWidth()) {
+        Text(
+            text = "Salsas extra",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        extras.forEach { salsa ->
+            val seleccionada = seleccionadas.any { it.idComponente == salsa.idComponente }
+
+            Surface(
+                onClick = { onToggle(salsa) },
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = seleccionada,
+                        onCheckedChange = { onToggle(salsa) }
+                    )
+                    Text(
+                        text = salsa.nombreComponente,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "+ RD$ ${"%.2f".format(salsa.precioComponente)}",
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }

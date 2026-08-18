@@ -39,12 +39,22 @@ class LoginViewModel @Inject constructor(
             return
         }
 
+        val correo = username.trim()
 
-        if (username.isBlank() || password.isBlank()) {
-            errorMessage = "Por favor, llena todos los campos"
+        if (correo.isBlank()) {
+            errorMessage = "El correo es obligatorio"
             return
         }
 
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+            errorMessage = "Introduce un correo electrónico válido"
+            return
+        }
+
+        if (password.isBlank()) {
+            errorMessage = "La contraseña es obligatoria"
+            return
+        }
 
         viewModelScope.launch {
             isLoading = true

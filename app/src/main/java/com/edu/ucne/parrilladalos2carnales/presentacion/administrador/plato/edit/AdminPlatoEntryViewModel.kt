@@ -219,6 +219,13 @@ class AdminPlatoEntryViewModel @Inject constructor(
             return
         }
 
+        if (state.idCategoria <= 0) {
+            _uiState.update {
+                it.copy(errorMessage = "Selecciona una categoría")
+            }
+            return
+        }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             val plato = Plato(
