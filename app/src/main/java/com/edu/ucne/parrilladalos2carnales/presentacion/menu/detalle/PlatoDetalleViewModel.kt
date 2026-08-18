@@ -8,6 +8,7 @@ import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepo
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.componente.GetComponenteUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.ingrediente.guarnicion.GetGuarnicionUseCase
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatoUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.GetOfertasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -19,6 +20,7 @@ class PlatoDetalleViewModel @Inject constructor(
     private val getPlatoUseCase: GetPlatoUseCase,
     private val getGuarnicionUseCase: GetGuarnicionUseCase,
     private val getComponenteUseCase: GetComponenteUseCase,
+    private val getOfertasUseCase: GetOfertasUseCase,
     private val carritoRepository: CarritoRepository,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -107,12 +109,29 @@ class PlatoDetalleViewModel @Inject constructor(
                     calcularTotal()
                 }
             }
+            launch {
+                getOfertasUseCase().catch { error ->
+                    _uiState.update { it.copy(error = error.localizedMessage ?: "Error al cargar la oferta") }
+                }.collect { ofertas ->
+                    val oferta = ofertas.filter { it.activa && it.idPlato == idPlato }.maxByOrNull { it.descuento }
+                    _uiState.update { it.copy(ofertaActiva = oferta) }
+                    calcularTotal()
+                }
+            }
         }
+    }
+
+    private fun precioBaseConOferta(state: PlatoDetalleUiState): Double {
+        val precioBase = state.plato?.precio ?: 0.0
+        val descuento = state.ofertaActiva?.descuento?.coerceIn(0.0, 100.0) ?: 0.0
+        return precioBase * (1.0 - descuento / 100.0)
     }
 
     private fun calcularTotal() {
         val state = _uiState.value
-        val unitario = (state.plato?.precio ?: 0.0) + (state.guarnicionSeleccionada?.precioGuarnicion ?: 0.0) + (state.salsaSeleccionada?.precioComponente ?: 0.0)
+        val unitario = precioBaseConOferta(state) + 
+                (state.guarnicionSeleccionada?.precioGuarnicion ?: 0.0) + 
+                (state.salsaSeleccionada?.precioComponente ?: 0.0)
         _uiState.update { it.copy(precioTotal = unitario * it.cantidad) }
     }
 
@@ -120,7 +139,9 @@ class PlatoDetalleViewModel @Inject constructor(
         val state = _uiState.value
         val plato = state.plato ?: return
         viewModelScope.launch {
-            val unitario = plato.precio + (state.guarnicionSeleccionada?.precioGuarnicion ?: 0.0) + (state.salsaSeleccionada?.precioComponente ?: 0.0)
+            val unitario = precioBaseConOferta(state) + 
+                    (state.guarnicionSeleccionada?.precioGuarnicion ?: 0.0) + 
+                    (state.salsaSeleccionada?.precioComponente ?: 0.0)
             val item = CarritoItem(System.nanoTime(), plato, state.terminoSeleccionado, state.guarnicionSeleccionada, state.salsaSeleccionada, state.cantidad, unitario)
             carritoRepository.agregar(item)
             _uiState.update { it.copy(agregadoExitosamente = true) }
@@ -132,4 +153,3 @@ class PlatoDetalleViewModel @Inject constructor(
         super.onCleared()
     }
 }
-

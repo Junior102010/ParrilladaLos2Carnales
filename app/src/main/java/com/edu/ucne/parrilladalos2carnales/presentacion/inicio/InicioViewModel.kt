@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import com.edu.ucne.parrilladalos2carnales.domain.useCase.plato.GetPlatosUseCase
+import com.edu.ucne.parrilladalos2carnales.domain.useCase.oferta.GetOfertasUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class InicioViewModel @Inject constructor(
     private val getPlatosUseCase: GetPlatosUseCase,
+    private val getOfertasUseCase: GetOfertasUseCase,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -25,11 +27,15 @@ class InicioViewModel @Inject constructor(
     init {
         refrescarUsuario()
         loadPlatos()
+        loadOfertas()
     }
 
     fun onEvent(event: InicioUiEvent) {
         when (event) {
-            InicioUiEvent.OnRefresh -> loadPlatos()
+            InicioUiEvent.OnRefresh -> {
+                loadPlatos()
+                loadOfertas()
+            }
         }
     }
 
@@ -48,6 +54,28 @@ class InicioViewModel @Inject constructor(
                             platos = lista.filter { plato ->
                                 plato.disponible
                             }
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadOfertas() {
+        viewModelScope.launch {
+            getOfertasUseCase()
+                .catch { error ->
+                    _uiState.update {
+                        it.copy(
+                            errorMessage = error.localizedMessage
+                        )
+                    }
+                }
+                .collect { lista ->
+                    _uiState.update {
+                        it.copy(
+                            ofertas = lista
+                                .filter { oferta -> oferta.activa }
+                                .sortedByDescending { oferta -> oferta.idOferta }
                         )
                     }
                 }

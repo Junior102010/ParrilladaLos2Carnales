@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.edu.ucne.parrilladalos2carnales.domain.model.plato.Plato
@@ -25,6 +26,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminAvail
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminInventoryTabs
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminSearchField
 import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.AdminTopBar
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta.AdminOfertaScreen
+import com.edu.ucne.parrilladalos2carnales.presentacion.administrador.oferta.AdminOfertaViewModel
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.io.File
@@ -35,9 +38,20 @@ fun AdminPlatoListScreen(
     viewModel: AdminPlatoListViewModel,
     onNavigateToCreate: () -> Unit,
     onNavigateToEdit: (Int) -> Unit,
-    onNavigate: (Screen) -> Unit = {}
+    onNavigate: (Screen) -> Unit = {},
+    ofertaViewModel: AdminOfertaViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var mostrarOfertas by remember { mutableStateOf(false) }
+
+    if (mostrarOfertas) {
+        AdminOfertaScreen(
+            viewModel = ofertaViewModel,
+            onBack = { mostrarOfertas = false },
+            onNavigate = onNavigate
+        )
+        return
+    }
 
     Scaffold(
         topBar = {
@@ -69,35 +83,39 @@ fun AdminPlatoListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Spacer(
-                modifier = Modifier.height(14.dp)
-            )
+            Spacer(modifier = Modifier.height(14.dp))
 
             AdminSearchField(
                 value = uiState.searchQuery,
                 onValueChange = {
-                    viewModel.onEvent(
-                        AdminPlatoListUiEvent.OnSearchQueryChanged(it)
-                    )
+                    viewModel.onEvent(AdminPlatoListUiEvent.OnSearchQueryChanged(it))
                 },
                 placeholder = "Buscar plato...",
-                modifier = Modifier.padding(
-                    horizontal = 16.dp
-                )
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
+            Spacer(modifier = Modifier.height(12.dp))
 
             AdminInventoryTabs(
                 currentScreen = Screen.AdminPlatoList,
                 onNavigate = onNavigate
             )
 
-            Spacer(
-                modifier = Modifier.height(10.dp)
-            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            FilledTonalButton(
+                onClick = { mostrarOfertas = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Icon(imageVector = Icons.Default.LocalOffer, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Gestionar ofertas", fontWeight = FontWeight.SemiBold)
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             if (uiState.isLoading) {
                 Box(
