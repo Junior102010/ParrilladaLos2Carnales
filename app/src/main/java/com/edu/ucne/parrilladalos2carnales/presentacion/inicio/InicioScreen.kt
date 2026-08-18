@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.oferta.Oferta
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
 @Composable
 fun InicioScreen(
@@ -52,7 +53,7 @@ fun InicioScreen(
 @Composable
 fun InicioContent(
     uiState: InicioUiState,
-    cantidadNotificaciones: Int,
+    cantidadNotificaciones: Int = 0,
     onNavigate: (Screen) -> Unit
 ) {
     val ofertas = remember(uiState.ofertas) {
@@ -101,10 +102,12 @@ fun InicioContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            InicioTopBar(
+            AppTopBar(
+                title = "Inicio",
+                showLogo = true,
                 cantidadNotificaciones = cantidadNotificaciones,
                 onNotificacionesClick = {
-                    onNavigate(Screen.Notificaciones)
+                    onNavigate(Screen.Notificaciones(esAdministrador = false))
                 }
             )
         },

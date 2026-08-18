@@ -16,9 +16,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-
 import androidx.compose.ui.tooling.preview.Preview
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.Pedido
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
 @Composable
 fun ConfirmacionPedidoScreen(
@@ -55,25 +55,11 @@ fun ConfirmacionPedidoContent(
 
     Scaffold(
         topBar = {
-            Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.statusBars)
-                        .height(56.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Pedido Confirmado",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            }
+            AppTopBar(title = "Pedido Confirmado")
         }
     ) { innerPadding ->
         if (uiState.isLoading) {
-            Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxSize().padding(innerPadding), Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else {
@@ -188,4 +174,3 @@ fun ConfirmacionPedidoPreview() {
         onVerEstado = {}
     )
 }
-

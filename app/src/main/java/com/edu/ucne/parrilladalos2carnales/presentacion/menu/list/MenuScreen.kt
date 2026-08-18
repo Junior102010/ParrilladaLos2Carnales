@@ -20,14 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.usuario.Rol
-import com.edu.ucne.parrilladalos2carnales.presentacion.menu.list.funciones.MenuTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.menu.list.funciones.PlatoMenuCard
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.ParrilladaBottomBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListUiEvent
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListViewModel
-
 import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 import com.edu.ucne.parrilladalos2carnales.presentacion.plato.list.PlatoListUiState
 
 @Composable
@@ -59,7 +58,7 @@ fun MenuContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            MenuTopBar(title = titulo)
+            AppTopBar(title = titulo)
         },
         bottomBar = {
             ParrilladaBottomBar(

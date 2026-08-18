@@ -154,6 +154,20 @@ class EditarPerfilViewModel @Inject constructor(
             return
         }
 
+        if (nombre.length > 60) {
+            _uiState.update {
+                it.copy(error = "El nombre no puede superar los 60 caracteres")
+            }
+            return
+        }
+
+        if (nombre.none { it.isLetter() }) {
+            _uiState.update {
+                it.copy(error = "Introduce un nombre válido")
+            }
+            return
+        }
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             val result = authRepository.actualizarPerfil(

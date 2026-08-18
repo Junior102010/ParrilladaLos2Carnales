@@ -3,6 +3,8 @@ package com.edu.ucne.parrilladalos2carnales.presentacion.notificacion
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.data.repository.notificacion.NotificacionRepository
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.DestinoNotificacion
+import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -11,56 +13,48 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificacionViewModel @Inject constructor(
-
-    private val repository:
-        NotificacionRepository
-
+    private val repository: NotificacionRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    val uiState =
-        repository
-            .notificaciones
-            .map {
+    private val usuarioUid = authRepository.getUsuarioUid()
+    private val esAdministrador = authRepository.esAdministrador()
 
-                NotificacionUiState(
-                    notificaciones = it
-                )
+    val uiState = repository.notificaciones
+        .map { notificaciones ->
+            val filtradas = notificaciones.filter { noti ->
+                if (esAdministrador) {
+                    noti.destino == DestinoNotificacion.ADMINISTRADOR
+                } else {
+                    noti.destino == DestinoNotificacion.CLIENTE && noti.usuarioUid == usuarioUid
+                }
             }
-            .stateIn(
-                scope = viewModelScope,
+            NotificacionUiState(notificaciones = filtradas)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = NotificacionUiState()
+        )
 
-                started =
-                    SharingStarted.WhileSubscribed(
-                        5_000
-                    ),
+    init {
+        repository.mostrarPendientesSesion(
+            usuarioUid = usuarioUid,
+            esAdministrador = esAdministrador
+        )
+    }
 
-                initialValue =
-                    NotificacionUiState()
-            )
-
-    fun marcarLeida(
-        id: Long
-    ) {
-
-        repository
-            .marcarComoLeida(
-                id
-            )
+    fun marcarLeida(id: Long) {
+        repository.marcarComoLeida(id)
     }
 
     fun marcarTodasLeidas() {
-
-        repository
-            .marcarTodasComoLeidas()
+        repository.marcarTodasComoLeidas(
+            uiState.value.notificaciones.map { it.id }
+        )
     }
 
-    fun eliminar(
-        id: Long
-    ) {
-
-        repository
-            .eliminar(
-                id
-            )
+    fun eliminar(id: Long) {
+        repository.eliminar(id)
     }
 }

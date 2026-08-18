@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material3.*
@@ -16,25 +15,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.Notificacion
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificacionesScreen(
     viewModel: NotificacionViewModel,
     onBack: () -> Unit,
-    onNotificacionClick: (Long) -> Unit
+    onNotificacionClick: (Notificacion) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Notificaciones", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver")
-                    }
-                },
+            AppTopBar(
+                title = "Notificaciones",
+                onBack = onBack,
                 actions = {
                     if (uiState.notificaciones.any { !it.leida }) {
                         IconButton(onClick = { viewModel.marcarTodasLeidas() }) {
@@ -70,74 +66,32 @@ fun NotificacionesScreen(
                     Text(
                         text = "Sin notificaciones",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight =
-                            FontWeight.Bold
+                        fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(
-                        Modifier.height(
-                            6.dp
-                        )
-                    )
+                    Spacer(Modifier.height(6.dp))
 
                     Text(
-                        text =
-                            "Cuando tengas novedades aparecerán aquí.",
-
-                        style =
-                            MaterialTheme
-                                .typography
-                                .bodyMedium,
-
-                        color =
-                            MaterialTheme
-                                .colorScheme
-                                .onSurfaceVariant,
-
-                        textAlign =
-                            TextAlign.Center
+                        text = "Cuando tengas novedades aparecerán aquí.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
                     )
                 }
-
             } else {
-
                 LazyColumn(
-                    contentPadding =
-                        PaddingValues(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 24.dp
-                        ),
-
-                    verticalArrangement =
-                        Arrangement.spacedBy(
-                            12.dp
-                        )
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp, top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-
                     items(
-                        items =
-                            uiState.notificaciones,
-
-                        key = {
-                            it.id
-                        }
+                        items = uiState.notificaciones,
+                        key = { it.id }
                     ) { notificacion ->
-
                         NotificacionCard(
-                            notificacion =
-                                notificacion,
-
+                            notificacion = notificacion,
                             onClick = {
-
-                                viewModel
-                                    .marcarLeida(
-                                        notificacion.id
-                                    )
-
-                                onNotificacionClick(
-                                    notificacion.id
-                                )
+                                viewModel.marcarLeida(notificacion.id)
+                                onNotificacionClick(notificacion)
                             }
                         )
                     }

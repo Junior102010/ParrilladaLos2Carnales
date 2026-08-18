@@ -4,12 +4,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocalShipping
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
@@ -22,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.edu.ucne.parrilladalos2carnales.domain.model.pedido.EstadoPedido
@@ -31,8 +27,8 @@ import com.edu.ucne.parrilladalos2carnales.presentacion.navigation.Screen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 import androidx.compose.ui.tooling.preview.Preview
+import com.edu.ucne.parrilladalos2carnales.presentacion.componentes.AppTopBar
 
 @Composable
 fun HistorialScreen(
@@ -73,7 +69,12 @@ fun HistorialContent(
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        topBar = { HistorialTopBar(onBack = onBack, onPerfilClick = { onNavigate(Screen.Perfil) }) }
+        topBar = {
+            AppTopBar(
+                title = "Mi Historial",
+                onBack = onBack
+            )
+        }
     ) { innerPadding ->
         when {
             uiState.isLoading -> {
@@ -133,21 +134,6 @@ fun HistorialPreview() {
         onRepetir = {},
         onNavigate = {}
     )
-}
-
-@Composable
-private fun HistorialTopBar(onBack: () -> Unit, onPerfilClick: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surface, shadowElevation = 4.dp, modifier = Modifier.fillMaxWidth()) {
-        Box(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).height(56.dp)) {
-            IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart)) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = MaterialTheme.colorScheme.onSurface)
-            }
-            Text("Mi Historial", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.align(Alignment.Center))
-            IconButton(onClick = onPerfilClick, modifier = Modifier.align(Alignment.CenterEnd)) {
-                Icon(Icons.Default.Person, "Perfil", tint = MaterialTheme.colorScheme.onSurface)
-            }
-        }
-    }
 }
 
 @Composable
