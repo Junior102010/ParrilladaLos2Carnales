@@ -60,10 +60,6 @@ fun InicioTopBar(
                 Canvas(
                     modifier = Modifier.matchParentSize()
                 ) {
-                    /*
-                     * El resplandor aumenta y desaparece
-                     * antes de terminar la intro.
-                     */
                     val glowProgress = sin(
                         introProgress *
                                 HALF_ROTATION_RADIANS

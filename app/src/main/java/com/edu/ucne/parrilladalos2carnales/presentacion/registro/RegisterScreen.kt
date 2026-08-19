@@ -130,7 +130,6 @@ fun RegisterContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Progress Indicators
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

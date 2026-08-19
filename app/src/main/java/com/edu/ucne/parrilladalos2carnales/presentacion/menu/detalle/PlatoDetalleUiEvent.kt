@@ -5,7 +5,6 @@ import com.edu.ucne.parrilladalos2carnales.domain.model.ingrediente.Guarnicion
 
 sealed interface PlatoDetalleUiEvent {
 
-    // Incluidos
     data class OnGuarnicionSelect(
         val guarnicion: Guarnicion
     ) : PlatoDetalleUiEvent
@@ -18,7 +17,6 @@ sealed interface PlatoDetalleUiEvent {
         val termino: Componente
     ) : PlatoDetalleUiEvent
 
-    // Extras
     data class OnGuarnicionExtraToggle(
         val guarnicion: Guarnicion
     ) : PlatoDetalleUiEvent

@@ -81,7 +81,6 @@ fun EditarPerfilScreen(
         ) {
             Spacer(Modifier.height(10.dp))
 
-            // Foto de perfil
             Box(
                 contentAlignment = Alignment.BottomEnd
             ) {

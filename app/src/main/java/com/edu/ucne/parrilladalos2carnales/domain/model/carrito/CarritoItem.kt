@@ -8,12 +8,10 @@ data class CarritoItem(
     val idCarritoItem: Long,
     val plato: Plato,
 
-    // Selecciones incluidas
     val termino: Componente?,
     val guarnicion: Guarnicion?,
     val salsa: Componente?,
 
-    // Extras que sí se cobran
     val guarnicionesExtra: List<Guarnicion> = emptyList(),
     val salsasExtra: List<Componente> = emptyList(),
 

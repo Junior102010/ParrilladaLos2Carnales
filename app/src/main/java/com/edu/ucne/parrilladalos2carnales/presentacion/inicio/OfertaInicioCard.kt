@@ -40,7 +40,6 @@ fun OfertaInicioCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // IMAGEN DE FONDO
             AsyncImage(
                 model = imageModel,
                 contentDescription = oferta.tituloOferta,
@@ -48,7 +47,6 @@ fun OfertaInicioCard(
                 contentScale = ContentScale.Crop
             )
 
-            // OVERLAY OSCURO PARA LEGIBILIDAD
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -63,7 +61,6 @@ fun OfertaInicioCard(
                     )
             )
 
-            // CONTENIDO
             Column(
                 modifier = Modifier
                     .fillMaxHeight()

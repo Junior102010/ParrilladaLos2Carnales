@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) {
-            // No necesitamos hacer nada aquí.
         }
 
 
