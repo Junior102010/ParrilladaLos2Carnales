@@ -4,6 +4,10 @@ Aplicación móvil Android desarrollada para gestionar la experiencia de compra 
 
 El proyecto está desarrollado utilizando **Kotlin y Jetpack Compose**, aplicando una arquitectura organizada por capas para separar la interfaz, la lógica de negocio y el acceso a datos.
 
+## 🧐Integrantes
+-Victor Manuel Frias
+-Ramon Junior Ureña
+
 ## 🎞️Video Promocional
 https://youtu.be/ZH6_FPBRCVc?si=STz4pZm4nIuAgGoQ
 
