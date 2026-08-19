@@ -32,12 +32,6 @@ data class Notificacion(
         DestinoNotificacion.CLIENTE,
 
 
-    /*
-     * Para cliente:
-     * aquí guardamos el UID de Firebase.
-     *
-     * Para administrador puede ser null.
-     */
     val usuarioUid: String? = null,
 
 

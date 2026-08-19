@@ -102,10 +102,6 @@ class AdminPedidosViewModel @Inject constructor(
                 EstadoPedido.CANCELADO -> "Tu pedido #$idPedido fue cancelado."
             }
 
-            /*
-             * Aquí usamos el UID DEL CLIENTE
-             * que realizó este pedido.
-             */
             notificacionRepository.agregar(
                 Notificacion(
                     titulo = "Actualización del pedido",

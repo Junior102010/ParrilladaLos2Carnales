@@ -104,10 +104,6 @@ class EditarPerfilViewModel @Inject constructor(
                             input.copyTo(output)
                         }
 
-                        /*
-                         * Eliminamos fotos anteriores
-                         * solamente de este usuario.
-                         */
                         context.filesDir
                             .listFiles()
                             ?.filter { archivo ->

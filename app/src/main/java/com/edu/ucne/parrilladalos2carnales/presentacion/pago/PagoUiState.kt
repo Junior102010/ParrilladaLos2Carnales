@@ -30,12 +30,10 @@ data class PagoUiState(
         MetodoPago.EFECTIVO,
 
 
-    // EFECTIVO
     val montoRecibido:
         String = "",
 
 
-    // TRANSFERENCIA
     val titularTransferencia:
         String = "",
 

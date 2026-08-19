@@ -165,7 +165,6 @@ private fun DashboardContent(
                 }
             }
 
-            // Ventas Destacadas
             item {
                 VentasHoyCard(
                     ventas = uiState.ventasHoy,
@@ -173,7 +172,6 @@ private fun DashboardContent(
                 )
             }
 
-            // Resumen de Hoy
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
@@ -201,7 +199,6 @@ private fun DashboardContent(
                 }
             }
 
-            // Estado de Pedidos
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
@@ -221,7 +218,6 @@ private fun DashboardContent(
                 }
             }
 
-            // Más pedidos (Ranking)
             item {
                 SectionHeader(
                     title = "Más pedidos",
@@ -409,7 +405,6 @@ private fun EstadoPedidosCard(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
 
-            // Estados
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

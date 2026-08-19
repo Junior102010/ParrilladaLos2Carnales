@@ -177,7 +177,6 @@ class PlatoDetalleViewModel @Inject constructor(
     ) {
         val state = _uiState.value
 
-        // La incluida no puede agregarse otra vez como extra
         if (
             state.guarnicionSeleccionada?.idGuarnicion ==
             guarnicion.idGuarnicion
@@ -266,8 +265,6 @@ class PlatoDetalleViewModel @Inject constructor(
                     it.precioComponente
                 }
 
-        // IMPORTANTE:
-        // la primera guarnición y primera salsa NO se suman.
         val precioUnitario =
             precioBaseConOferta(state) +
             precioExtras
@@ -326,12 +323,10 @@ class PlatoDetalleViewModel @Inject constructor(
                     plato = plato,
                     termino =
                         state.terminoSeleccionado,
-                    // Incluidas
                     guarnicion =
                         state.guarnicionSeleccionada,
                     salsa =
                         state.salsaSeleccionada,
-                    // Extras cobrados
                     guarnicionesExtra =
                         state.guarnicionesExtraSeleccionadas,
                     salsasExtra =

@@ -15,12 +15,10 @@ data class PlatoDetalleUiState(
     val salsasDisponibles: List<Componente> = emptyList(),
     val terminosCoccionDisponibles: List<Componente> = emptyList(),
 
-    // Incluidos con el plato
     val guarnicionSeleccionada: Guarnicion? = null,
     val salsaSeleccionada: Componente? = null,
     val terminoSeleccionado: Componente? = null,
 
-    // Se cobran
     val guarnicionesExtraSeleccionadas: List<Guarnicion> = emptyList(),
     val salsasExtraSeleccionadas: List<Componente> = emptyList(),
 

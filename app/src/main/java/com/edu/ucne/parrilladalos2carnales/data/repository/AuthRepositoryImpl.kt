@@ -205,10 +205,6 @@ class AuthRepositoryImpl @Inject constructor(
             return fotoLocal.absolutePath
         }
 
-        /*
-         * Si no tiene foto personalizada,
-         * usamos la foto de Google.
-         */
         return usuario
             .photoUrl
             ?.toString()

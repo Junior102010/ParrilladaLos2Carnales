@@ -62,7 +62,6 @@ fun AdminOfertaEntryScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // FOTO DE LA OFERTA
             Card(
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -123,7 +122,6 @@ fun AdminOfertaEntryScreen(
                 }
             }
 
-            // CAMPOS
             AdminOfertaTextField(
                 label = "Título de la oferta",
                 value = uiState.tituloOferta,
