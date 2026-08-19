@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.edu.ucne.parrilladalos2carnales.domain.repository.carrito.CarritoRepository
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
+import com.edu.ucne.parrilladalos2carnales.data.repository.notificacion.NotificacionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PerfilViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val carritoRepository: CarritoRepository
+    private val carritoRepository: CarritoRepository,
+    private val notificacionRepository: NotificacionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PerfilUiState())
@@ -78,6 +80,7 @@ class PerfilViewModel @Inject constructor(
     fun cerrarSesion() {
         viewModelScope.launch {
             carritoRepository.vaciar()
+            notificacionRepository.limpiarNotificacionesSistema()
             authRepository.cerrarSesion()
             _logoutEvent.send(Unit)
         }

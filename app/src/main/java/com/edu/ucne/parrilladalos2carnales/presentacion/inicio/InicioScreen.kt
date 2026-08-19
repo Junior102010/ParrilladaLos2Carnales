@@ -41,6 +41,7 @@ fun InicioScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refrescarUsuario()
+        notificacionViewModel.refrescarSesion()
     }
 
     InicioContent(

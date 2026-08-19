@@ -6,10 +6,13 @@ import com.edu.ucne.parrilladalos2carnales.data.repository.notificacion.Notifica
 import com.edu.ucne.parrilladalos2carnales.domain.model.notificacion.DestinoNotificacion
 import com.edu.ucne.parrilladalos2carnales.domain.repository.login.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+
+data class SesionNotificacion(
+    val usuarioUid: String? = null,
+    val esAdministrador: Boolean = false
+)
 
 @HiltViewModel
 class NotificacionViewModel @Inject constructor(
@@ -17,31 +20,41 @@ class NotificacionViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    private val usuarioUid = authRepository.getUsuarioUid()
-    private val esAdministrador = authRepository.esAdministrador()
+    private val sesion = MutableStateFlow(obtenerSesionActual())
 
-    val uiState = repository.notificaciones
-        .map { notificaciones ->
-            val filtradas = notificaciones.filter { noti ->
-                if (esAdministrador) {
-                    noti.destino == DestinoNotificacion.ADMINISTRADOR
-                } else {
-                    noti.destino == DestinoNotificacion.CLIENTE && noti.usuarioUid == usuarioUid
-                }
+    val uiState = combine(
+        repository.notificaciones,
+        sesion
+    ) { notificaciones, s ->
+        val filtradas = notificaciones.filter { noti ->
+            if (s.esAdministrador) {
+                noti.destino == DestinoNotificacion.ADMINISTRADOR
+            } else {
+                noti.destino == DestinoNotificacion.CLIENTE && noti.usuarioUid == s.usuarioUid
             }
-            NotificacionUiState(notificaciones = filtradas)
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = NotificacionUiState()
-        )
+        NotificacionUiState(notificaciones = filtradas)
+    }
+    .stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = NotificacionUiState()
+    )
 
     init {
-        repository.mostrarPendientesSesion(
-            usuarioUid = usuarioUid,
-            esAdministrador = esAdministrador
+        refrescarSesion()
+    }
+
+    private fun obtenerSesionActual(): SesionNotificacion {
+        return SesionNotificacion(
+            usuarioUid = authRepository.getUsuarioUid(),
+            esAdministrador = authRepository.esAdministrador()
         )
+    }
+
+    fun refrescarSesion() {
+        sesion.value = obtenerSesionActual()
+        repository.mostrarPendientesSesion()
     }
 
     fun marcarLeida(id: Long) {
